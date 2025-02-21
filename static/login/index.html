@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login || Fi-Track</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> -->
+    <link rel="stylesheet" href="../src/css/swup.css">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 
 </head>
 
-<body class="w-full h-screen overflow-hidden flex items-center justify-center mx-auto bg-gray-100">
-    <div class="max-w-lg w-full mx-auto rounded-lg shadow-lg p-4 bg-white">
-        <form action="" class="space-y-4">
+<body
+    class="w-full h-screen overflow-hidden flex items-center justify-center mx-auto bg-gray-100 dark:bg-gray-950 dark:text-gray-100">
+    <main class="max-w-lg w-full mx-auto rounded-lg shadow-lg p-4 bg-white dark:bg-gray-700 transition-fade" id="swup">
+        <form action="" class="space-y-4" id="loginForm">
             <div>
                 <a href="/static/" class="w-full flex  gap-4 items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -24,22 +26,22 @@
                 font-bold ">Fi-Track</h1>
                 </a>
             </div>
-            <p class="text-center w-full text-gray-600 font-semibold text-lg">Welcome Back</p>
+            <p class="text-center w-full text-gray-600 dark:text-gray-50/80 font-semibold text-lg">Welcome Back</p>
             <div class="flex flex-col gap-2">
                 <label for="username" class=" font-medium font-gray-500">
                     Username or Email
                 </label>
-                <input name="username" required minlength="3" maxlength="64" type="text"
-                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+                <input name="username" id="username" required minlength="3" maxlength="64" type="text"
+                    class="border-b-2 text-lg border-black/40 focus:outline-none dark:border-gray-50/40">
             </div>
             <div class="flex flex-col gap-2">
                 <label for="username" class=" font-medium font-gray-500">
                     Password
                 </label>
-                <input name="password" required minlength="8" maxlength="64" type="password"
-                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+                <input name="password" id="password" required minlength="8" maxlength="64" type="password"
+                    class="border-b-2 text-lg border-black/40 focus:outline-none   dark:border-gray-50/40">
             </div>
-            <div class="w-full flex gap-4 flex-col items-center justify-center ">
+            <div class="w-full flex gap-4 flex-col items-center justify-center">
                 <button type="submit"
                     class="bg-blue-500 overflow-hidden text-white mx-auto w-full text-center font-bold text-lg capitalize rounded-md shadow-md py-2 hove:bg-blue-600 transition-all duration-300 relative group  hover:-translate-y-1">
                     <span class="relative z-20">
@@ -56,7 +58,7 @@
                     Password
                 </p>
                 <a href="../register/"
-                    class="py-2 overflow-hidden border-2 border-black w-full rounded-md shadow-md text-center font-semibold text-black group relative">
+                    class="py-2 overflow-hidden border-2 border-black w-full rounded-md shadow-md text-center font-semibold  group relative">
                     <span class="relative z-20 ">Don't Have An
                         Account? Register</span>
                     <div
@@ -66,7 +68,12 @@
                 </a>
             </div>
         </form>
-    </div>
+    </main>
+    <script nomodule src="https://unpkg.com/swup@4"></script>
+    <script nomodule>
+        const swup = new Swup();
+    </script>
+
     <script src="index.js"></script>
 </body>
 

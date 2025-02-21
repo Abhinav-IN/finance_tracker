@@ -39,7 +39,7 @@ registerForm.addEventListener("submit", async (e) => {
     return alert("Please ensure the password are the same");
   }
 
-  const response = await fetch("/api/register", {
+  const response = await fetch("/api/auth/register", {
     method: "POST",
     headers: {
       "content-type": "application/json",

@@ -6,12 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register || Fi-Track</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../src/css/swup.css">
 
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 
-<body class="w-full h-screen overflow-hidden flex items-center justify-center mx-auto bg-gray-100">
-    <div class="max-w-lg w-full mx-auto rounded-lg shadow-lg p-4 bg-white">
+<body
+    class="w-full h-screen overflow-hidden flex items-center justify-center mx-auto bg-gray-100 dark:bg-gray-950 dark:text-gray-100">
+    <main
+        class="max-w-lg w-full mx-auto rounded-lg shadow-lg p-4 md:p-8 lg:p-12 bg-white dark:bg-gray-900 dark:border-white/20 dark:border-2  transition-fade"
+        id="swup">
         <form action="" class="space-y-4" id="register_form">
             <div>
                 <a href="/static/" class="w-full flex  gap-4 items-center justify-center">
@@ -30,14 +34,16 @@
                     Username
                 </label>
                 <input name="username" id="username" required minlength="3" maxlength="64" type="text"
-                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+                    placeholder="Enter your username"
+                    class="border-b-2 text-lg border-black/40  dark:border-gray-100/50  focus:outline-none">
             </div>
             <div class="flex flex-col gap-2">
                 <label for="email" class=" font-medium font-gray-500">
                     Email
                 </label>
                 <input name="email" id="email" required minlength="3" maxlength="64" type="email"
-                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+                    placeholder="Enter your email"
+                    class="border-b-2 text-lg border-black/40  dark:border-gray-100/50  focus:outline-none">
             </div>
             <div class="flex flex-col gap-2 relative">
 
@@ -45,14 +51,16 @@
                     Password <sup class="password_match text-red-500 text-sm "></sup>
                 </label>
                 <input name="password" id="password" required minlength="8" maxlength="64" type="password"
-                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+                    placeholder="Create a password, 8 character minimum"
+                    class="border-b-2 text-lg border-black/40  dark:border-gray-100/50  focus:outline-none">
             </div>
             <div class="flex flex-col gap-2">
                 <label for="password_check" class=" font-medium font-gray-500">
                     Confirm Password <sup class="password_match text-red-500 text-sm hidden"></sup>
                 </label>
                 <input name="password_check" id="password_check" required minlength="8" maxlength="64" type="password"
-                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+                    placeholder="Repeat your password"
+                    class=" border-b-2 text-lg border-black/40 dark:border-gray-100/50 focus:outline-none">
             </div>
             <div class="w-full flex gap-4 flex-col items-center justify-center ">
                 <button type="submit"
@@ -65,16 +73,21 @@
                     </div>
                 </button>
                 <a href="../login/"
-                    class="py-2 overflow-hidden border-2 border-black w-full rounded-md shadow-md text-center font-semibold text-black group relative">
+                    class="py-2 overflow-hidden border-2 border-black w-full rounded-md shadow-md text-center font-semibold  group relative dark:border-gray-100 ">
                     <span class="relative z-20 ">Back To Login</span>
                     <div
-                        class="absolute top-0 left-0 z-10 h-full w-0 bg-yellow-500 transform transition-all duration-500 group-hover:w-full ">
+                        class="absolute top-0 left-0 z-10 h-full w-0 bg-amber-500  transform transition-all duration-500 group-hover:w-full ">
 
                     </div>
                 </a>
             </div>
         </form>
-    </div>
+    </main>
+    <script nomodule src="https://unpkg.com/swup@4"></script>
+    <script nomodule>
+        const swup = new Swup();
+    </script>
+
     <script src="index.js"></script>
 
 </body>
