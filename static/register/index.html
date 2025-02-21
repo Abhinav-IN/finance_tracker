@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login || Fi-Track</title>
+    <title>Register || Fi-Track</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 
 </head>
 
 <body class="w-full h-screen overflow-hidden flex items-center justify-center mx-auto bg-gray-100">
     <div class="max-w-lg w-full mx-auto rounded-lg shadow-lg p-4 bg-white">
-        <form action="" class="space-y-4">
+        <form action="" class="space-y-4" id="register_form">
             <div>
                 <a href="/static/" class="w-full flex  gap-4 items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -24,41 +24,49 @@
                 font-bold ">Fi-Track</h1>
                 </a>
             </div>
-            <p class="text-center w-full text-gray-600 font-semibold text-lg">Welcome Back</p>
+            <p class="text-center w-full text-gray-600 font-semibold text-lg">Let's Get You On-Board</p>
             <div class="flex flex-col gap-2">
                 <label for="username" class=" font-medium font-gray-500">
-                    Username or Email
+                    Username
                 </label>
-                <input name="username" required minlength="3" maxlength="64" type="text"
+                <input name="username" id="username" required minlength="3" maxlength="64" type="text"
                     class="border-b-2 text-lg border-black/40 focus:outline-none">
             </div>
             <div class="flex flex-col gap-2">
-                <label for="username" class=" font-medium font-gray-500">
-                    Password
+                <label for="email" class=" font-medium font-gray-500">
+                    Email
                 </label>
-                <input name="password" required minlength="8" maxlength="64" type="password"
+                <input name="email" id="email" required minlength="3" maxlength="64" type="email"
+                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+            </div>
+            <div class="flex flex-col gap-2 relative">
+
+                <label for="username" class=" font-medium font-gray-500">
+                    Password <sup class="password_match text-red-500 text-sm "></sup>
+                </label>
+                <input name="password" id="password" required minlength="8" maxlength="64" type="password"
+                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="password_check" class=" font-medium font-gray-500">
+                    Confirm Password <sup class="password_match text-red-500 text-sm hidden"></sup>
+                </label>
+                <input name="password_check" id="password_check" required minlength="8" maxlength="64" type="password"
                     class="border-b-2 text-lg border-black/40 focus:outline-none">
             </div>
             <div class="w-full flex gap-4 flex-col items-center justify-center ">
                 <button type="submit"
                     class="bg-blue-500 overflow-hidden text-white mx-auto w-full text-center font-bold text-lg capitalize rounded-md shadow-md py-2 hove:bg-blue-600 transition-all duration-300 relative group  hover:-translate-y-1">
                     <span class="relative z-20">
-                        Login
+                        Register
                     </span>
                     <div
                         class="absolute w-0 h-full top-0 left-0 z-10  transform transition-all duration-500 group-hover:w-full bg-gradient-to-r from-violet-500 to-pink-500">
                     </div>
                 </button>
-                <p class="text-right w-full">
-                    Forgot Password? <a href="../reset"
-                        class="text-blue-500 font-semibold underline underline-offset-2">Click
-                        Here</a> To Reset
-                    Password
-                </p>
-                <a href="../register/"
+                <a href="../login/"
                     class="py-2 overflow-hidden border-2 border-black w-full rounded-md shadow-md text-center font-semibold text-black group relative">
-                    <span class="relative z-20 ">Don't Have An
-                        Account? Register</span>
+                    <span class="relative z-20 ">Back To Login</span>
                     <div
                         class="absolute top-0 left-0 z-10 h-full w-0 bg-yellow-500 transform transition-all duration-500 group-hover:w-full ">
 
@@ -68,6 +76,7 @@
         </form>
     </div>
     <script src="index.js"></script>
+
 </body>
 
 </html>

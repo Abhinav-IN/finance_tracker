@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
 
-const baseUrl = "https://vrchive.nomieze.com"; // Replace with your website's base URL
+const baseUrl = "https://finance.nommiiee.com"; // Replace with your website's base URL
 const srcPath = "./";
 const cssFileName = "styles.css";
 
@@ -21,19 +21,12 @@ function buildCSSForFolder(folderPath) {
   });
 }
 
+const ignoredFolders = ["node_modules", "src", ".git", ".VSCodeCounter"];
 function processFolder(folderPath) {
   buildCSSForFolder(folderPath);
 
   fs.readdir(folderPath, (err, items) => {
-    if (
-      folderPath === "node_modules" ||
-      folderPath === "node_modules" ||
-      folderPath === "src" ||
-      folderPath === ".git" ||
-      folderPath === ".VSCodeCounter"
-    ) {
-      return;
-    }
+    if (ignoredFolders.includes(path.basename(folderPath))) return;
     console.log("starting build for: " + folderPath);
     if (err) throw err;
 
