@@ -8,7 +8,7 @@ A simple FastAPI backend to serve APIs for a finance tracking application.
 
 ```
 finance_tracker/
-│── backend/
+│── api/
 │   ├── server.py         # Main FastAPI server
 │   ├── routes/
 │   │   ├── __init__.py   # Required for package imports
