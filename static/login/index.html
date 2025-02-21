@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login || Fi-Track</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+</head>
+
+<body class="w-full h-screen overflow-hidden flex items-center justify-center mx-auto bg-gray-100">
+    <div class="max-w-lg w-full mx-auto rounded-lg shadow-lg p-4 bg-white">
+        <form action="" class="space-y-4">
+            <div class="w-full flex  gap-4 items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="size-8 md:size-10 lg:size-12">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="m21 7.5-2.25-1.313M21 7.5v2.25m0-2.25-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3 2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75 2.25-1.313M12 21.75V19.5m0 2.25-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25" />
+                </svg>
+
+                <h1 class="text-lg  md:text-xl lg:text-2xl
+                font-bold ">Fi-Track</h1>
+            </div>
+            <p class="text-center w-full text-gray-600 font-semibold text-lg">Welcome Back</p>
+            <div class="flex flex-col gap-2">
+                <label for="username" class=" font-medium font-gray-500">
+                    Username
+                </label>
+                <input required minlength="3" maxlength="64" type="text"
+                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="username" class=" font-medium font-gray-500">
+                    Password
+                </label>
+                <input required minlength="8" maxlength="64" type="password"
+                    class="border-b-2 text-lg border-black/40 focus:outline-none">
+            </div>
+            <div class="w-full flex gap-4 flex-col items-center justify-center ">
+                <button type="submit"
+                    class="bg-blue-500 text-white mx-auto w-full text-center font-bold text-lg capitalize rounded-md shadow-md py-1 hove:bg-blue-600 transition-all duration-300 relative group">
+                    <span class="relative z-20">
+                        Login
+                    </span>
+                    <div
+                        class="absolute w-0 h-full top-0 left-0 z-10  transform transition-all duration-500 group-hover:w-full bg-gradient-to-r from-violet-500 to-pink-500">
+                    </div>
+                </button>
+                <p class="text-right w-full">
+                    Forgot Password? <a href="../reset"
+                        class="text-blue-500 font-semibold underline underline-offset-2">Click
+                        Here</a> To Reset
+                    Password
+                </p>
+                <a href=""
+                    class="py-2 overflow-hidden border-2 border-black w-full rounded-md shadow-md text-center font-semibold text-black group relative">
+                    <span class="relative z-20 ">Don't Have An
+                        Account? Register</span>
+                    <div
+                        class="absolute top-0 left-0 z-10 h-full w-0 bg-yellow-500 transform transition-all duration-500 group-hover:w-full ">
+
+                    </div>
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
