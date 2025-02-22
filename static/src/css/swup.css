@@ -2,6 +2,10 @@
 html.is-changing .transition-fade {
   transition: opacity 0.25s;
   opacity: 1;
+  -webkit-transition: opacity 0.25s;
+  -moz-transition: opacity 0.25s;
+  -ms-transition: opacity 0.25s;
+  -o-transition: opacity 0.25s;
 }
 /* Define the styles for the unloaded pages */
 html.is-animating .transition-fade {
