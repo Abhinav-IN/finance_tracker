@@ -1,0 +1,21 @@
+{
+  "name": "finance_tracker",
+  "version": "1.0.0",
+  "description": "A simple FastAPI backend to serve APIs for a finance tracking application.",
+  "main": "index.js",
+  "scripts": {
+    "buildcss": "cd static && node build.js",
+    "server": "uvicorn api.server:app --reload"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nommiiee/finance_tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nommiiee/finance_tracker/issues"
+  },
+  "homepage": "https://github.com/Nommiiee/finance_tracker#readme"
+}
