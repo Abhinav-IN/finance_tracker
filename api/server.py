@@ -2,8 +2,12 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from api.routes.user import user as userRoute  # Import the user routes
 from api.routes.auth import auth  as authRoute # Import the user routes
+from . import models
+from .database import engine, SessionLocal
 
 app = FastAPI()
+
+models.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/api")
