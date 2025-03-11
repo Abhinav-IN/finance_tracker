@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Response
-from ... import schemas, models
+from api import schemas, models, utils
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from api.database import get_db
@@ -9,6 +9,8 @@ router = APIRouter()
 
 @router.post("/createProfile", status_code = status.HTTP_201_CREATED, response_model=schemas.Profile)
 def create_profile(new_profile : schemas.createProfile, db : Session = Depends(get_db)):
+    new_profile.password = utils.hashing_password(new_profile.password)
+
     newProfile = models.User(**new_profile.model_dump())
     db.add(newProfile)
     db.commit()
@@ -27,6 +29,9 @@ def get_profile(id : int, db : Session = Depends(get_db)):
 def update_profile (new_profile : schemas.createProfile, id : int, db : Session = Depends(get_db)):
     profile_query = db.query(models.User).filter(models.User.id == id)
     existing_profile = profile_query.first()
+    
+    new_profile.password = utils.hashing_password(new_profile.password)
+
     if not existing_profile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"Profile with {id} does not exist")
     

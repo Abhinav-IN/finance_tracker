@@ -9,7 +9,6 @@ app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
 
-
 @app.get("/api")
 def home():
     return {"message": "FastAPI is running"}
