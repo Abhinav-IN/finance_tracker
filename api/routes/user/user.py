@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Response
-from api import schemas, models, utils
+from api import schemas, models, utils, Oauth2
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from api.database import get_db
@@ -18,7 +18,7 @@ def create_profile(new_profile : schemas.createProfile, db : Session = Depends(g
     return newProfile
 
 @router.get("/profile/{id}", response_model=schemas.Profile)
-def get_profile(id : int, db : Session = Depends(get_db)):
+def get_profile(id : int, db : Session = Depends(get_db), current_user : int = Depends(Oauth2.get_current_user)):
     reqProfile = db.query(models.User).filter(models.User.id == id).first()
     if not reqProfile:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"Profile with id {id} does not exist")
@@ -26,7 +26,7 @@ def get_profile(id : int, db : Session = Depends(get_db)):
     return reqProfile
 
 @router.put("/updateProfile/{id}", response_model=schemas.Profile)
-def update_profile (new_profile : schemas.createProfile, id : int, db : Session = Depends(get_db)):
+def update_profile (new_profile : schemas.createProfile, id : int, db : Session = Depends(get_db), current_user : int = Depends(Oauth2.get_current_user)):
     profile_query = db.query(models.User).filter(models.User.id == id)
     existing_profile = profile_query.first()
     
@@ -40,7 +40,7 @@ def update_profile (new_profile : schemas.createProfile, id : int, db : Session 
     return profile_query.first()
 
 @router.delete("/deleteProfile/{id}")
-def delete_profile(id : int, db : Session = Depends(get_db)):
+def delete_profile(id : int, db : Session = Depends(get_db), current_user : int = Depends(Oauth2.get_current_user)):
     profile_query = db.query(models.User).filter(models.User.id == id)
     existing_profile = profile_query.first()
     if not existing_profile:
