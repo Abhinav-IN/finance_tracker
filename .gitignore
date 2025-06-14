@@ -311,3 +311,5 @@ dist
 .pnp.*
 
 ./static/node_modules
+
+.env
