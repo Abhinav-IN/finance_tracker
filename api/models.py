@@ -1,4 +1,4 @@
-from .database import Base
+from api.database import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, UniqueConstraint, CheckConstraint
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
@@ -8,9 +8,9 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
-    username = Column(String(255), nullable=False)
+    username = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
-    email = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False, unique=True)
     timestamp = Column(TIMESTAMP(timezone=True), server_default=text('now()'), nullable=False)
 
     category = relationship('Category', back_populates='user')
@@ -21,17 +21,17 @@ class Category(Base):
     __tablename__ = "categories"
 
     category_id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
-    category_name = Column(String, nullable=False)
+    category_name = Column(String(255), nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'))
 
     user = relationship('User', back_populates='category')
-    budget = relationship('Budget', back_populates='category')
-    transaction = relationship('Transaction', back_populates='category')
+    budgets = relationship('Budget', back_populates='category')
+    transactions = relationship('Transaction', back_populates='category')
 
 class Budget(Base):
     __tablename__ = "budget"
 
-    budget_id = Column(Integer, primary_key=True, nullable=True, autoincrement=True)
+    budget_id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
@@ -69,7 +69,7 @@ class Transaction(Base):
     )
 
     user = relationship('User', back_populates='transaction')
-    category = relationship('Category', back_populates='transaction')
+    category = relationship('Category', back_populates='transactions')
     transaction_type = relationship('TransactionType', back_populates='transaction')
 
 
