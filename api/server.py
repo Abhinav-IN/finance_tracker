@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from . import models, auth
+from . import models
 from .database import engine
-
+from api.routers import auth, category
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
+app.include_router(category.router)
+
 
 @app.get("/api")
 def home():
