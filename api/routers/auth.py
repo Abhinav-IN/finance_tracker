@@ -5,7 +5,7 @@ from api.config import settings
 
 router = APIRouter(tags=['Authentication'], prefix='/user')
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.userRegisterResponse)
+@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.userRegisterResponse)
 def create_user(user:schemas.userRegister, db : Session = Depends(database.get_db)):
     hashed_password = utils.hashing_password(user.password)
     user.password = hashed_password

@@ -71,5 +71,3 @@ class Transaction(Base):
     user = relationship('User', back_populates='transaction')
     category = relationship('Category', back_populates='transactions')
     transaction_type = relationship('TransactionType', back_populates='transaction')
-
-
