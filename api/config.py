@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     secret_key: str = Field(..., alias="SECRET_KEY")
     algorithm: str = Field(..., alias="ALGORITHM")
     access_token_expire_in_minutes: int = Field(..., alias="ACCESS_TOKEN_EXPIRE_IN_MINUTES")
-    refresh_token_expire_in_minutes: int = Field(..., alias="REFRESH_TOKEN_EXPIRE_IN_MINUTES")
     redis_hostname: str = Field(..., alias="REDIS_HOSTNAME")
     redis_port: int = Field(..., alias="REDIS_PORT")
     redis_db: int = Field(..., alias="REDIS_DB")

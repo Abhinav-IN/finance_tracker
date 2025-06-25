@@ -2,13 +2,14 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from . import models
 from .database import engine
-from api.routers import auth, category
+from api.routers import auth, category, transaction
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
 app.include_router(category.router)
+app.include_router(transaction.router)
 
 
 @app.get("/api")
