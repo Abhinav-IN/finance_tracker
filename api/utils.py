@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-from api import models
+from . import models
 import smtplib
 from email.message import EmailMessage
 from api.config import settings

@@ -1,6 +1,6 @@
 from jose import JWTError, jwt, ExpiredSignatureError
 from datetime import datetime, timedelta
-from api.config import settings
+from .config import settings
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 

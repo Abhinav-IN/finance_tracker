@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 from typing import Optional
-from api.validator import validate_password_strength
+from .validator import validate_password_strength
 from datetime import datetime, date
 from enum import Enum
 
