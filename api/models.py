@@ -1,17 +1,40 @@
 from api.database import Base
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, UniqueConstraint, CheckConstraint
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, UniqueConstraint, CheckConstraint, Boolean, JSON
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import relationship
+import enum
+from sqlalchemy import Enum as sa_enum
+
+class UserRole(str, enum.Enum):
+    user = "user"
+    admin = "admin"
+    moderator = "moderator"
+    support = "support"
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)  
     username = Column(String(255), nullable=False, unique=True)
-    password = Column(String(255), nullable=False)
+    first_name = Column(String(255), nullable=True)
+    last_name = Column(String(255), nullable=True)
     email = Column(String(255), nullable=False, unique=True)
-    timestamp = Column(TIMESTAMP(timezone=True), server_default=text('now()'), nullable=False)
+    dob = Column(Date, nullable=True)
+    gender = Column(String(20), nullable=True)  
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_suspended = Column(Boolean, default=False)
+    last_password_change_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    last_five_passwords = Column(JSON, nullable=True)  
+    password_reset_token_expires_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    account_verification_token_expires_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    login_attempts = Column(Integer, default=0)
+    last_login_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text('now()'), nullable=False)
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=text('now()'), onupdate=text('now()'))
+    role = Column(sa_enum(UserRole, name="userrole"), nullable=False, default=UserRole.user)
+
 
     category = relationship('Category', back_populates='user')
     budgets = relationship('Budget', back_populates='user')

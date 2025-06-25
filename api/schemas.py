@@ -1,10 +1,22 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
-import re
-from api.utils import validate_password_strength
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from typing import Optional
+from api.validator import validate_password_strength
+from datetime import datetime, date
+from enum import Enum
+
+class UserRole(str, Enum):
+    user = "user"
+    admin = "admin"
+    moderator = "moderator"
+    support = "support"
 
 class userRegister(BaseModel):
     username : str
+    first_name : str
+    last_name : str
     email : EmailStr
+    dob : date
+    gender : str
     password : str = Field(..., min_length=8)
 
     @field_validator("password")
@@ -25,11 +37,10 @@ class userLogin(BaseModel):
 
 class userLoginResponse(BaseModel):
     access_token : str
-    refresh_token : str
     type : str = Field(default="bearer")
 
 class refreshRequest(BaseModel):
-    refresh_token : str
+    access_token : str
 
 class refreshResponse(userLoginResponse):
     pass
@@ -45,6 +56,16 @@ class PasswordResetConfirm(BaseModel):
     @classmethod
     def password_strength(cls, value):
         return validate_password_strength(value)
+    
+class UserRoleUpdate(BaseModel):
+    role: UserRole
+    user_id : int
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
+    is_suspended: bool
+
+
 
 # Schemas related to category
 class categoryCreate(BaseModel):
@@ -53,3 +74,22 @@ class categoryCreate(BaseModel):
 class categoryResponse(BaseModel):
     category_id : int
     category_name : str
+
+#Schemas related to transaction
+class TransactionRequest(BaseModel):
+    amount : int 
+    description : str
+    category_name : str
+    transaction_type_name : str
+
+class TransactionResponse(BaseModel):
+    amount : int
+    description : str
+    timestamp : datetime
+    transaction_type_id : int
+    transaction_type_name : str
+    category_id : int
+    category_name : str
+
+    class Config:
+        from_attributes = True
