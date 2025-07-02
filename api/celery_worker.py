@@ -14,3 +14,11 @@ def send_password_reset_email(to_email : str, reset_link : str):
         to=to_email,
         body=f"Click here to reset your password: {reset_link}"
     )
+
+@celery_app.task
+def send_verification_email(to_email: str, verification_link: str):
+    send_email(
+        subject="Verify your account",
+        to=to_email,
+        body=f"Click here to verify your account: {verification_link}"
+    )

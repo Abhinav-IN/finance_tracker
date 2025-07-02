@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 from typing import Optional
-from .validator import validate_password_strength
+from .validator import validate_password_strength, gender_check
 import datetime
 from enum import Enum
 
@@ -13,7 +13,7 @@ class UserRole(str, Enum):
 class userRegister(BaseModel):
     username : str
     first_name : str
-    last_name : str
+    last_name : Optional[str] = None
     email : EmailStr
     dob : datetime.date
     gender : str
@@ -23,6 +23,14 @@ class userRegister(BaseModel):
     @classmethod
     def password_strength(cls, value):
         return validate_password_strength(value)
+    
+    @field_validator("gender")
+    @classmethod
+    def gender_validator(cls, value):
+        return gender_check(value)
+
+class VerificationRequest(BaseModel):
+    token: str
 
 class userRegisterResponse(BaseModel):
     username: str

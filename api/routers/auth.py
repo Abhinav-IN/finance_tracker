@@ -7,24 +7,52 @@ from datetime import datetime
 router = APIRouter(tags=['Authentication'], prefix='/api/v1/auth')
 
 @router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.userRegisterResponse)
-def create_user(user:schemas.userRegister, db : Session = Depends(database.get_db)):
+def create_user(user: schemas.userRegister, db: Session = Depends(database.get_db)):
     hashed_password = utils.hashing_password(user.password)
 
     new_user = models.User(
-    **user.model_dump(exclude={"password"}),
-    hashed_password=hashed_password,    
-    role=models.UserRole.user,
-    last_password_change_at=datetime.now(),
-    last_five_passwords=[hashed_password],
-    is_active=True,
-    is_suspended=False
+        **user.model_dump(exclude={"password"}),
+        hashed_password=hashed_password,
+        role=models.UserRole.user,
+        last_password_change_at=datetime.now(),
+        last_five_passwords=[hashed_password],
+        is_active=False,
+        is_suspended=False,
     )
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
+    verification_token = oauth2.create_verification_token({"user_id": new_user.id})
+    token_expiry = datetime.now() + timedelta(minutes=settings.verification_token_expire_in_minutes)
+
+    new_user.account_verification_token_expires_at = token_expiry
+    db.commit()
+
+    verification_link = f"https://finance_tracker.com/verify?token={verification_token}"
+    print(f"[DEBUG] Verification token: {verification_token}")
+    celery_worker.send_verification_email(new_user.email, verification_link)
+
     return new_user
+
+@router.get("/verify-account")
+def verify_account(token: str, db: Session = Depends(database.get_db)):
+    payload = oauth2.verify_token(token, settings.secret_key, settings.algorithm)
+    user_id = payload.get("user_id")
+
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
+
+    if not user.account_verification_token_expires_at or user.account_verification_token_expires_at < datetime.now():
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Verification token expired")
+
+    user.account_verification_token_expires_at = None  
+    user.is_active = True  
+    db.commit()
+
+    return {"message": "Account successfully verified"}
 
 @router.post("/login", status_code=status.HTTP_200_OK, response_model=schemas.userLoginResponse)
 def login(user_credentials: schemas.userLogin, db: Session = Depends(database.get_db)):
@@ -143,7 +171,9 @@ def password_reset_confirm(user_credential: schemas.PasswordResetConfirm, db: Se
 
     user.password_reset_token_expires_at = None
 
+    print(f"DEBUG: Stored passwords is {user.last_five_passwords}")
     db.commit()
+
 
     return {"message": "Password successfully reset"}
 

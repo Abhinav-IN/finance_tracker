@@ -1,5 +1,5 @@
 from jose import JWTError, jwt, ExpiredSignatureError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from .config import settings
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -48,3 +48,10 @@ def require_roles(*allowed_roles):
             )
         return user
     return role_checker
+
+def create_verification_token(data: dict):
+    to_encode = data.copy()
+    expiration_time = datetime.now() + timedelta(minutes=settings.verification_token_expire_in_minutes)
+    to_encode.update({"exp": expiration_time})
+    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    return encoded_jwt
