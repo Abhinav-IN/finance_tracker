@@ -25,9 +25,9 @@ services:
   celery_worker:
     build: .
     container_name: celery_container
-    command: celery -A api.celery_worker.celery_app worker --loglevel=info
     volumes:
       - .:/app
+    command: celery -A api.celery_worker.celery_app worker --loglevel=info
     depends_on:
       - redis
       - mysql

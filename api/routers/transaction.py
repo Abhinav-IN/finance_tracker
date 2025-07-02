@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Depends
 from .. import schemas, oauth2, database, models
 from sqlalchemy.orm import Session
+from sqlalchemy import func, or_
 from typing import List
 
 router = APIRouter(tags=['Transaction'], prefix='/transaction')
@@ -44,8 +45,34 @@ def create_transaction(user_transaction : schemas.TransactionRequest,
 
 @router.get('/', status_code=status.HTTP_200_OK, response_model=List[schemas.TransactionResponse])
 def get_all_transaction(user: dict = Depends(oauth2.require_roles("user", "admin")), 
-                        db : Session = Depends(database.get_db)):
-    transaction = db.query(models.Transaction).filter(models.Transaction.user_id == user['id']).all()
+                        db : Session = Depends(database.get_db),
+                        filter_query : schemas.getTransactionParam = Depends()):
+    
+    curr_query = db.query(models.Transaction).filter(models.Transaction.user_id == user["id"])
+    if filter_query.transaction_id :
+        curr_query = curr_query.filter(models.Transaction.transaction_id == filter_query.transaction_id)
+    if filter_query.exact_amount:
+        curr_query = curr_query.filter(models.Transaction.amount == filter_query.exact_amount)
+    if filter_query.greater_amount:
+        curr_query = curr_query.filter(models.Transaction.amount > filter_query.greater_amount)
+    if filter_query.lower_amount:
+        curr_query = curr_query.filter(models.Transaction.amount < filter_query.lower_amount)
+    if filter_query.date:
+       curr_query = curr_query.filter(func.date(models.Transaction.timestamp) == filter_query.date)
+    if filter_query.category_id:
+        curr_query = curr_query.filter(models.Transaction.category_id == filter_query.category_id)
+    if filter_query.transaction_type_id:
+        curr_query = curr_query.filter(models.Transaction.transaction_type_id == filter_query.transaction_type_id)
+    if filter_query.search:
+        curr_query = curr_query.join(models.Category).filter(
+        or_(
+            models.Transaction.description.ilike(f"%{filter_query.search}%"),
+            models.Category.category_name.ilike(f"%{filter_query.search}%")
+        )
+    )
+    
+    curr_query = curr_query.offset(filter_query.get_offset).limit(filter_query.limit)
+    transaction = curr_query.all()
     
     response = []
     for t in transaction:
