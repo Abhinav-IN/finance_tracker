@@ -4,7 +4,7 @@
   "description": "A simple FastAPI backend to serve APIs for a finance tracking application.",
   "main": "index.js",
   "scripts": {
-    "buildcss": "cd static && node build.js",
+    "buildcss": "cd static && pnpm build",
     "server": "uvicorn api.server:app --reload"
   },
   "repository": {

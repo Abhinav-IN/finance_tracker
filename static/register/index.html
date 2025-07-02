@@ -1,94 +1,154 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register || Fi-Track</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="../src/css/swup.css">
-
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <meta charset="UTF-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../src/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>Fi-Track</title>
 </head>
 
-<body
-    class="w-full h-screen overflow-hidden flex items-center justify-center mx-auto bg-gray-100 dark:bg-gray-950 dark:text-gray-100">
-    <main
-        class="max-w-lg w-full mx-auto rounded-lg shadow-lg p-4 md:p-8 lg:p-12 bg-white dark:bg-gray-900 dark:border-white/20 dark:border-2  transition-fade"
-        id="swup">
-        <form action="" class="space-y-4" id="register_form">
-            <div>
-                <a href="/static/" class="w-full flex  gap-4 items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor" class="size-8 md:size-10 lg:size-12">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="m21 7.5-2.25-1.313M21 7.5v2.25m0-2.25-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3 2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75 2.25-1.313M12 21.75V19.5m0 2.25-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25" />
-                    </svg>
-                    <h1 class="text-lg  md:text-xl lg:text-2xl
-                font-bold ">Fi-Track</h1>
+<body class="w-full h-screen overflow-hidden  dark:bg-black/95 dark:text-white/80 text-black/70">
+    <div class="flex items-center justify-center w-full h-full">
+        <div class="w-full space-y-6 p-4 max-w-md border border-black/20 dark:border-white/20 rounded-lg shadow-lg ">
+            <div class="h-20">
+                <a href="../">
+                    <h1 class=" text-center font-semibold text-2xl lg:text-4xl text-black/90 dark:text-white/80">
+                        Fi-Track
+                    </h1>
                 </a>
+                <div class="text-center text-sm font-medium pt-4">
+                    <p>Don't Have An Account?</p>
+                    <p>Let's Have You On-Board</p>
+                </div>
             </div>
-            <p class="text-center w-full text-gray-600 font-semibold text-lg">Let's Get You On-Board</p>
-            <div class="flex flex-col gap-2">
-                <label for="username" class=" font-medium font-gray-500">
-                    Username
-                </label>
-                <input name="username" id="username" required minlength="3" maxlength="64" type="text"
-                    placeholder="Enter your username"
-                    class="border-b-2 text-lg border-black/40  dark:border-gray-100/50  focus:outline-none">
+            <div class="w-full h-full">
+                <div class="w-full h-80 flex items-center justify-center">
+                        
+                </div>
             </div>
-            <div class="flex flex-col gap-2">
-                <label for="email" class=" font-medium font-gray-500">
-                    Email
-                </label>
-                <input name="email" id="email" required minlength="3" maxlength="64" type="email"
-                    placeholder="Enter your email"
-                    class="border-b-2 text-lg border-black/40  dark:border-gray-100/50  focus:outline-none">
-            </div>
-            <div class="flex flex-col gap-2 relative">
-
-                <label for="username" class=" font-medium font-gray-500">
-                    Password <sup class="password_match text-red-500 text-sm "></sup>
-                </label>
-                <input name="password" id="password" required minlength="8" maxlength="64" type="password"
-                    placeholder="Create a password, 8 character minimum"
-                    class="border-b-2 text-lg border-black/40  dark:border-gray-100/50  focus:outline-none">
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="password_check" class=" font-medium font-gray-500">
-                    Confirm Password <sup class="password_match text-red-500 text-sm hidden"></sup>
-                </label>
-                <input name="password_check" id="password_check" required minlength="8" maxlength="64" type="password"
-                    placeholder="Repeat your password"
-                    class=" border-b-2 text-lg border-black/40 dark:border-gray-100/50 focus:outline-none">
-            </div>
-            <div class="w-full flex gap-4 flex-col items-center justify-center ">
-                <button type="submit"
-                    class="bg-blue-500 overflow-hidden text-white mx-auto w-full text-center font-bold text-lg capitalize rounded-md shadow-md py-2 hove:bg-blue-600 transition-all duration-300 relative group  hover:-translate-y-1">
-                    <span class="relative z-20">
-                        Register
-                    </span>
-                    <div
-                        class="absolute w-0 h-full top-0 left-0 z-10  transform transition-all duration-500 group-hover:w-full bg-gradient-to-r from-violet-500 to-pink-500">
+            <form id="registration-form" class="hidden space-y-12 pt-4">
+                <div class=" space-y-4 font-medium steps step-0" data-step="0">
+                    <div class="">
+                        <Label for="first_name" class="text-sm">Enter Your First Name</Label>
+                        <input type="text" name="first_name" id="first_name"
+                            class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
                     </div>
-                </button>
-                <a href="../login/"
-                    class="py-2 overflow-hidden border-2 border-black w-full rounded-md shadow-md text-center font-semibold  group relative dark:border-gray-100 ">
-                    <span class="relative z-20 ">Back To Login</span>
-                    <div
-                        class="absolute top-0 left-0 z-10 h-full w-0 bg-amber-500  transform transition-all duration-500 group-hover:w-full ">
+                    <div class="">
+                        <Label for="last_name" class="text-sm">Enter Your Last Name</Label>
+                        <input type="text" name="last_name" id="last_name"
+                            class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
+                    </div>
+                </div>
+                <div class="space-y-4 font-medium hidden steps step-1" data-step="1">
+                    <div class="">
+                        <Label for="username" class="text-sm">Pick A Unique Username</Label>
+                        <input type="text" name="username" id="username"
+                            class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
+                    </div>
+                    <div class="">
+                        <Label for="email" class="text-sm">Enter Your Email</Label>
+                        <input type="email" name="email" id="email"
+                            class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
+                    </div>
+                </div>
+                <div class="space-y-8 font-medium hidden steps step-2" id="gender_block" data-step="2">
+                    <div class="space-y-4 ">
+                        <p class="text-sm">Select Your Gender</p>
+                        <div class="flex items-center justify-evenly gap-8">
+                            <div class="">
+                                <input type="radio" name="gender" id="male" value="male" required
+                                    class="border-2 border-white w-20 h-20 hidden peer">
+                                <Label for="male" class="text-sm flex items-center justify-center rounded-full w-20 h-20 p-2 border-2 border-gray-200 text-black/20 dark:text-white/50 dark:border-gray-800
+                                peer-checked:border-gray-900 peer-checked:text-black
+                                    dark:peer-checked:border-gray-200 dark:peer-checked:text-white/90 cursor-pointer
+                                 ">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="w-full h-full"
+                                        fill="currentColor" viewBox="0 0 256 256">
+                                        <path
+                                            d="M216,32H168a8,8,0,0,0,0,16h28.69L154.62,90.07a80,80,0,1,0,11.31,11.31L208,59.32V88a8,8,0,0,0,16,0V40A8,8,0,0,0,216,32ZM149.24,197.29a64,64,0,1,1,0-90.53A64.1,64.1,0,0,1,149.24,197.29Z">
+                                        </path>
+                                    </svg>
+                                </Label>
+                            </div>
+                            <div class="">
+                                <input type="radio" name="gender" id="female" value="female"
+                                    class="border-2 border-white w-20 h-20 hidden peer">
+                                <Label for="female" class="text-sm flex items-center justify-center rounded-full w-20 h-20 p-2 border-2 border-gray-200 text-black/20 dark:text-white/50 dark:border-gray-800
+                                peer-checked:border-gray-900 peer-checked:text-black
+                                    dark:peer-checked:border-gray-200 dark:peer-checked:text-white/90 cursor-pointer
+                                 ">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+                                        viewBox="0 0 256 256">
+                                        <path
+                                            d="M208,96a80,80,0,1,0-88,79.6V200H88a8,8,0,0,0,0,16h32v24a8,8,0,0,0,16,0V216h32a8,8,0,0,0,0-16H136V175.6A80.11,80.11,0,0,0,208,96ZM64,96a64,64,0,1,1,64,64A64.07,64.07,0,0,1,64,96Z">
+                                        </path>
+                                    </svg>
+                                </Label>
+                            </div>
+                        </div>
 
                     </div>
-                </a>
-            </div>
-        </form>
-    </main>
-    <script nomodule src="https://unpkg.com/swup@4"></script>
-    <script nomodule>
-        const swup = new Swup();
-    </script>
+                    <div class="flex flex-col gap-4">
+                        <label for="date-of-birth" class="text-sm">Please Enter Your Date Of Birth</label>
+                        <input type="date" name="date-of-birth" id="date-of-birth" placeholder="DD-MM-YYYY"
+                            class=" border border-black/20 rounded-lg dark:border-white/20 w-full p-1 uppercase">
+                    </div>
+                </div>
+                <div class="space-y-4 font-medium hidden steps  step-3" data-step="3">
+                    <div>
+                        <Label for="password" class="text-sm">Password A Password</Label>
+                        <input type="password" name="password" id="password"
+                            class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2 password-field">
+                    </div>
+                    <div>
+                        <Label for="confirm_password" class="text-sm">Confirm Your Password</Label>
+                        <input type="password" name="confirm_password" id="confirm-password"
+                            class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2 password-field">
+                    </div>
+                    <div class="">
+                        <p class="text-xs text-red-600" id="password-length">* Password Must Be 8 Character Long</p>
+                        <p class="text-xs text-red-600" id="password-number">* Password Must Contain A Number</p>
+                        <p class="text-xs text-red-600" id="password-symbol">* Password Must Contain A Symbol</p>
+                        <p class="text-xs text-red-600" id="password-lowercase">* Password Must Contain A
+                            Lowercase Letter</p>
+                        <p class="text-xs text-red-600" id="password-uppercase">* Password Must Contain A Uppercase
+                            Letter</p>
+                        <p class="text-xs text-red-600" id="is-password-matching">* Password Does Not Match</p>
+                    </div>
+                </div>
 
-    <script src="index.js"></script>
+                <div class="flex items-center justify-between gap-4 md:gap-8">
+                    <button type="button" class="secondary-button" id="prev-step-button">Prev</button>
+                    <div class="w-full " id="next-step-container">
+                        <button type="button" class="primary-button" id="next-step-button">Next</button>
+                    </div>
+                    <div class="w-full hidden" id="submit-button-container">
+                        <button class="primary-button disabled:opacity-50" type="submit"
+                            id="submit-button">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <button class="rounded-full w-12 h-12 fixed bottom-5 right-5 p-2 border border-black/70 dark:border-white/20"
+        id="darkModeButton">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-full h-full">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
+        </svg>
+    </button>
+    <script type="module" src="../src/main.js"></script>
+    <script type="module" src="../src/scripts/auth/auth.js"></script>
+    <!-- <script type="module" src="../src/scripts/binding/rivet.js"></script> -->
 
 </body>
 

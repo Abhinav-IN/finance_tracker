@@ -3,7 +3,7 @@ from .. import schemas, oauth2, database, models
 from sqlalchemy.orm import Session
 from typing import List
 
-router = APIRouter(tags=['Transaction'], prefix='/transaction')
+router = APIRouter(tags=['Transaction'], prefix='/api/v1/transaction')
 
 @router.post('/create', status_code=status.HTTP_201_CREATED, response_model=schemas.TransactionResponse)
 def create_transaction(user_transaction : schemas.TransactionRequest, 

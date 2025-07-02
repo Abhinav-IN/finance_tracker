@@ -17,7 +17,7 @@ def home():
     return {"message": "FastAPI is running"}
 
 # Serve static files
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory="static/dist", html=True), name="static")
 
 
 if __name__ == "__main__":
