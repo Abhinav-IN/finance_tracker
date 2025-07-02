@@ -1,4 +1,6 @@
 import "./style.css";
+
+const body = document.querySelector("body");
 // Function to toggle dark mode
 function toggleDarkMode() {
   const htmlElement = document.documentElement;
@@ -39,3 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Dark mode button not found!");
   }
 });
+
+const userPanelToggle = document.querySelectorAll(".user-panel-toggle");
+
+userPanelToggle.forEach((button) => {
+  button.addEventListener("click", toggleUserPanel);
+});
+
+function toggleUserPanel() {
+  const userpanel = document.getElementById("user-panel");
+  userpanel.classList.toggle("hidden");
+}
