@@ -4,11 +4,11 @@
   "description": "A simple FastAPI backend to serve APIs for a finance tracking application.",
   "main": "index.js",
   "scripts": {
-  "buildcss": "cd static && node build.js",
-  "docker-up": "docker compose up -d mysql redis celery_worker",
-  "start-api": "uvicorn api.server:app --reload",
-  "server": "npm run docker-up && npm run start-api"
-},
+    "buildcss": "cd static && pnpm build",
+    "docker-up": "docker compose up -d mysql redis celery_worker",
+    "start-api": "uvicorn api.server:app --reload",
+    "server": "npm run docker-up && npm run start-api"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Nommiiee/finance_tracker.git"

@@ -4,9 +4,9 @@ from .. import schemas, database, utils, models, oauth2, celery_worker
 from api.config import settings
 from datetime import datetime
 
-router = APIRouter(tags=['Authentication'], prefix='/user')
+router = APIRouter(tags=['Authentication'], prefix='/api/v1/auth')
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.userRegisterResponse)
+@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.userRegisterResponse)
 def create_user(user:schemas.userRegister, db : Session = Depends(database.get_db)):
     hashed_password = utils.hashing_password(user.password)
 
@@ -18,7 +18,7 @@ def create_user(user:schemas.userRegister, db : Session = Depends(database.get_d
     last_five_passwords=[hashed_password],
     is_active=True,
     is_suspended=False
-)
+    )
 
     db.add(new_user)
     db.commit()
@@ -56,6 +56,7 @@ def login(user_credentials: schemas.userLogin, db: Session = Depends(database.ge
         "access_token": access_token,
         "type": "bearer"
     }
+    
 @router.post("/refresh", status_code=status.HTTP_200_OK, response_model=schemas.refreshResponse)
 def refresh(token: schemas.refreshRequest, db: Session = Depends(database.get_db)):
     old_access_token = token.access_token

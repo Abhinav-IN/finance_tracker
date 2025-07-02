@@ -3,7 +3,7 @@ from .. import schemas, oauth2, models, database
 from sqlalchemy.orm import Session
 from typing import List
 
-router = APIRouter(tags=['Categories'], prefix='/category')
+router = APIRouter(tags=['Categories'], prefix='/api/v1/category')
 
 @router.post('/create', status_code=status.HTTP_201_CREATED, response_model=schemas.categoryResponse)
 def create_category(category : schemas.categoryCreate, 
