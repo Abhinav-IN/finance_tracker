@@ -1,10 +1,11 @@
-from .database import Base
+from api.base import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, UniqueConstraint, CheckConstraint, Boolean, JSON
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import relationship
 import enum
 from sqlalchemy import Enum as sa_enum
+from datetime import datetime, timezone
 
 class UserRole(str, enum.Enum):
     user = "user"
@@ -76,16 +77,25 @@ class TransactionType(Base):
 
     transaction = relationship('Transaction', back_populates='transaction_type')
 
+class PaymentMode(Base):
+    __tablename__ = "paymentmode"
+
+    payment_mode_id = Column(Integer, primary_key=True, nullable=False)
+    payment_mode = Column(String(255), nullable=False)
+
+    transaction = relationship('Transaction', back_populates='payment_mode')
+
 class Transaction(Base):
     __tablename__ = "transaction"
 
     transaction_id = Column(Integer, primary_key=True, nullable=False)
     amount = Column(Integer, nullable=False)
     description = Column(String(255), nullable=False)
-    timestamp = Column(TIMESTAMP(timezone=True), server_default=text('now()'), nullable=False)
+    timestamp = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     category_id = Column(Integer, ForeignKey("categories.category_id"), nullable=False)
     transaction_type_id = Column(Integer, ForeignKey("transactiontype.transaction_type_id"), nullable=False)
+    payment_mode_id = Column(Integer, ForeignKey("paymentmode.payment_mode_id"), nullable=False)
 
     __table_args__ = (
         CheckConstraint("amount > 0", name="amount_check"),
@@ -94,3 +104,6 @@ class Transaction(Base):
     user = relationship('User', back_populates='transaction')
     category = relationship('Category', back_populates='transactions')
     transaction_type = relationship('TransactionType', back_populates='transaction')
+    payment_mode = relationship('PaymentMode', back_populates='transaction')
+
+

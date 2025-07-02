@@ -9,6 +9,9 @@ router = APIRouter(tags=['Categories'], prefix='/api/v1/category')
 def create_category(category : schemas.categoryCreate, 
                     user: dict = Depends(oauth2.require_roles("user", "admin", "moderator")), 
                     db : Session = Depends(database.get_db)):
+    if user["is_active"] == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is not verified")
+    
     category_name = category.category_name.strip().lower()
     new_category = models.Category(category_name = category_name,  user_id=user["id"])
     db.add(new_category)
@@ -25,6 +28,8 @@ def get_categories(
     user: dict = Depends(oauth2.require_roles("user", "admin")),
     db: Session = Depends(database.get_db)
 ):
+    if user["is_active"] == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is not verified")
     categories = db.query(models.Category).filter(models.Category.user_id == user["id"]).all()
     return categories
 
@@ -35,6 +40,8 @@ def get_category_by_id(
     user: dict = Depends(oauth2.require_roles("user", "admin")),
     db: Session = Depends(database.get_db)
 ):
+    if user["is_active"] == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is not verified")
     category = db.query(models.Category).filter(models.Category.category_id == category_id).first()
 
     if not category:
@@ -51,6 +58,8 @@ def update_category(category_id : int,
                     category_update : schemas.categoryCreate,
                     user: dict = Depends(oauth2.require_roles("user", "admin", "moderator")), 
                     db : Session = Depends(database.get_db)):
+    if user["is_active"] == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is not verified")
     category_query = db.query(models.Category).filter(models.Category.category_id == category_id,
                     models.Category.user_id == user['id'])
     existing_category = category_query.first()
@@ -66,12 +75,14 @@ def update_category(category_id : int,
 
     return category_query.first()
 
-@router.delete('/delete{category_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/delete/{category_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_category(
     category_id: int,
     user: dict = Depends(oauth2.require_roles("user", "admin")),  
     db: Session = Depends(database.get_db)
 ):
+    if user["is_active"] == False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is not verified")
     category = db.query(models.Category).filter(models.Category.category_id == category_id).first()
 
     if not category:

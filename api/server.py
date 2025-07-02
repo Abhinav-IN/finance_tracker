@@ -1,15 +1,23 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
+
 from . import models
-from .database import engine
+from .database import create_database_if_not_exists, create_tables_if_not_exists
 from api.routers import auth, category, transaction
 
-app = FastAPI()
-models.Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_database_if_not_exists()
+    create_tables_if_not_exists()
+    yield  
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth.router)
 app.include_router(category.router)
 app.include_router(transaction.router)
+
 
 
 @app.get("/api")
@@ -17,7 +25,7 @@ def home():
     return {"message": "FastAPI is running"}
 
 # Serve static files
-app.mount("/", StaticFiles(directory="static/dist", html=True), name="static")
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
 if __name__ == "__main__":

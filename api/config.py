@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     smtp_user: str = Field(..., alias="SMTP_USER")
     smtp_pass: str = Field(..., alias="SMTP_PASS")
     smtp_from: str = Field(..., alias="SMTP_FROM")
+    verification_token_expire_in_minutes: int = Field(..., alias="VERIFICATION_TOKEN_EXPIRE_IN_MINUTES")
 
 
     class Config:
