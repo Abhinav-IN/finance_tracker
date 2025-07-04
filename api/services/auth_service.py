@@ -10,6 +10,12 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+
+from api.logger import create_info_logger
+
+auth_logger = create_info_logger("Auth Logger")
+
+
 def authenticate_user_service(user_credentials : userLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == user_credentials.email).first()
     if not user or not verify_password(user_credentials.password, user.hashed_password):
@@ -44,7 +50,7 @@ def register_user_service(user: userRegister, db: Session = Depends(get_db)):
     db.commit()
 
     verification_link = f"https://finance_tracker.com/verify?token={verification_token}"
-    print(f"[DEBUG] Verification token: {verification_token}")
+    auth_logger.info(f" Verification token: {verification_token}")
     verification_email(new_user.email, verification_link)
 
     return new_user
@@ -177,7 +183,7 @@ def password_reset_request_service(user_credential: PasswordResetRequest, db: Se
 
     reset_link = f"https://finance_tracker.com/reset-password?token={password_token}"
 
-    print(f"[DEBUG] Password token: {password_token}")
+    auth_logger.info(f" Password token: {password_token}")
 
     password_reset_email(user.email, reset_link)
 
@@ -218,7 +224,7 @@ def password_reset_confirm_service(user_credential: PasswordResetConfirm, db: Se
 
     user.password_reset_token_expires_at = None
 
-    print(f"DEBUG: Stored passwords is {user.last_five_passwords}")
+    auth_logger.info(f" stored passwords is {user.last_five_passwords}")
     db.commit()
 
     return {"message": "Password successfully reset"}

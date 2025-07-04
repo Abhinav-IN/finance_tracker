@@ -33,6 +33,7 @@ app.add_middleware(
     allow_methods=["*"],    # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],    # Allow all headers (including Authorization header for JWTs)
 )
+print(CORS_ORIGINS)
 
 @app.get("/api")
 def home():

@@ -22,10 +22,13 @@ const data = {
     symbol: false,
     match: false,
   },
-  API_URL: import.meta.env.VITE_API_URL,
+  API_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  isNotificationOpen: false,
 };
 
 const body = document.querySelector("body");
+const messageContainer = document.getElementById("message-container");
+
 const registrationForm = document.getElementById("registration-form");
 const passwordFields = document.querySelectorAll(".password-field");
 const password = document.getElementById("password");
@@ -210,10 +213,6 @@ function toggleButton(buttonToHide) {
   return;
 }
 
-submitBtn.addEventListener("click", (e) => {
-  console.log("submit button pressed");
-});
-
 async function register() {
   const payload = {
     username: data.userInfo.username.toString().toLowerCase().trim(),
@@ -225,7 +224,7 @@ async function register() {
     password: data.userInfo.password,
   };
 
-  const response = await fetch(`${data.API_URL}/api/v1/auth/create`, {
+  const response = await fetch(`${data.API_URL}/api/v1/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -233,8 +232,28 @@ async function register() {
     body: JSON.stringify(payload),
   });
 
-  const resolved = await response.json();
-  console.log(resolved);
+  try {
+    const responseData = await response.json();
+
+    if (response.ok) {
+      data.isNotificationOpen = false;
+      createNotification("Registration Successful, Please Check Your Email");
+      console.log(responseData);
+    } else {
+      // HTTP status is not 2xx (e.g., 401, 422, 500)
+      console.log("Registration Failed with status:", response.status);
+      console.log("Backend error response:", responseData.detail);
+      data.isNotificationOpen = false;
+      createNotification(responseData.detail);
+    }
+  } catch (error) {
+    // Network errors or issues before the response is received
+    console.error("Network or unexpected error during login:", error);
+    data.isNotificationOpen = false;
+    createNotification(
+      "Something Went Wrong (Network Error). Please Check your connection."
+    );
+  }
 }
 
 registrationForm.addEventListener("submit", (e) => {
@@ -249,5 +268,20 @@ function createPayload() {
 
   for (const [name, value] of formData) {
     data.userInfo[name] = value;
+  }
+}
+
+function createNotification(message) {
+  if (!data.isNotificationOpen) {
+    messageContainer.textContent = message.toString().toLowerCase().trim();
+    messageContainer.classList.remove("hidden");
+    messageContainer.classList.remove("-translate-y-full");
+
+    data.isNotificationOpen = true;
+    setTimeout(() => {
+      messageContainer.classList.add("-translate-y-full");
+      messageContainer.classList.add("hidden");
+    }, 5000);
+    return;
   }
 }

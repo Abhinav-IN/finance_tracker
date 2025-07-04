@@ -6,6 +6,11 @@ from sqlalchemy.orm import Session
 
 router = APIRouter(tags=['Authentication'], prefix='/api/v1/auth')
 
+
+@router.post("/login", status_code=status.HTTP_200_OK, response_model=userLoginResponse)
+def login(user_credentials: userLogin, db: Session = Depends(get_db)):
+   return login_service(user_credentials, db)
+    
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=userRegisterResponse)
 def register_user(user: userRegister, db: Session = Depends(get_db)):
     return register_user_service(user, db)
@@ -13,10 +18,6 @@ def register_user(user: userRegister, db: Session = Depends(get_db)):
 @router.get("/verify-account")
 def verify_account(token: str, db: Session = Depends(get_db)):
     return verify_account_service(token, db)
-
-@router.post("/login", status_code=status.HTTP_200_OK, response_model=userLoginResponse)
-def login(user_credentials: userLogin, db: Session = Depends(get_db)):
-   return login_service(user_credentials, db)
     
 @router.post("/refresh", status_code=status.HTTP_200_OK, response_model=refreshResponse)
 def refresh(token: refreshRequest, db: Session = Depends(get_db)):

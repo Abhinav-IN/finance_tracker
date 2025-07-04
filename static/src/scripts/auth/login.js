@@ -1,6 +1,6 @@
 const data = {
   isNotificationOpen: false,
-  API_URL: import.meta.env.VITE_API_URL,
+  API_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
 };
 const loginForm = document.getElementById("login-form");
 const messageContainer = document.getElementById("message-container");
@@ -16,6 +16,7 @@ loginForm.addEventListener("submit", async (e) => {
   data.isNotificationOpen = false;
   createNotification("Logging In Please Wait");
 
+  console.log(data.API_URL);
   try {
     const response = await fetch(`${data.API_URL}/api/v1/auth/login`, {
       method: "POST",
