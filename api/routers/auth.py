@@ -1,219 +1,31 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from api.database.session import get_db
+from api.schemas.user import PasswordResetRequest, PasswordResetConfirm, refreshRequest, refreshResponse, userLogin, userLoginResponse, userRegister, userRegisterResponse
+from api.services.auth_service import login_service, password_reset_request_service, password_reset_confirm_service, refresh_access_token_service, register_user_service, verify_account_service
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from .. import schemas, database, utils, models, oauth2, celery_worker
-from api.config import settings
-from datetime import datetime
 
 router = APIRouter(tags=['Authentication'], prefix='/api/v1/auth')
 
-@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=schemas.userRegisterResponse)
-def create_user(user: schemas.userRegister, db: Session = Depends(database.get_db)):
-    hashed_password = utils.hashing_password(user.password)
-
-    new_user = models.User(
-        **user.model_dump(exclude={"password"}),
-        hashed_password=hashed_password,
-        role=models.UserRole.user,
-        last_password_change_at=datetime.now(),
-        last_five_passwords=[hashed_password],
-        is_active=False,
-        is_suspended=False,
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    verification_token = oauth2.create_verification_token({"user_id": new_user.id})
-    token_expiry = datetime.now() + timedelta(minutes=settings.verification_token_expire_in_minutes)
-
-    new_user.account_verification_token_expires_at = token_expiry
-    db.commit()
-
-    verification_link = f"https://finance_tracker.com/verify?token={verification_token}"
-    print(f"[DEBUG] Verification token: {verification_token}")
-    celery_worker.send_verification_email(new_user.email, verification_link)
-
-    return new_user
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=userRegisterResponse)
+def register_user(user: userRegister, db: Session = Depends(get_db)):
+    return register_user_service(user, db)
 
 @router.get("/verify-account")
-def verify_account(token: str, db: Session = Depends(database.get_db)):
-    payload = oauth2.verify_token(token, settings.secret_key, settings.algorithm)
-    user_id = payload.get("user_id")
+def verify_account(token: str, db: Session = Depends(get_db)):
+    return verify_account_service(token, db)
 
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not user:
-        raise HTTPException(404, "User not found")
-
-    if not user.account_verification_token_expires_at or user.account_verification_token_expires_at < datetime.now():
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Verification token expired")
-
-    user.account_verification_token_expires_at = None  
-    user.is_active = True  
-    db.commit()
-
-    return {"message": "Account successfully verified"}
-
-@router.post("/login", status_code=status.HTTP_200_OK, response_model=schemas.userLoginResponse)
-def login(user_credentials: schemas.userLogin, db: Session = Depends(database.get_db)):
-    user = utils.authenticate_user(user_credentials, db)
-
-    if not user:
-        db_user = db.query(models.User).filter(models.User.email == user_credentials.email).first()
-        if db_user:
-            db_user.login_attempts += 1
-            db.commit()
-
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-
-    if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is deactivated.")
-    if user.is_suspended:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is suspended.")
-
-    user.login_attempts = 0
-    user.last_login_at = datetime.now()
-    db.commit()
-
-    access_token = oauth2.create_access_token({
-        "user_id": user.id,
-        "role": user.role
-    })
-
-    return {
-        "access_token": access_token,
-        "type": "bearer"
-    }
+@router.post("/login", status_code=status.HTTP_200_OK, response_model=userLoginResponse)
+def login(user_credentials: userLogin, db: Session = Depends(get_db)):
+   return login_service(user_credentials, db)
     
-@router.post("/refresh", status_code=status.HTTP_200_OK, response_model=schemas.refreshResponse)
-def refresh(token: schemas.refreshRequest, db: Session = Depends(database.get_db)):
-    old_access_token = token.access_token
-
-    if not old_access_token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Access token is required, Login again")
-
-    payload = oauth2.verify_token(old_access_token, settings.secret_key, algorithm=settings.algorithm)
-    user_id = payload.get("user_id")
-
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid payload in token")
-
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if not user.is_active:
-        raise HTTPException(status_code=403, detail="Account is deactivated")
-
-    if user.is_suspended:
-        raise HTTPException(status_code=403, detail="Account is suspended")
-
-    new_access_token = oauth2.create_access_token({
-        "user_id": user.id,
-        "role": user.role
-    })
-
-    return {
-        "access_token": new_access_token,
-        "type": "bearer"
-    }
-
-from datetime import datetime, timedelta
+@router.post("/refresh", status_code=status.HTTP_200_OK, response_model=refreshResponse)
+def refresh(token: refreshRequest, db: Session = Depends(get_db)):
+    return refresh_access_token_service(token, db)
 
 @router.post("/password-reset-request", status_code=status.HTTP_202_ACCEPTED)
-def password_reset_request(user_credential: schemas.PasswordResetRequest, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.email == user_credential.email).first()
-
-    if user:
-        password_token = oauth2.create_password_request_token({"user_id": user.id})
-
-        user.password_reset_token_expires_at = datetime.now() + timedelta(minutes=settings.password_token_expire_in_minutes)
-        db.commit()
-
-        reset_link = f"https://finance_tracker.com/reset-password?token={password_token}"
-
-        print(f"[DEBUG] Password token: {password_token}")
-
-        celery_worker.send_password_reset_email(user.email, reset_link)
-
-    return {"message": "If this email is registered, a reset link has been sent."}
-
+def password_reset_request(user_credential: PasswordResetRequest, db: Session = Depends(get_db)):
+    return password_reset_request_service(user_credential, db)
+    
 @router.post("/password-reset-confirm", status_code=status.HTTP_200_OK)
-def password_reset_confirm(user_credential: schemas.PasswordResetConfirm, db: Session = Depends(database.get_db)):
-    payload = oauth2.verify_token(user_credential.password_token, settings.secret_key, settings.algorithm)
-    user_id = payload.get("user_id")
-
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Invalid token payload")
-
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if not user.password_reset_token_expires_at or user.password_reset_token_expires_at < datetime.now():
-        raise HTTPException(status_code=403, detail="Reset token has expired")
-
-    new_hashed = utils.hashing_password(user_credential.new_password)
-
-    if user.last_five_passwords and new_hashed in user.last_five_passwords:
-        raise HTTPException(status_code=400, detail="You cannot reuse your previous passwords.")
-
-    user.hashed_password = new_hashed
-    user.last_password_change_at = datetime.utcnow()
-
-    if user.last_five_passwords:
-        user.last_five_passwords.insert(0, new_hashed)
-        user.last_five_passwords = user.last_five_passwords[:5]
-    else:
-        user.last_five_passwords = [new_hashed]
-
-    user.password_reset_token_expires_at = None
-
-    print(f"DEBUG: Stored passwords is {user.last_five_passwords}")
-    db.commit()
-
-
-    return {"message": "Password successfully reset"}
-
-@router.put("/update-role", status_code=200)
-def update_user_role(
-    request: schemas.UserRoleUpdate,
-    admin: dict = Depends(oauth2.require_roles("admin")),
-    db: Session = Depends(database.get_db)
-):
-    target_user = db.query(models.User).filter(models.User.id == request.user_id).first()
-
-    if not target_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if target_user.id == admin["id"]:
-        raise HTTPException(status_code=400, detail="You cannot change your own role")
-
-    target_user.role = request.role
-    db.commit()
-    return {"message": f"Role updated to {request.role} for user ID {request.user_id}"}
-
-
-@router.put("/status/{user_id}", status_code=200)
-def update_user_status(
-    user_id: int,
-    status_data: schemas.UserStatusUpdate,
-    db: Session = Depends(database.get_db),
-    admin_data: dict = Depends(oauth2.require_roles("admin"))
-):
-    if user_id == admin_data["id"]:
-        raise HTTPException(status_code=400, detail="You cannot change your own account status")
-
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    user.is_active = status_data.is_active
-    user.is_suspended = status_data.is_suspended
-    db.commit()
-
-    return {
-        "message": f"User status updated. Active: {user.is_active}, Suspended: {user.is_suspended}"
-    }
+def password_reset_confirm(user_credential: PasswordResetConfirm, db: Session = Depends(get_db)):
+    return password_reset_confirm_service(user_credential, db)

@@ -1,3 +1,5 @@
+from api.models.user import User
+from fastapi import HTTPException, status
 import re
 
 def validate_password_strength(password: str) -> str:
@@ -16,3 +18,8 @@ def gender_check(gender: str) -> str:
     if gender.lower() not in allowed:
         raise ValueError(f"Gender must be one of {allowed}")
     return gender.lower()
+
+def user_active(user : dict, db):
+    is_active = db.query(User.is_active).filter(User.id == user["id"]).scalar()
+    if not is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is not verified")

@@ -4,11 +4,11 @@ import sys # Used for sys.exit()
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from .config import settings
+from api.core.config import settings
 
-from . import models
-from .database import  init_db
-from api.routers import auth, category, transaction
+from api import models
+from api.database.session import  init_db
+from api.routers import auth, category, transaction, admin
 
 
 from fastapi.middleware.cors import CORSMiddleware
