@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-
-from . import models
-from .database import create_database_if_not_exists, create_tables_if_not_exists
-from api.routers import auth, category, transaction
+from api import models
+from api.database.session import create_database_if_not_exists, create_tables_if_not_exists
+from api.routers import auth, category, transaction, admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +16,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router)
 app.include_router(category.router)
 app.include_router(transaction.router)
+app.include_router(admin.router)
 
 
 
