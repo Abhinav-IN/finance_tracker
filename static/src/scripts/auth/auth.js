@@ -22,6 +22,7 @@ const data = {
     symbol: false,
     match: false,
   },
+  API_URL: import.meta.env.VITE_API_URL,
 };
 
 const body = document.querySelector("body");
@@ -224,7 +225,7 @@ async function register() {
     password: data.userInfo.password,
   };
 
-  const response = await fetch("/api/v1/auth/create", {
+  const response = await fetch(`${data.API_URL}/api/v1/auth/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

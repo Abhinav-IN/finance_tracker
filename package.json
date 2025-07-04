@@ -4,10 +4,11 @@
   "description": "A simple FastAPI backend to serve APIs for a finance tracking application.",
   "main": "index.js",
   "scripts": {
-    "buildcss": "cd static && pnpm build",
-    "docker-up": "docker compose up -d mysql redis celery_worker",
-    "start-api": "uvicorn api.server:app --reload",
-    "server": "npm run docker-up && npm run start-api"
+    "start:dev:api": "uvicorn api.server:app --reload --port 8000",
+    "start:prod:api": "uvicorn api.server:app --host 0.0.0.0 --port 8000",
+    "build:frontend": "cd static && pnpm build --emptyOutDir",
+    "start": "npm run build:frontend && npm run start:prod:api",
+    "docker-up": "docker compose up -d mysql redis celery_worker"
   },
   "repository": {
     "type": "git",

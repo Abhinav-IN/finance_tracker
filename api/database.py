@@ -4,6 +4,14 @@ from sqlalchemy.exc import OperationalError
 from .config import settings
 from . import models
 from .base import Base
+from datetime import datetime 
+
+from .logger import create_info_logger
+
+database_logger = create_info_logger("Database Logger")
+
+def get_timestamp():
+    return datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
 
 DATABASE_NAME = settings.database_name
 
@@ -22,29 +30,112 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-def create_database_if_not_exists():
+def database_exists(db_name: str) -> bool:
+    print("-----------------------------------------")
     try:
-        with engine_without_db.connect() as conn:
-            conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}"))
-            print(f" Database `{DATABASE_NAME}` verified if exist or created if it does not exist.")
+        with engine_without_db.connect() as connection:
+            result = connection.execute(
+                text("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :db_name"),
+                {"db_name": db_name}
+            ).fetchone()
+            return result is not None
     except OperationalError as e:
-        print(" Failed to connect or create database:", e)
+        database_logger.info(f"Error connecting to MySQL server to check database existence: {e}")
         raise
-
-
-def create_tables_if_not_exists():
-    try:
-        Base.metadata.create_all(bind=engine)
-        print(" Tables verified if exist or created if it does not exist.")
+    except ProgrammingError as e:
+        database_logger.info(f"  Programming error during database existence check: {e}")
+        raise
     except Exception as e:
-        print(" Failed to create tables:", e)
+        database_logger.info(f"  An unexpected error occurred during database existence check: {e}")
         raise
 
+def tables_exist_in_db() -> bool:
+    """
+    Checks if tables defined in Base.metadata exist in the configured database.
+    This is a basic check. It only verifies if *any* table defined in
+    Base.metadata exists, not necessarily all of them or if they're up-to-date.
+    For a more robust check (e.g., migrations), you'd use Alembic.
+
+    Returns:
+        True if at least one table defined in Base.metadata exists in the DB,
+        False otherwise or if the database itself doesn't exist.
+    """
+    if not database_exists(DATABASE_NAME):
+        database_logger.info(f"  Database '{DATABASE_NAME}' does not exist, so no tables can exist within it.")
+        return False
+
+    try:
+        with engine.connect() as connection:
+            inspector = connection.dialect.inspector(connection)
+            existing_tables = inspector.get_table_names()
+            for table_name in Base.metadata.tables.keys():
+                if table_name in existing_tables:
+                    database_logger.info(f"  Table '{table_name}' found in database.")
+                    return True  # Found at least one, so assume tables are initialized
+            return False # No tables from our models found
+    except OperationalError as e:
+        database_logger.info(f"  Error connecting to database '{DATABASE_NAME}' to check table existence: {e}")
+        raise
+    except Exception as e:
+        database_logger.info(f"  An unexpected error occurred during table existence check: {e}")
+        raise
+
+
+# --- Database and Table Initialization Function ---
+def init_db():
+    database_logger.info(f"Attempting to initialize database '{DATABASE_NAME}'...")
+    try:
+        if not database_exists(DATABASE_NAME):
+            database_logger.info(f"  Database '{DATABASE_NAME}' does not exist. Creating...")
+            with engine_without_db.connect() as connection:
+                connection.execute(text(f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}"))
+                connection.commit()
+            database_logger.info(f"  Database '{DATABASE_NAME}' created successfully.")
+        else:
+            database_logger.info(f"  Database '{DATABASE_NAME}' already exists.")
+            database_logger.info(f"  Checking for existing tables and creating if necessary...")
+        Base.metadata.create_all(bind=engine)
+        database_logger.info(f"  Tables checked/created successfully.")
+
+    except OperationalError as e:
+        database_logger.info(f"  Failed to connect to MySQL server. Please check your connection string, " f"credentials, and ensure MySQL is running. Error: {e}")
+        raise
+    except Exception as e:
+        database_logger.info(f"  An unexpected error occurred during database initialization: {e}")
+        raise
+
+# --- Dependency for FastAPI/Flask (common pattern) ---
 
 def get_db():
+   
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+# def create_database_if_not_exists():
+#     try:
+#         with engine_without_db.connect() as conn:
+#             conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}"))
+#             print(f" Database `{DATABASE_NAME}` verified if exist or created if it does not exist.")
+#     except OperationalError as e:
+#         print(" Failed to connect or create database:", e)
+#         raise
+
+
+# def create_tables_if_not_exists():
+#     try:
+#         Base.metadata.create_all(bind=engine)
+#         print(" Tables verified if exist or created if it does not exist.")
+#     except Exception as e:
+#         print(" Failed to create tables:", e)
+#         raise
+
+
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()

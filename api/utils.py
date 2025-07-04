@@ -30,3 +30,4 @@ def send_email(subject: str, to: str, body: str):
         server.login(settings.smtp_user, settings.smtp_pass)
         server.send_message(msg)
 
+
