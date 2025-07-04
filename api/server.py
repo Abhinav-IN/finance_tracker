@@ -14,7 +14,7 @@ from api.routers import auth, category, transaction, admin
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
  
-from .logger import create_info_logger
+from api.logger import create_info_logger
 server_logger = create_info_logger("Server Logger")
 
 @asynccontextmanager
