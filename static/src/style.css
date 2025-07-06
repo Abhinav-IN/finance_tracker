@@ -1,5 +1,13 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+@layer base {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
 :root {
   --radius: 0.65rem;
   --background: oklch(1 0 0);
@@ -88,6 +96,14 @@
   @apply border border-black/20 dark:border-white/20;
 }
 
+.button-active {
+  @apply border rounded-md p-2 border-black/20 shadow-sm flex items-center gap-4 cursor-pointer bg-black text-white hover:bg-black/90 hover:border-white dark:border-white/50 dark:bg-white dark:text-black dark:hover:bg-white/90 dark:hover:border-black;
+}
+
+.button-inactive {
+  @apply border rounded-md p-2 border-black/20 shadow-sm flex items-center gap-4 cursor-pointer hover:border-black dark:border-white/50 dark:hover:border-white;
+}
+
 .popUp {
   animation: popUp 1s forwards ease-in-out;
   -webkit-animation: popUp 1s forwards ease-in-out;
@@ -107,4 +123,18 @@
     -ms-transform: translateY("0px");
     -o-transform: translateY("0px");
   }
+}
+/* Define a transition duration during page visits */
+html.is-changing .transition-fade {
+  transition: opacity 0.25s;
+  opacity: 1;
+}
+
+/* Define the styles for the unloaded pages */
+html.is-animating .transition-fade {
+  opacity: 0;
+}
+
+.text-bg-colours {
+  @apply bg-gray-50 dark:bg-black/95 dark:text-white/80 text-black/70;
 }

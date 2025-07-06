@@ -6,7 +6,7 @@
   "scripts": {
     "start:dev:api": "uvicorn api.server:app --reload",
     "start:prod:api": "uvicorn api.server:app ",
-    "build:frontend": "cd static && pnpm build --emptyOutDir",
+    "build:frontend": "cd static && pnpm install && pnpm build --emptyOutDir",
     "start": "npm run build:frontend && npm run start:prod:api",
     "docker-up": "docker compose up -d mysql redis celery_worker"
   },

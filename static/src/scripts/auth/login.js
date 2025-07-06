@@ -35,6 +35,7 @@ loginForm.addEventListener("submit", async (e) => {
         localStorage.setItem("jwtToken", responseData.access_token);
         localStorage.setItem("tokenType", responseData.type); // Optional: store token type
 
+        console.log(responseData);
         data.isNotificationOpen = false;
         createNotification("Welcome Back!");
         // window.location.href = '/dashboard'; // Example: Redirect to dashboard

@@ -1,4 +1,6 @@
 import "./style.css";
+// import Swup from 'swup';
+// const swup = new Swup();
 
 const body = document.querySelector("body");
 // Function to toggle dark mode
@@ -42,13 +44,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-const userPanelToggle = document.querySelectorAll(".user-panel-toggle");
+// const userPanelToggle = document.querySelectorAll(".user-panel-toggle");
 
-userPanelToggle.forEach((button) => {
-  button.addEventListener("click", toggleUserPanel);
+// userPanelToggle.forEach((button) => {
+//   button.addEventListener("click", toggleUserPanel);
+// });
+
+body.addEventListener("click", (e) => {
+  const target = e.target;
+
+  if (target.classList.contains("user-panel-toggle")) {
+    toggleUserPanel();
+  }
+
+  if (target.classList.contains("navigation-toggle")) {
+    toggleNavigationPanel();
+  }
+
+  if (target.classList.contains("screen-toggle")) {
+    toggleHiddenElement(document.getElementById("addition-screen"));
+  }
 });
 
 function toggleUserPanel() {
   const userpanel = document.getElementById("user-panel");
   userpanel.classList.toggle("hidden");
+}
+
+function toggleNavigationPanel(element) {
+  console.log("Toggle Navigation Panel");
+  const panel = document.getElementById("navigation-panel");
+  panel.classList.toggle("-translate-x-full");
+}
+
+function toggleHiddenElement(element) {
+  element.classList.toggle("hidden");
 }
