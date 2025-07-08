@@ -1,0 +1,36 @@
+from api.utils.validator import validate_date_and_amount
+from datetime import date
+from pydantic import BaseModel, Field, model_validator
+from typing import Optional
+
+class budgetRequest(BaseModel):
+    budget_amount : int
+    start_date : date
+    end_date : date
+    category_name : str
+
+    @model_validator(mode='after')
+    def validate(self):
+        return validate_date_and_amount(self)
+
+class budgetResponse(budgetRequest):
+    budget_id : int
+    category_id : int
+
+    class Config:
+        from_attributes = True
+
+class budgetQueryParam(BaseModel):
+    budget_id : Optional[int] = Field(None, gt=0, description="ID of budget")
+    start_date : Optional[date] = Field(None, description="Starting date of budget")
+    end_date : Optional[date] = Field(None, description="ENding date of budget")
+    category_name : Optional[str] = Field(None, description="Name of category associated iwth budget")
+    greater_budget_amount : Optional[int] = Field(None, gt=0, description="Budgets greater than this amount")
+    lower_budget_amount : Optional[int] = Field(None, gt=0, description="Budgets lower than this amount")
+    exact_budget_amount : Optional[int] = Field(None, gt=0, description="Budgets exactly equal to this amount")
+    page : Optional[int] = Field(1, ge=1, description="Page number starting from 1")
+    limit : Optional[int] = Field(10, gt=0, description="No. of budgets per page")
+
+    @property
+    def get_offset(self):
+        return (self.page - 1) * self.limit

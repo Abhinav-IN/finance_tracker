@@ -11,10 +11,12 @@ class Budget(Base):
     end_date = Column(Date, nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     category_id = Column(Integer, ForeignKey('categories.category_id'), nullable=False)
+    budget_amount = Column(Integer, nullable=False)
 
     __table_args__ = (
         UniqueConstraint('user_id', 'category_id', name="uix_user_category"),
-        CheckConstraint("start_date < end_date", name="Start_end_date_check")
+        CheckConstraint("start_date < end_date", name="Start_end_date_check"),
+        CheckConstraint("budget_amount > 0", name="budget_amount_check")
     )
 
     user = relationship("User", back_populates="budgets")

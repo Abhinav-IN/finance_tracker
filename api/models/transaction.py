@@ -1,20 +1,24 @@
 from api.database.base import Base
-from datetime import datetime, timezone
-from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
+from datetime import datetime
+from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import TIMESTAMP
+from zoneinfo import ZoneInfo
 
 class Transaction(Base):
     __tablename__ = "transaction"
 
     transaction_id = Column(Integer, primary_key=True, nullable=False)
-    amount = Column(Integer, nullable=False)
-    description = Column(String(255), nullable=False)
-    timestamp = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    transaction_name = Column(String(64), nullable=False)
+    amount = Column(Float, nullable=False)
+    description = Column(String(140), nullable=False)
+    transaction_date = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     category_id = Column(Integer, ForeignKey("categories.category_id"), nullable=False)
     transaction_type_id = Column(Integer, ForeignKey("transactiontype.transaction_type_id"), nullable=False)
+    is_expense = Column(Boolean, nullable=False)
+    is_income = Column(Boolean, nullable=False)
     payment_mode_id = Column(Integer, ForeignKey("paymentmode.payment_mode_id"), nullable=False)
 
     __table_args__ = (

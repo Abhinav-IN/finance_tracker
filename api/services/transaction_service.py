@@ -142,10 +142,10 @@ def delete_transaction_service(transaction_id : int,
     transaction = db.query(Transaction).filter(Transaction.transaction_id == transaction_id).first()
 
     if not transaction:
-        raise HTTPException(status_code=404, detail="Transaction not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
     if user["role"] != "admin" and transaction.user_id != user["id"]:
-        raise HTTPException(status_code=403, detail="You can only delete your own transaction")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only delete your own transaction")
 
     db.delete(transaction)
     db.commit()

@@ -8,13 +8,12 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, transaction, admin
-
+from api.routers import auth, category, income, admin, expense, budget
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
  
-from api.logger import create_info_logger
+from api.utils.logger import create_info_logger
 server_logger = create_info_logger("Server Logger")
 
 @asynccontextmanager
@@ -50,10 +49,21 @@ app.include_router(category.router)
 server_logger.info("Category Router Loaded")
 print("--------------------------------")
 
-server_logger.info("Loading Transaction Router")
-app.include_router(transaction.router)
-server_logger.info("Transaction Router Loaded")
+server_logger.info("Loading Income Router")
+app.include_router(income.router)
+server_logger.info("Income Router Loaded")
 print("--------------------------------")
+
+server_logger.info("Loading Expense Router")
+app.include_router(expense.router)
+server_logger.info("Expense Router Loaded")
+print("--------------------------------")
+
+server_logger.info("Loading Budget Router")
+app.include_router(budget.router)
+server_logger.info("Budget Router Loaded")
+print("--------------------------------")
+
 
 # Serve static files
 

@@ -35,7 +35,7 @@ from pydantic import Field
 import os
 from datetime import datetime # Import datetime
 
-from api.logger import create_info_logger
+from api.utils.logger import create_info_logger
 
 config_logger = create_info_logger("Configuration Logger")
 # Function to get current timestamp for print statements
