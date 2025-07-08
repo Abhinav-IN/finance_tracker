@@ -8,7 +8,7 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, income, admin, expense, budget
+from api.routers import auth, category, income, admin, expense, budget, seed_data
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
@@ -63,6 +63,12 @@ server_logger.info("Loading Budget Router")
 app.include_router(budget.router)
 server_logger.info("Budget Router Loaded")
 print("--------------------------------")
+
+server_logger.info("Loading Seeding Router")
+app.include_router(seed_data.router)
+server_logger.info("Seeding Router Loaded")
+print("--------------------------------")
+
 
 
 # Serve static files
