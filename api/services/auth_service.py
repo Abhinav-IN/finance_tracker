@@ -1,10 +1,10 @@
 from api.core.config import settings
 from api.database.session import get_db
 from api.models.user import User, UserRole
-from api.schemas.user import userRegister, userLogin, refreshRequest, PasswordResetRequest, PasswordResetConfirm
+from api.schemas.auth import userRegister, userLogin, refreshRequest, PasswordResetRequest, PasswordResetConfirm
 from api.services.token_service import create_verification_token_service, create_access_token_service, verify_token_service, create_password_request_token_service
 from api.utils.hashing import hashing_password, verify_password
-from api.workers.celery_worker import verification_email, password_reset_email
+from api.tasks.email_task import verification_email, password_reset_email
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -54,6 +54,7 @@ def register_user_service(user: userRegister, db: Session = Depends(get_db)):
 
     verification_link = f"https://finance_tracker.com/verify?token={verification_token}"
     auth_logger.info(f" Verification token: {verification_token}")
+
     verification_email.delay(new_user.email, verification_link)
 
     return new_user

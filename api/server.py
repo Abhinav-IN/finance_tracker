@@ -8,7 +8,7 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, income, admin, expense, budget, seed_data
+from api.routers import auth, category, income, admin, expense, budget, seed_data, subscription, investment, investment_goal
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
@@ -68,6 +68,22 @@ server_logger.info("Loading Seeding Router")
 app.include_router(seed_data.router)
 server_logger.info("Seeding Router Loaded")
 print("--------------------------------")
+
+server_logger.info("Loading Subscription Router")
+app.include_router(subscription.router)
+server_logger.info("Subscription Router Loaded")
+print("--------------------------------")
+
+server_logger.info("Loading Investment Router")
+app.include_router(investment.router)
+server_logger.info("Investment Router Loaded")
+print("--------------------------------")
+
+server_logger.info("Loading Investment Goal Router")
+app.include_router(investment_goal.router)
+server_logger.info("Investment Goal Router Loaded")
+print("--------------------------------")
+
 
 
 

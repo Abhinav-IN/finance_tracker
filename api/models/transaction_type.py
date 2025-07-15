@@ -9,3 +9,4 @@ class TransactionType(Base):
     transaction_type = Column(String(255), nullable=False)
 
     transaction = relationship('Transaction', back_populates='transaction_type')
+    subscription = relationship('Subscription', back_populates='transaction_type')

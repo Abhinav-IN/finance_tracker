@@ -3,7 +3,6 @@ from api.database.session import get_db
 from api.models.category import Category
 from api.models.user import User
 from api.schemas.category import categoryCreate
-from api.utils.validator import user_active
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -11,7 +10,6 @@ from sqlalchemy.orm import Session
 def create_category_service(category : categoryCreate, 
                     user: dict = Depends(require_roles("user", "admin", "moderator")), 
                     db : Session = Depends(get_db)):
-    user_active(user, db)
     category_name = category.category_name.strip().lower()
     new_category = Category(category_name = category_name,  user_id=user["id"])
     db.add(new_category)
@@ -31,7 +29,6 @@ def get_categories_service(
     user: dict = Depends(require_roles("user", "admin")),
     db: Session = Depends(get_db)
 ):
-    user_active(user, db)
     categories = db.query(Category).filter(Category.user_id == user["id"]).all()
     return categories
 
@@ -40,14 +37,13 @@ def get_category_by_id_service(
     user: dict = Depends(require_roles("user", "admin")),
     db: Session = Depends(get_db)
 ):
-    user_active(user, db)
     category = db.query(Category).filter(Category.category_id == category_id).first()
 
     if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
 
     if user["role"] != "admin" and category.user_id != user["id"]:
-        raise HTTPException(status_code=403, detail="You can only access your own category")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only access your own category")
 
     return category
 
@@ -57,7 +53,6 @@ def update_category_service(
     user: dict = Depends(require_roles("user", "admin", "moderator")),
     db: Session = Depends(get_db)
 ):
-    user_active(user, db)
 
     category_query = db.query(Category).filter(
         Category.category_id == category_id,
@@ -86,7 +81,6 @@ def delete_category_service(
     user: dict = Depends(require_roles("user", "admin")),  
     db: Session = Depends(get_db)
 ):
-    user_active(user, db)
     category = db.query(Category).filter(Category.category_id == category_id).first()
 
     if not category:

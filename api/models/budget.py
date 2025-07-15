@@ -15,8 +15,8 @@ class Budget(Base):
 
     __table_args__ = (
         UniqueConstraint('user_id', 'category_id', name="uix_user_category"),
-        CheckConstraint("start_date < end_date", name="Start_end_date_check"),
-        CheckConstraint("budget_amount > 0", name="budget_amount_check")
+        CheckConstraint("start_date < end_date", name="chk_Start_end_date"),
+        CheckConstraint("budget_amount > 0", name="chk_budget_amount")
     )
 
     user = relationship("User", back_populates="budgets")

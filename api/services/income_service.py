@@ -36,7 +36,7 @@ def create_income_service(user_income : IncomeRequest,
         db.refresh(new_income)
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Something went wrong in creation of income")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in creation of income")
     
 
     return IncomeResponse(

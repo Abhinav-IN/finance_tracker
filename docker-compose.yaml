@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   mysql:
     image: mysql:8.0
@@ -14,23 +12,78 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - finance_net
 
   redis:
-    image: redis:7
+    image: redis:alpine
     container_name: redis_container
+    restart: always
     ports:
       - "6379:6379"
+    networks:
+      - finance_net
 
   celery_worker:
     build: .
-    container_name: celery_container
+    container_name: celery_worker
+    command: celery -A api.tasks.celery_worker.celery_app worker --loglevel=info
     volumes:
-      - .:/app
-    command: celery -A api.celery_worker.celery_app worker --loglevel=info
+      - ./api:/app/api
+      - ./alembic.ini:/app/alembic.ini
+      - ./requirements.txt:/app/requirements.txt
+      - ./.env:/app/.env
     depends_on:
-      - redis
-      - mysql
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_HOSTNAME: mysql
+      DATABASE_PORT: 3306
+      DATABASE_NAME: finance_tracker
+      DATABASE_USERNAME: user
+      DATABASE_PASSWORD: abhinavnaruto
+      REDIS_HOSTNAME: redis
+      REDIS_PORT: 6379
+    networks:
+      - finance_net
+
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A api.tasks.celery_worker.celery_app beat --loglevel=info
+    volumes:
+      - ./api:/app/api
+      - ./alembic.ini:/app/alembic.ini
+      - ./requirements.txt:/app/requirements.txt
+      - ./.env:/app/.env
+      - celery_beat_data:/app/celery-beat/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_HOSTNAME: mysql
+      DATABASE_PORT: 3306
+      DATABASE_NAME: finance_tracker
+      DATABASE_USERNAME: user
+      DATABASE_PASSWORD: abhinavnaruto
+      REDIS_HOSTNAME: redis
+      REDIS_PORT: 6379
+    networks:
+      - finance_net
 
 volumes:
   mysql_data:
+  celery_beat_data:
+
+networks:
+  finance_net:
+    driver: bridge

@@ -1,4 +1,4 @@
-from api.utils.validator import validate_amount, validate_transaction_type
+from api.utils.validator import validate_amount
 import datetime
 from pydantic import BaseModel, Field, model_validator
 from typing import Optional, Literal
@@ -10,7 +10,7 @@ def get_current_time_india():
 class ExpenseRequest(BaseModel):
     expense_name : str = Field(max_length=64)
     expense_date: datetime.datetime = Field(default_factory=get_current_time_india)
-    price : float
+    price : float = Field(gt=0)
     expense_type_name : str = Field(default="Nill")
     category_name : str
     payment_mode_name : str
@@ -19,7 +19,6 @@ class ExpenseRequest(BaseModel):
     @model_validator(mode="after")
     def validate_expense(self):
         validate_amount(self)
-        self.expense_type_name = validate_transaction_type(self.expense_type_name)
         return self
 
 class ExpenseResponse(ExpenseRequest):
@@ -37,10 +36,6 @@ class BudgetFeedback(BaseModel):
     spent: float
     remaining: float
     message: str
-
-class ExpenseResponseWithBudgetFeedback(BaseModel):
-    expense : ExpenseResponse
-    budget_feedback: BudgetFeedback
     
 class IncomeRequest(BaseModel):
     income_name : str = Field(max_length=64)
@@ -54,7 +49,6 @@ class IncomeRequest(BaseModel):
     @model_validator(mode="after")
     def validate_income(self):
         validate_amount(self)
-        self.income_type_name = validate_transaction_type(self.income_type_name)
         return self
 
 class IncomeResponse(IncomeRequest):

@@ -4,10 +4,12 @@ from api.models.budget import Budget
 from api.models.category import Category
 from api.services.lookup_create_service import get_or_create_category
 from api.schemas.budget import budgetRequest, budgetResponse, budgetQueryParam
-from api.utils.validator import user_active
+from api.utils.budget import get_budget_status
+from datetime import datetime
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from zoneinfo import ZoneInfo
 
 def create_budget_service(budget_request : budgetRequest,
                 user: dict = Depends(require_roles("user", "admin")), 
@@ -72,9 +74,6 @@ def update_budget_service(budget_id : int,
                 user: dict = Depends(require_roles("user", "admin")), 
                 db : Session = Depends(get_db)):
     
-    print("Budget ID received:", budget_id)
-    print("User ID:", user['id'])
-    print("Budget actually in DB:", db.query(Budget).filter(Budget.budget_id == budget_id).first())
     budget_query = db.query(Budget).filter(Budget.user_id == user['id'], Budget.budget_id == budget_id)
     existing_budget = budget_query.first()
 
@@ -123,4 +122,25 @@ def delete_budget_service(budget_id : int,
     db.commit()
     return 
 
-    
+def get_all_budget_status(user_id: int, db: Session):
+    today = datetime.now(ZoneInfo("Asia/Kolkata"))
+
+    categories = db.query(Category).filter(Category.user_id == user_id).all()
+
+    result = []
+
+    for category in categories:
+        status = get_budget_status(
+            user_id=user_id,
+            category_id=category.category_id,
+            expense_date=today,
+            db=db
+        )
+        if status:  
+            result.append({
+                "category_id": category.category_id,
+                "category_name": category.category_name,
+                **status
+            })
+
+    return result

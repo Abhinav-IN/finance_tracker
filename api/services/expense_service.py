@@ -3,7 +3,6 @@ from api.database.session import get_db
 from api.models.transaction import Transaction
 from api.models.category import Category
 from api.models.transaction_type import TransactionType
-from api.utils.budget import get_budget_status
 from api.models.payment_mode import PaymentMode
 from api.schemas.transaction import ExpenseRequest, ExpenseResponse, TransactionQueryParam
 from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
@@ -37,17 +36,10 @@ def create_expense_service(user_expense : ExpenseRequest,
         db.commit()
     except Exception as e:
         db.rollback(new_expense)
-        raise HTTPException(status_code=500, detail="Something went wrong in creation of expense")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in creation of expense")
 
-    budget_feedback = get_budget_status(
-    user_id=user["id"],
-    category_id=curr_category_id,
-    expense_date=user_expense.expense_date,
-    db=db
-)
 
-    return {
-    "expense": ExpenseResponse(
+    return ExpenseResponse(
         expense_id = new_expense.transaction_id,
         expense_name = new_expense.transaction_name,
         price = new_expense.amount,
@@ -59,9 +51,7 @@ def create_expense_service(user_expense : ExpenseRequest,
         category_name = new_expense.category.category_name,
         payment_mode_id = new_expense.payment_mode_id,
         payment_mode_name = new_expense.payment_mode.payment_mode
-    ),
-    "budget_feedback": budget_feedback 
-}
+    )
 
 def get_expense_service(user: dict = Depends(require_roles("user", "admin")), 
                         db : Session = Depends(get_db),
@@ -148,15 +138,7 @@ def update_expense_service(
     db.commit()
     db.refresh(existing_expense)
 
-    budget_feedback = get_budget_status(
-    user_id=user["id"],
-    category_id=curr_category_id,
-    expense_date=existing_expense.transaction_date,
-    db=db
-)
-
-    return {
-    "expense": ExpenseResponse(
+    return ExpenseResponse(
         expense_id = existing_expense.transaction_id,
         expense_name = existing_expense.transaction_name,
         price = existing_expense.amount,
@@ -168,9 +150,7 @@ def update_expense_service(
         category_name = existing_expense.category.category_name,
         payment_mode_id = existing_expense.payment_mode_id,
         payment_mode_name = existing_expense.payment_mode.payment_mode
-    ),
-    "budget_feedback": budget_feedback 
-}
+    )
 
 def delete_expense_service(expense_id : int,
                     user: dict = Depends(require_roles("user", "admin")), 

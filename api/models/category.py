@@ -17,3 +17,4 @@ class Category(Base):
     user = relationship('User', back_populates='category')
     budgets = relationship('Budget', back_populates='category')
     transactions = relationship('Transaction', back_populates='category')
+    subscription = relationship('Subscription', back_populates='category')

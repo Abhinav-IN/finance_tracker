@@ -5,10 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start:dev:api": "uvicorn api.server:app --reload",
-    "start:prod:api": "uvicorn api.server:app ",
+    "start:prod:api": "uvicorn api.server:app",
+    "dev:frontend": "cd static && pnpm dev",
     "build:frontend": "cd static && pnpm install && pnpm build --emptyOutDir",
-    "start": "npm run build:frontend && npm run start:prod:api",
-    "docker-up": "docker compose up -d mysql redis celery_worker"
+
+    "docker-up": "docker compose up -d mysql redis celery_worker celery_beat",
+    "docker-down": "docker compose down",
+
+    "start": "npm run docker-up && concurrently \"npm run start:dev:api\" \"npm run dev:frontend\""
   },
   "repository": {
     "type": "git",
@@ -20,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/Nommiiee/finance_tracker/issues"
   },
-  "homepage": "https://github.com/Nommiiee/finance_tracker#readme"
+  "homepage": "https://github.com/Nommiiee/finance_tracker#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
 }

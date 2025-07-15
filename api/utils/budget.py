@@ -28,11 +28,11 @@ def get_budget_status(user_id: int, category_id: int, expense_date: datetime, db
     status = "under"
     warning = ""
 
-    if remaining < 0:
+    if remaining <= 0:
         status = "over"
-        warning = f"⚠️ Budget exceeded by ₹{abs(remaining)}!"
+        warning = f"Budget exceeded by ₹{abs(remaining)}!"
     elif remaining <= 0.1 * budget.budget_amount:
-        warning = f"⚠️ Only ₹{remaining} left in budget!"
+        warning = f"Only ₹{remaining} left in budget!"
 
     return {
         "status": status,

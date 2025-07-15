@@ -98,6 +98,11 @@ class Settings(BaseSettings):
     config_logger.info(f" SMTP (Email) Settings Loaded Fully")
     print("-----------------------------------------------")
 
+    #Third party API for Investment API and currency conversion
+    config_logger.info(f"Loading Third party API settings")
+    currency_api_key: str = Field("a_very_api_key_that_should_be_long_and_random", alias="CURRENCY_API_KEY")
+    currency_api_url: str =Field("URL of currency api", alias="CURRENCY_API_URL")
+
 
 
     # CORS Settings

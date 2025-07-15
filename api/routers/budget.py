@@ -1,7 +1,7 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
-from api.schemas.budget import budgetRequest, budgetResponse, budgetQueryParam
-from api.services.budget_service import create_budget_service, get_budget_service, update_budget_service, delete_budget_service
+from api.schemas.budget import budgetRequest, budgetResponse, budgetQueryParam, AllBudgetStatusResponse
+from api.services.budget_service import create_budget_service, get_budget_service, update_budget_service, delete_budget_service, get_all_budget_status
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -32,3 +32,10 @@ def delete_budget(budget_id : int,
                 user: dict = Depends(require_roles("user", "admin")), 
                 db : Session = Depends(get_db)):
     return delete_budget_service(budget_id, user, db)
+
+@router.get('/budget-status', status_code=status.HTTP_200_OK, response_model=AllBudgetStatusResponse)
+def budget_status_all(
+    user: dict = Depends(require_roles("user", "admin")),
+    db: Session = Depends(get_db)
+):
+    return get_all_budget_status(user["id"], db)

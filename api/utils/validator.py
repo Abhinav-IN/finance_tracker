@@ -40,9 +40,3 @@ def validate_amount(model):
     if value <= 0:
         raise ValueError("Amount must be greater than 0")
     return model
-
-def validate_transaction_type(transaction_type_name : str) -> str:
-    allowed = {"salary", "rent", "other", "nil"}
-    if transaction_type_name.lower().strip() not in allowed:
-        return "nill"
-    return transaction_type_name

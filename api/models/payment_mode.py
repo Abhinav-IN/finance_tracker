@@ -9,3 +9,4 @@ class PaymentMode(Base):
     payment_mode = Column(String(255), nullable=False)
 
     transaction = relationship('Transaction', back_populates='payment_mode')
+    subscription = relationship('Subscription', back_populates='payment_mode')

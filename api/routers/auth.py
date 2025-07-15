@@ -1,5 +1,5 @@
 from api.database.session import get_db
-from api.schemas.user import PasswordResetRequest, PasswordResetConfirm, refreshRequest, refreshResponse, userLogin, userLoginResponse, userRegister, userRegisterResponse
+from api.schemas.auth import PasswordResetRequest, PasswordResetConfirm, refreshRequest, refreshResponse, userLogin, userLoginResponse, userRegister, userRegisterResponse
 from api.services.auth_service import login_service, password_reset_request_service, password_reset_confirm_service, refresh_access_token_service, register_user_service, verify_account_service
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session

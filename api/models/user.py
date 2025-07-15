@@ -1,12 +1,10 @@
 from api.database.base import Base
 from datetime import datetime, timezone
 import enum
-from sqlalchemy import Boolean, Column, Date, Integer, JSON, String, Enum as sa_enum
+from sqlalchemy import Boolean, Column, Date, DateTime, Integer, JSON, String, Enum as sa_enum
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
-
-
+from zoneinfo import ZoneInfo
 
 class UserRole(str, enum.Enum):
     user = "user"
@@ -34,11 +32,14 @@ class User(Base):
     failed_login_attempts = Column(Integer, default=0)
     last_failed_attempt_at = Column(TIMESTAMP(timezone=True), nullable=True)
     last_login_at = Column(TIMESTAMP(timezone=True), nullable=True)
-    created_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
     role = Column(sa_enum(UserRole, name="userrole"), nullable=False, default=UserRole.user)
 
 
     category = relationship('Category', back_populates='user')
     budgets = relationship('Budget', back_populates='user')
     transaction = relationship('Transaction', back_populates='user')
+    subscription = relationship('Subscription', back_populates='user')
+    investment = relationship('Investment', back_populates='user')
+    investment_goals = relationship("InvestmentGoal", back_populates="user")
