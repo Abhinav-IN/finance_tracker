@@ -14,7 +14,6 @@ def calculate_next_billing_date(
     tz = ZoneInfo("Asia/Kolkata")
     today = datetime.datetime.now(tz)
 
-    # Make start_date timezone-aware if it's naive
     if start_date.tzinfo is None:
         start_date = start_date.replace(tzinfo=tz)
 

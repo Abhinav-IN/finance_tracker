@@ -17,7 +17,6 @@ def sync_all_investments():
 
     for investment in all_investments:
         try:
-            # Use ticker_symbol instead of asset_name
             if not investment.ticker_symbol:
                 continue
 

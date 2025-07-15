@@ -17,7 +17,6 @@ def convert_currency(amount: float, from_currency: str, to_currency: str) -> flo
         response = requests.get(settings.currency_api_url, params=params, headers=headers)
         data = response.json()
 
-        # Check if expected structure exists
         rate = data.get("data", {}).get(to_currency, {}).get("value")
         if rate is None:
             raise ValueError(f"CurrencyAPI error: {data}")

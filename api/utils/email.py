@@ -9,8 +9,7 @@ def send_email(subject: str, to: str, body: str):
     msg["To"] = to
     msg.set_content(body)
 
-    # ✅ Use plain SMTP with starttls for port 587
     with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
-        server.starttls()  # 🧠 Required to upgrade to secure connection
+        server.starttls()  
         server.login(settings.smtp_user, settings.smtp_pass)
         server.send_message(msg)
