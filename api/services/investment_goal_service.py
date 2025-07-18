@@ -30,9 +30,13 @@ def create_goal_service(goalRequest : investment_goal_request,
         db.rollback()
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Something went wrong while adding investment goal")
     
-    link_investments_to_goal(new_goal.goal_id, goalRequest.investment_ids, user["id"], db)
-    investments = new_goal.investments
-
+    investments = link_investments_to_goal(
+    db=db,
+    goal=new_goal,
+    user_id=user["id"],
+    investment_ids=goalRequest.investment_ids,
+    applies_to_all=goalRequest.applies_to_all_investments
+)
     current_value = sum(investment.current_value or 0 for investment in investments)
     new_goal.current_value = current_value
     db.commit()
@@ -60,7 +64,7 @@ def get_goal_service(
     curr_query = (
         db.query(InvestmentGoal)
         .filter(InvestmentGoal.user_id == user["id"])
-        .options(joinedload(InvestmentGoal.investments))  # eager loading
+        .options(joinedload(InvestmentGoal.investments))  
     )
 
     if filter_query.goal_id:
@@ -130,9 +134,13 @@ def update_goal_service(goal_id : int,
     if not curr_goal:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Goal Not Found")
     
-    link_investments_to_goal(curr_goal.goal_id, user_goal.investment_ids, user["id"], db)
-    investments = curr_goal.investments
-
+    investments = link_investments_to_goal(
+    db=db,
+    goal=user_goal,
+    user_id=user["id"],
+    investment_ids=user_goal.investment_ids,
+    applies_to_all=user_goal.applies_to_all_investments
+)
     curr_goal_query = curr_goal_query.update({
         "goal_name" : user_goal.goal_name,
         "description" : user_goal.description,
@@ -197,7 +205,6 @@ def get_all_investment_goal_status(
         is_completed = current_value >= goal.goal_amount
         deadline_passed = now > goal.end_date.date()
 
-        # Set status
         if is_completed:
             status = "completed"
         elif deadline_passed:
@@ -205,7 +212,6 @@ def get_all_investment_goal_status(
         else:
             status = "active"
 
-        # Optional message
         message = None
         if status == "completed":
             message = f"Goal '{goal.goal_name}' completed!"

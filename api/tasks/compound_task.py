@@ -1,12 +1,16 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from api.schemas.investment import CompoundingFrequency
 
 def calculate_compound_growth(principal: float, interest_rate: float, 
                                start_date: datetime, end_date: datetime,
                                frequency: CompoundingFrequency) -> float:
-    """
-    Compound growth formula A = P * (1 + r/n)^(nt)
-    """
+    tz = ZoneInfo("Asia/Kolkata")
+    if start_date.tzinfo is None:
+        start_date = start_date.replace(tzinfo=tz)
+    if end_date.tzinfo is None:
+        end_date = end_date.replace(tzinfo=tz)
+
     freq_map = {
         CompoundingFrequency.yearly: 1,
         CompoundingFrequency.semi_annually: 2,

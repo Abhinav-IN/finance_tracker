@@ -16,6 +16,7 @@ class Investment(Base):
     description = Column(String(255), nullable=False)
     platform = Column(String(104), nullable=False)
     ticker_symbol = Column(String(104), nullable=True)
+    exchange_symbol = Column(String(104), nullable=True)
     amount_invested = Column(Float, nullable=False)
     units = Column(Float, nullable=True)
     buy_price_per_unit = Column(Float, nullable=True)

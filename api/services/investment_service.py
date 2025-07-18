@@ -1,9 +1,11 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
 from api.models.investment import Investment
-from api.schemas.investment import InvestmentRequest, investmentResponse, InvestmentQueryParam
+from api.schemas.investment import InvestmentRequest, investmentResponse, InvestmentQueryParam, stockSuggestionQueryParam, InvestmentUpdateRequest
 from api.utils.investment import calculate_compound_growth
-from api.utils.yahoo_finance import get_ticker_data
+from api.tasks.finnhub_task import search_company_symbols, get_current_price_of_stock
+from api.tasks.finnhub_task import get_current_price_of_stock
+from api.tasks.coingecko_task import get_current_crypto_price 
 from datetime import datetime, time
 from fastapi import Depends, status, HTTPException
 from sqlalchemy.orm import Session
@@ -16,7 +18,6 @@ def calculate_current_value(units: float, price_per_unit: float) -> float:
 def calculate_gain_or_loss(current_value: float, amount_invested: float) -> float:
     return round(current_value - amount_invested, 2)
 
-
 async def create_investment_service(
     user_investment: InvestmentRequest,
     user: dict = Depends(require_roles),
@@ -24,33 +25,56 @@ async def create_investment_service(
 ):
     last_synced_at = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
 
-    if user_investment.investment_type in ["stock", "mutual_fund", "etf", "crypto"]:
+    curr_price_per_unit = None
+    gainOrLoss = None
+    curr_value = None
+
+    if user_investment.investment_type == "mutual_fund":
+        curr_price_per_unit = user_investment.buy_price_per_unit
+        curr_value = calculate_current_value(user_investment.units, curr_price_per_unit)
+        gainOrLoss = calculate_gain_or_loss(curr_value, user_investment.amount_invested)
+
+    elif user_investment.investment_type in ["stock", "etf"]:
         try:
-            ticker_data = get_ticker_data(user_investment.ticker_symbol)
+            curr_price_per_unit = await get_current_price_of_stock(
+                user_investment.ticker_symbol,
+                user_investment.exchange_symbol
+            )
         except ValueError as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
             )
-        current_price = ticker_data["current_price_per_unit"]
-        last_synced_at = ticker_data["last_synced_at"]
-        curr_value = calculate_current_value(user_investment.units or 1, current_price)
+        if curr_price_per_unit:
+            curr_value = calculate_current_value(user_investment.units, curr_price_per_unit)
+            gainOrLoss = calculate_gain_or_loss(curr_value, user_investment.amount_invested)
+
+    elif user_investment.investment_type == "crypto":
+        try:
+            curr_price_per_unit = await get_current_crypto_price(user_investment.ticker_symbol)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Crypto price error: {str(e)}"
+            )
+        if curr_price_per_unit:
+            curr_value = calculate_current_value(user_investment.units, curr_price_per_unit)
+            gainOrLoss = calculate_gain_or_loss(curr_value, user_investment.amount_invested)
 
     elif user_investment.investment_type in ["fd", "bond"]:
         curr_value = calculate_compound_growth(
             principal=user_investment.amount_invested,
-            annual_rate=user_investment.interest_rate,
+            interest_rate=user_investment.interest_rate,
             start_date=user_investment.investment_date,
             end_date=last_synced_at,
             frequency=user_investment.compounding_frequency
         )
-        current_price = None
+        gainOrLoss = calculate_gain_or_loss(curr_value, user_investment.amount_invested)
 
     else:
-        current_price = user_investment.buy_price_per_unit or 0.0
-        curr_value = calculate_current_value(user_investment.units or 1, current_price)
-
-    gainOrLoss = calculate_gain_or_loss(curr_value, user_investment.amount_invested)
+        curr_price_per_unit = user_investment.buy_price_per_unit or 0.0
+        curr_value = calculate_current_value(user_investment.units or 1, curr_price_per_unit)
+        gainOrLoss = calculate_gain_or_loss(curr_value, user_investment.amount_invested)
 
     new_investment = Investment(
         user_id=user["id"],
@@ -60,13 +84,14 @@ async def create_investment_service(
         description=user_investment.description,
         platform=user_investment.platform,
         ticker_symbol=getattr(user_investment, "ticker_symbol", None),
+        exchange_symbol=getattr(user_investment, "exchange_symbol", None),
         amount_invested=user_investment.amount_invested,
         units=getattr(user_investment, "units", None),
         buy_price_per_unit=getattr(user_investment, "buy_price_per_unit", None),
         maturity_date=getattr(user_investment, "maturity_date", None),
         interest_rate=getattr(user_investment, "interest_rate", None),
         compounding_frequency=getattr(user_investment, "compounding_frequency", None),
-        current_price_per_unit=current_price,
+        current_price_per_unit=curr_price_per_unit,
         current_value=curr_value,
         is_active=user_investment.is_active,
         last_synced_at=last_synced_at,
@@ -77,7 +102,7 @@ async def create_investment_service(
     try:
         db.commit()
         db.refresh(new_investment)
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -85,7 +110,6 @@ async def create_investment_service(
         )
 
     return investmentResponse.model_validate(new_investment)
-
 
 def get_investment_service(filter_query: InvestmentQueryParam,
                             user: dict = Depends(require_roles("user", "admin")),
@@ -95,8 +119,6 @@ def get_investment_service(filter_query: InvestmentQueryParam,
         curr_query = curr_query.filter(Investment.investment_id == filter_query.investment_id)
     if filter_query.investment_name:
         curr_query = curr_query.filter(Investment.investment_name.ilike(filter_query.investment_name.strip()))
-    if filter_query.asset_name:
-        curr_query = curr_query.filter(Investment.ticker_symbol.ilike(filter_query.asset_name.strip()))
     if filter_query.type:
         curr_query = curr_query.filter(Investment.investment_type.ilike(filter_query.type.strip()))
     if filter_query.investment_date:
@@ -120,9 +142,8 @@ def get_investment_service(filter_query: InvestmentQueryParam,
     curr_query = curr_query.offset(filter_query.get_offset).limit(filter_query.limit)
     return [investmentResponse.model_validate(i) for i in curr_query.all()]
 
-
 async def update_investment_service(investment_id: int,
-                                    user_investment: InvestmentRequest,
+                                    user_investment: InvestmentUpdateRequest,
                                     user: dict = Depends(require_roles("admin", "user")),
                                     db: Session = Depends(get_db)):
     curr_investment_query = db.query(Investment).filter(
@@ -135,34 +156,68 @@ async def update_investment_service(investment_id: int,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Investment Not Found")
 
     last_synced_at = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+    
+    updated_curr_price_per_unit = None
+    updated_current_value = None
+    updated_gainOrLoss = None
 
-    if user_investment.investment_type in ["stock", "mutual_fund", "etf", "crypto"]:
-        try:
-            ticker_data = get_ticker_data(user_investment.ticker_symbol)
-        except ValueError as e:
-            raise HTTPException(
+    if user_investment.investment_type == "mutual_fund":
+        updated_curr_price_per_unit = user_investment.current_price_per_unit
+        updated_current_value = calculate_current_value(user_investment.units, updated_curr_price_per_unit)
+        updated_gainOrLoss = calculate_gain_or_loss(updated_current_value, user_investment.amount_invested)
+
+    elif user_investment.investment_type in ["stock", "etf"]:
+        if user_investment.current_price_per_unit and user_investment.current_price_per_unit != curr_investment.current_price_per_unit:
+            updated_curr_price_per_unit = user_investment.current_price_per_unit
+        else:
+            try:
+                curr_price_per_unit = await get_current_price_of_stock(
+                user_investment.ticker_symbol,
+                user_investment.exchange_symbol
+                )
+            except ValueError as e:
+                raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
             )
-        current_price = ticker_data["current_price_per_unit"]
-        last_synced_at = ticker_data["last_synced_at"]
-        curr_value = calculate_current_value(user_investment.units or 1, current_price)
+        
+        updated_curr_price_per_unit = curr_price_per_unit if curr_price_per_unit is not None else curr_investment.current_price_per_unit
+        if updated_curr_price_per_unit:
+            updated_current_value = calculate_current_value(user_investment.units, updated_curr_price_per_unit)
+            updated_gainOrLoss = calculate_gain_or_loss(updated_current_value, user_investment.amount_invested)
+
+    elif user_investment.investment_type == "crypto":
+        if user_investment.current_price_per_unit and user_investment.current_price_per_unit != curr_investment.current_price_per_unit:
+            updated_curr_price_per_unit = user_investment.current_price_per_unit
+        else:
+            try:
+                curr_price_per_unit = await get_current_crypto_price(user_investment.ticker_symbol)
+            except ValueError as e:
+                raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Crypto price error: {str(e)}"
+                )
+        updated_curr_price_per_unit = curr_price_per_unit if curr_price_per_unit is not None else curr_investment.current_price_per_unit
+        if updated_curr_price_per_unit:
+            updated_current_value = calculate_current_value(user_investment.units, updated_curr_price_per_unit)
+            updated_gainOrLoss = calculate_gain_or_loss(updated_current_value, user_investment.amount_invested)
 
     elif user_investment.investment_type in ["fd", "bond"]:
-        curr_value = calculate_compound_growth(
+        updated_current_value = calculate_compound_growth(
             principal=user_investment.amount_invested,
-            annual_rate=user_investment.interest_rate,
+            interest_rate=user_investment.interest_rate,
             start_date=user_investment.investment_date,
             end_date=last_synced_at,
             frequency=user_investment.compounding_frequency
         )
-        current_price = None
+        updated_gainOrLoss = calculate_gain_or_loss(updated_current_value, user_investment.amount_invested)
 
     else:
-        current_price = user_investment.buy_price_per_unit or 0.0
-        curr_value = calculate_current_value(user_investment.units or 1, current_price)
+        updated_curr_price_per_unit = user_investment.current_price_per_unit
+        updated_current_value = calculate_current_value(user_investment.units or 1, updated_curr_price_per_unit)
+        updated_gainOrLoss = calculate_gain_or_loss(updated_current_value, user_investment.amount_invested)
 
-    gainOrLoss = calculate_gain_or_loss(curr_value, user_investment.amount_invested)
+
 
     curr_investment_query.update({
         "investment_name": user_investment.investment_name,
@@ -177,11 +232,11 @@ async def update_investment_service(investment_id: int,
         "maturity_date": getattr(user_investment, "maturity_date", None),
         "interest_rate": getattr(user_investment, "interest_rate", None),
         "compounding_frequency": getattr(user_investment, "compounding_frequency", None),
-        "current_price_per_unit": current_price,
-        "current_value": curr_value,
+        "current_price_per_unit": updated_curr_price_per_unit,
+        "current_value": updated_current_value,
         "is_active": user_investment.is_active,
         "last_synced_at": last_synced_at,
-        "gain_or_loss": gainOrLoss
+        "gain_or_loss": updated_gainOrLoss
     }, synchronize_session=False)
 
     try:
@@ -192,6 +247,7 @@ async def update_investment_service(investment_id: int,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating investment")
 
     return investmentResponse.model_validate(curr_investment)
+
 
 
 def delete_investment_service(investment_id: int,
@@ -208,3 +264,14 @@ def delete_investment_service(investment_id: int,
     db.delete(investment)
     db.commit()
     return
+
+async def suggest_symbols(filter_query : stockSuggestionQueryParam,
+                          user : dict = Depends(get_db)):
+    try:
+        results = await search_company_symbols(filter_query.company_name)
+        if not results:
+            return {"message": "No relevant US or Indian stocks found."}
+        return results
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

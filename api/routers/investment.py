@@ -1,11 +1,12 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
-from api.schemas.investment import InvestmentRequest, investmentResponse, InvestmentQueryParam  # ✅ FIXED
+from api.schemas.investment import InvestmentRequest, investmentResponse, InvestmentQueryParam, stockSuggestionQueryParam, SymbolSuggestionResponse, InvestmentUpdateRequest
 from api.services.investment_service import (
     create_investment_service,
     get_investment_service,
     update_investment_service,
     delete_investment_service,
+    suggest_symbols
 )
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -14,8 +15,8 @@ from typing import List
 router = APIRouter(tags=['Investment'], prefix='/api/v1/investment')
 
 @router.post('/create', status_code=status.HTTP_201_CREATED, response_model=investmentResponse)
-async def create_investment(  # ✅ typo fixed in function name
-    user_investment: InvestmentRequest,  # ✅ FIXED
+async def create_investment(  
+    user_investment: InvestmentRequest,  
     user: dict = Depends(require_roles("user", "admin")),
     db: Session = Depends(get_db),
 ):
@@ -32,7 +33,7 @@ def get_investment(
 @router.put('/update/{investment_id}', status_code=status.HTTP_200_OK, response_model=investmentResponse)
 async def update_investment(
     investment_id: int,
-    user_investment: InvestmentRequest,  # ✅ FIXED
+    user_investment: InvestmentUpdateRequest,  
     user: dict = Depends(require_roles("user", "admin")),
     db: Session = Depends(get_db),
 ):
@@ -45,3 +46,8 @@ def delete_investment(
     db: Session = Depends(get_db),
 ):
     return delete_investment_service(investment_id, user, db)
+
+@router.get('/stock/suggestion', status_code=status.HTTP_200_OK, response_model=List[SymbolSuggestionResponse])
+async def get_stock_suggestion(filter_query: stockSuggestionQueryParam = Depends(),
+                               user : dict = Depends(require_roles("user", "admin"))):
+    return await suggest_symbols(filter_query, user)

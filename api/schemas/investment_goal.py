@@ -34,7 +34,7 @@ class investment_goal_status_response(BaseModel):
     remaining: float
     start_date: datetime.date
     end_date: datetime.date
-    status: str  # "active", "completed", "expired"
+    status: str  
     message: Optional[str] = None
     
     model_config = {

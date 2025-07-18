@@ -1,5 +1,5 @@
 from api.database.base import Base
-from datetime import datetime, timezone
+from datetime import datetime
 import enum
 from sqlalchemy import Boolean, Column, Date, DateTime, Integer, JSON, String, Enum as sa_enum
 from sqlalchemy.orm import relationship

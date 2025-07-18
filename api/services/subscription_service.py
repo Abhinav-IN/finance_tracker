@@ -22,11 +22,11 @@ def create_subscription_service(
     curr_transaction_type_id = get_or_create_transactionType(user_subscription.expense_type_name, user["id"], db)
     curr_payment_mode_id = get_or_create_paymentMode(user_subscription.payment_mode_name, user["id"], db)
 
-    #next_billing = calculate_next_billing_date(
-        #start_date=user_subscription.start_date,
-        #billing_cycle=user_subscription.billing_cycle.value,
-        #end_date=user_subscription.end_date
-    #)
+    next_billing = calculate_next_billing_date(
+        start_date=user_subscription.start_date,
+        billing_cycle=user_subscription.billing_cycle.value,
+        end_date=user_subscription.end_date
+    )
 
     new_subscription = Subscription(
         subscription_name=user_subscription.subscription_name,
@@ -36,7 +36,7 @@ def create_subscription_service(
         billing_cycle=user_subscription.billing_cycle.value,
         start_date=user_subscription.start_date,
         end_date=user_subscription.end_date,
-        next_billing_date="2025-07-13",
+        next_billing_date=next_billing,
         user_id=user["id"],
         category_id=curr_category_id,
         transaction_type_id=curr_transaction_type_id,
