@@ -8,7 +8,7 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, income, admin, expense, budget, seed_data, subscription, investment, investment_goal
+from api.routers import auth, category, income, admin, expense, budget, seed_data, subscription, investment, investment_goal, dashboard
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
@@ -84,8 +84,10 @@ app.include_router(investment_goal.router)
 server_logger.info("Investment Goal Router Loaded")
 print("--------------------------------")
 
-
-
+server_logger.info("Loading Dashboard Router")
+app.include_router(dashboard.router)
+server_logger.info("Dashboard Router Loaded")
+print("--------------------------------")
 
 # Serve static files
 
