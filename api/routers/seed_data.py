@@ -5,6 +5,7 @@ from api.database.session import get_db
 from api.models.user import User
 from api.models.transaction import Transaction
 from api.models.budget import Budget
+from api.utils.hashing import hashing_password
 from api.services.lookup_create_service import (
     get_or_create_category,
     get_or_create_paymentMode,
@@ -14,6 +15,7 @@ from fastapi import APIRouter, Depends
 
 router = APIRouter(tags=['Seeding'], prefix='/api/v1/seed')
 fake = Faker()
+user_password = "TestPassword123!"
 
 @router.post("/test-user-data")
 def seed_test_user_data(db: Session = Depends(get_db)):
@@ -24,7 +26,7 @@ def seed_test_user_data(db: Session = Depends(get_db)):
             email="testuser@example.com",
             first_name="Test",
             last_name="User",
-            hashed_password="dummy_hash_pwd",
+            hashed_password=hashing_password(user_password),
             gender="other",
             dob=datetime(2000, 1, 1).date(),
             is_active=True,
