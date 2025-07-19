@@ -106,4 +106,7 @@ def seed_test_user_data(db: Session = Depends(get_db)):
         db.add(income)
 
     db.commit()
-    return {"message": "Test user and seed data created successfully."}
+    return {"message": "Test user and seed data created successfully.",
+            "user_name" : user.username,
+            "user_password" : user_password,
+            "user_mail" : user.email}
