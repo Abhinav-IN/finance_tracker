@@ -11,9 +11,18 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.10
         version: 4.1.10(vite@7.0.0(jiti@2.4.2)(lightningcss@1.30.1))
+      alpinejs:
+        specifier: ^3.14.9
+        version: 3.14.9
       chart.js:
         specifier: ^4.5.0
         version: 4.5.0
+      rivets:
+        specifier: ^0.9.6
+        version: 0.9.6
+      sightglass:
+        specifier: ^0.2.6
+        version: 0.2.6
       swup:
         specifier: ^4.8.2
         version: 4.8.2
@@ -402,6 +411,15 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@vue/reactivity@3.1.5':
+    resolution: {integrity: sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg==}
+
+  '@vue/shared@3.1.5':
+    resolution: {integrity: sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==}
+
+  alpinejs@3.14.9:
+    resolution: {integrity: sha512-gqSOhTEyryU9FhviNqiHBHzgjkvtukq9tevew29fTj+ofZtfsYriw4zPirHHOAy9bw8QoL3WGhyk7QqCh5AYlw==}
+
   anymatch@3.1.3:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
@@ -612,10 +630,16 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
+  rivets@0.9.6:
+    resolution: {integrity: sha512-KfdMjLRWw4+38ej9bRXegKZVfYo0jEacwadA5z6NTKya+YohwGemwdbxvJ52WCXODkTnR4Q8UmUC6HVxsdzkxA==}
+
   rollup@4.44.0:
     resolution: {integrity: sha512-qHcdEzLCiktQIfwBq420pn2dP+30uzqYxv9ETm91wdt2R9AFcWfjNAmje4NWlnCIQ5RMTzVf0ZyisOKqHR6RwA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  sightglass@0.2.6:
+    resolution: {integrity: sha512-t1fgbuhURcWc8VgZk8kJQ3QmmZk3kghDcf0wpsN8I8RaV05IUkc2b195KpGqgocKT/q8+vKk6EcB2c7N2lAd6A==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -938,6 +962,16 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@vue/reactivity@3.1.5':
+    dependencies:
+      '@vue/shared': 3.1.5
+
+  '@vue/shared@3.1.5': {}
+
+  alpinejs@3.14.9:
+    dependencies:
+      '@vue/reactivity': 3.1.5
+
   anymatch@3.1.3:
     dependencies:
       normalize-path: 3.0.0
@@ -1132,6 +1166,10 @@ snapshots:
     dependencies:
       picomatch: 2.3.1
 
+  rivets@0.9.6:
+    dependencies:
+      sightglass: 0.2.6
+
   rollup@4.44.0:
     dependencies:
       '@types/estree': 1.0.8
@@ -1157,6 +1195,8 @@ snapshots:
       '@rollup/rollup-win32-ia32-msvc': 4.44.0
       '@rollup/rollup-win32-x64-msvc': 4.44.0
       fsevents: 2.3.3
+
+  sightglass@0.2.6: {}
 
   source-map-js@1.2.1: {}
 

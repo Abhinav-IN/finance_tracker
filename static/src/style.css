@@ -138,3 +138,12 @@ html.is-animating .transition-fade {
 .text-bg-colours {
   @apply bg-gray-50 dark:bg-black/95 dark:text-white/80 text-black/70;
 }
+.no-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scroll-bar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

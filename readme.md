@@ -41,7 +41,7 @@ python -m venv .venv
 
 - **Windows:**
   ```sh
-  .venv\Scripts\activate
+ tll 
   ```
 - **Linux/macOS:**
   ```sh

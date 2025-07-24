@@ -38,6 +38,9 @@ loginForm.addEventListener("submit", async (e) => {
         console.log(responseData);
         data.isNotificationOpen = false;
         createNotification("Welcome Back!");
+        setTimeout(() => {
+          window.location.href = "/dashboard/";
+        }, 500);
         // window.location.href = '/dashboard'; // Example: Redirect to dashboard
         // Or update a state variable to show protected content
       } else {
@@ -48,7 +51,7 @@ loginForm.addEventListener("submit", async (e) => {
         );
         data.isNotificationOpen = false;
         createNotification(
-          "Login successful, but an issue occurred. Please try again."
+          "Login unsuccessful, but an issue occurred. Please try again."
         );
       }
     } else {

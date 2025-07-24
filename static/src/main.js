@@ -1,54 +1,22 @@
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 import "./style.css";
+import rivets from "rivets";
+
 // import Swup from 'swup';
 // const swup = new Swup();
 
+export const data = {
+  user: {},
+  income: {},
+  expense: {},
+  investment: {},
+  subscription: {},
+};
+
 const body = document.querySelector("body");
-// Function to toggle dark mode
-function toggleDarkMode() {
-  const htmlElement = document.documentElement;
-  console.log("Toggling dark mode..."); // Changed for clarity
-  if (htmlElement.classList.contains("dark")) {
-    htmlElement.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  } else {
-    htmlElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  }
-}
-
-// Function to set initial theme based on user's preference or system settings
-function setInitialTheme() {
-  const htmlElement = document.documentElement;
-  const storedTheme = localStorage.getItem("theme");
-
-  if (
-    storedTheme === "dark" ||
-    (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
-  ) {
-    htmlElement.classList.add("dark");
-  } else {
-    htmlElement.classList.remove("dark");
-  }
-}
-
-// Wait for the DOM to be fully loaded before interacting with elements
-document.addEventListener("DOMContentLoaded", () => {
-  setInitialTheme(); // Set the initial theme
-
-  const darkModeButton = document.getElementById("darkModeButton");
-  if (darkModeButton) {
-    // Always check if the element exists
-    darkModeButton.addEventListener("click", toggleDarkMode);
-  } else {
-    console.error("Dark mode button not found!");
-  }
+rivets.bind(body, {
+  data: data,
 });
-
-// const userPanelToggle = document.querySelectorAll(".user-panel-toggle");
-
-// userPanelToggle.forEach((button) => {
-//   button.addEventListener("click", toggleUserPanel);
-// });
 
 body.addEventListener("click", (e) => {
   const target = e.target;
@@ -59,6 +27,9 @@ body.addEventListener("click", (e) => {
 
   if (target.classList.contains("navigation-toggle")) {
     toggleNavigationPanel();
+  }
+  if (target.classList.contains("logout")) {
+    logout();
   }
 
   if (target.classList.contains("screen-toggle")) {
@@ -79,4 +50,25 @@ function toggleNavigationPanel(element) {
 
 function toggleHiddenElement(element) {
   element.classList.toggle("hidden");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (jwtToken) {
+    console.log("User appears to be logged in.");
+  } else {
+    console.log("User is not logged in.");
+    window.location.href = "/";
+  }
+});
+
+function logout() {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.log("User is not logged in");
+    return;
+  }
+  localStorage.removeItem("jwtToken");
+  alert("User Has Been Logged Out");
+  window.location.href = "/";
 }
