@@ -41,6 +41,12 @@ class SubscriptionResponse(SubscriptionRequest):
         "from_attributes": True 
     }
 
+class SubscriptionOverview(BaseModel):
+    total_subscription_last_30_days : float
+    total_subscription_last_7_days : float
+    average_monthly_subscription : float
+    average_weekly_subscription : float
+
 class SubscriptionQueryParam(BaseModel):
     page : int = Field(1, ge=1, description="Page number starting from 1")
     subscription_id : Optional[int] = Field(None, description="Subscription ID")

@@ -30,6 +30,12 @@ class ExpenseResponse(ExpenseRequest):
     class Config:
         from_attributes = True
 
+class ExpenseOverview(BaseModel):
+    total_expense_last_30_days : float
+    total_expense_last_7_days : float
+    average_monthly_expense : float
+    average_weekly_expense : float
+
 class BudgetFeedback(BaseModel):
     status: Literal["under", "over"]
     budget_amount: float
@@ -59,6 +65,12 @@ class IncomeResponse(IncomeRequest):
 
     class Config:
         from_attributes = True
+    
+class IncomeOverview(BaseModel):
+    total_income_last_30_days : float
+    total_income_last_7_days : float
+    average_monthly_income : float
+    average_weekly_income : float
 
 class TransactionQueryParam(BaseModel):
     page : int = Field(1, ge=1, description="Page number starting from 1")

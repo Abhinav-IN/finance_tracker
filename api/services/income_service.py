@@ -6,9 +6,9 @@ from api.models.transaction_type import TransactionType
 from api.models.payment_mode import PaymentMode
 from api.schemas.transaction import IncomeRequest, IncomeResponse, TransactionQueryParam
 from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm import Session 
 from zoneinfo import ZoneInfo
 
@@ -166,3 +166,46 @@ def delete_income_service(income_id : int,
     db.delete(income)
     db.commit()
     return
+
+def overview_services(user: dict = Depends(require_roles("user", "admin")), db: Session = Depends(get_db)):
+    #Calculating total income in last 30 days
+    thirty_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=30)
+    total_income = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_income == True,
+        Transaction.transaction_date >= thirty_days_ago
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+
+    #Calculating total income in last 7 days
+    seven_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=7)
+    total_income_7_days = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_income == True,
+        Transaction.transaction_date >= seven_days_ago
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+
+    # Average monthly income
+    current_month_start = datetime.now(ZoneInfo("Asia/Kolkata")).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    total_income_current_month = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_income == True,
+        Transaction.transaction_date >= current_month_start
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+    average_monthly_income = total_income_current_month / (datetime.now(ZoneInfo("Asia/Kolkata")).day or 1)
+
+    # Average weekly income
+    current_week_start = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=datetime.now(ZoneInfo("Asia/Kolkata")).weekday())
+    total_income_current_week = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_income == True,
+        Transaction.transaction_date >= current_week_start
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+    average_weekly_income = total_income_current_week / (datetime.now(ZoneInfo("Asia/Kolkata")).weekday() + 1 or 1)
+    
+    return {
+        "total_income_last_30_days": total_income,
+        "total_income_last_7_days": total_income_7_days,
+        "average_monthly_income": average_monthly_income,
+        "average_weekly_income": average_weekly_income
+    }
+

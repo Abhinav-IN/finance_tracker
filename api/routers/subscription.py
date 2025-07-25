@@ -1,7 +1,7 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
-from api.schemas.subscription import SubscriptionRequest, SubscriptionResponse, SubscriptionQueryParam
-from api.services.subscription_service import create_subscription_service, get_subscription_service, update_subscription_service, delete_subscription_service
+from api.schemas.subscription import SubscriptionRequest, SubscriptionResponse, SubscriptionQueryParam, SubscriptionOverview
+from api.services.subscription_service import create_subscription_service, get_subscription_service, update_subscription_service, delete_subscription_service, overview_services
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -32,3 +32,7 @@ def delete_subscription(subscription_id : int,
                 user: dict = Depends(require_roles("user", "admin")), 
                 db : Session = Depends(get_db)):
     return delete_subscription_service(subscription_id, user, db)
+
+@router.get('/overview', status_code=status.HTTP_200_OK, response_model=SubscriptionOverview)
+def overview_income(user: dict = Depends(require_roles("user", "admin")),  db: Session = Depends(get_db)):
+    return overview_services(user, db)
