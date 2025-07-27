@@ -6,9 +6,9 @@ from api.models.transaction_type import TransactionType
 from api.models.payment_mode import PaymentMode
 from api.schemas.transaction import ExpenseRequest, ExpenseResponse, TransactionQueryParam
 from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm import Session 
 from zoneinfo import ZoneInfo
 
@@ -166,3 +166,45 @@ def delete_expense_service(expense_id : int,
     db.delete(expense)
     db.commit()
     return
+
+def overview_services(user: dict = Depends(require_roles("user", "admin")), db: Session = Depends(get_db)):
+    #Calculating total expense in last 30 days
+    thirty_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=30)
+    total_expense = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_expense == True,
+        Transaction.transaction_date >= thirty_days_ago
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+
+    #Calculating total expense in last 7 days
+    seven_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=7)
+    total_expense_7_days = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_expense == True,
+        Transaction.transaction_date >= seven_days_ago
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+
+    # Average monthly expense
+    current_month_start = datetime.now(ZoneInfo("Asia/Kolkata")).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    total_expense_current_month = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_expense == True,
+        Transaction.transaction_date >= current_month_start
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+    average_monthly_expense = total_expense_current_month / (datetime.now(ZoneInfo("Asia/Kolkata")).day or 1)
+
+    # Average weekly expense
+    current_week_start = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=datetime.now(ZoneInfo("Asia/Kolkata")).weekday())
+    total_expense_current_week = db.query(Transaction).filter(
+        Transaction.user_id == user["id"],
+        Transaction.is_expense == True,
+        Transaction.transaction_date >= current_week_start
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0
+    average_weekly_expense = total_expense_current_week / (datetime.now(ZoneInfo("Asia/Kolkata")).weekday() + 1 or 1)
+    
+    return {
+        "total_expense_last_30_days": total_expense,
+        "total_expense_last_7_days": total_expense_7_days,
+        "average_monthly_expense": average_monthly_expense,
+        "average_weekly_expense": average_weekly_expense
+    }

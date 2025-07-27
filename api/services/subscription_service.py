@@ -7,9 +7,9 @@ from api.models.transaction_type import TransactionType
 from api.schemas.subscription import SubscriptionRequest, SubscriptionQueryParam, SubscriptionResponse
 from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
 from api.tasks.subscription import calculate_next_billing_date
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm import Session
 from zoneinfo import ZoneInfo
 
@@ -233,3 +233,41 @@ def delete_subscription_service(subscription_id : int,
     db.delete(subscription)
     db.commit()
     return 
+
+def overview_services(user: dict = Depends(require_roles("user", "admin")), db : Session = Depends(get_db)):
+    # Calculating total subscription amount in last 30 days
+    thirty_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=30)
+    total_subscription = db.query(Subscription).filter(
+        Subscription.user_id == user["id"],
+        Subscription.start_date >= thirty_days_ago
+    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
+
+    # Calculating total subscription amount in last 7 days
+    seven_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=7)
+    total_subscription_7_days = db.query(Subscription).filter(
+        Subscription.user_id == user["id"],
+        Subscription.start_date >= seven_days_ago
+    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
+
+    # Calculating average monthly subscription amount
+    current_month_start = datetime.now(ZoneInfo("Asia/Kolkata")).replace(day=1)
+    total_subscription_current_month = db.query(Subscription).filter(
+        Subscription.user_id == user["id"],
+        Subscription.start_date >= current_month_start
+    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
+    average_monthly_subscription = total_subscription_current_month / (datetime.now(ZoneInfo("Asia/Kolkata")).day or 1)
+
+    # Calculating average weekly subscription amount
+    current_week_start = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=datetime.now(ZoneInfo("Asia/Kolkata")).weekday())
+    total_subscription_current_week = db.query(Subscription).filter(
+        Subscription.user_id == user["id"],
+        Subscription.start_date >= current_week_start
+    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
+    average_weekly_subscription = total_subscription_current_week / (datetime.now(ZoneInfo("Asia/Kolkata")).weekday() + 1 or 1)
+
+    return {
+        "total_subscription_last_30_days": total_subscription,
+        "total_subscription_last_7_days": total_subscription_7_days,
+        "average_monthly_subscription": average_monthly_subscription,
+        "average_weekly_subscription": average_weekly_subscription
+    }

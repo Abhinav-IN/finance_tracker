@@ -1,7 +1,7 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
-from api.schemas.transaction import TransactionQueryParam, ExpenseResponse, ExpenseRequest
-from api.services.expense_service import create_expense_service, delete_expense_service, get_expense_service, update_expense_service
+from api.schemas.transaction import TransactionQueryParam, ExpenseResponse, ExpenseRequest, ExpenseOverview
+from api.services.expense_service import create_expense_service, delete_expense_service, get_expense_service, update_expense_service, overview_services
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -37,3 +37,7 @@ def delete_expense(expense_id : int,
                     user: dict = Depends(require_roles("user", "admin")), 
                     db: Session = Depends(get_db)):
     return delete_expense_service(expense_id, user, db)
+
+@router.get('/overview', status_code=status.HTTP_200_OK, response_model=ExpenseOverview)
+def overview_income(user: dict = Depends(require_roles("user", "admin")),  db: Session = Depends(get_db)):
+    return overview_services(user, db)
