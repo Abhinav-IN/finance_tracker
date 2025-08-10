@@ -16,6 +16,7 @@ class Subscription(Base):
     start_date = Column(DateTime(timezone=True), nullable=False)
     end_date = Column(DateTime(timezone=True), nullable=True)
     next_billing_date = Column(DateTime(timezone=True), nullable=True)
+    account_linked = Column(Integer, ForeignKey("account.account_id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     category_id = Column(Integer, ForeignKey("categories.category_id"), nullable=False)
     transaction_type_id = Column(Integer, ForeignKey("transactiontype.transaction_type_id"), nullable=False)
@@ -32,4 +33,5 @@ class Subscription(Base):
     category = relationship('Category', back_populates='subscription')
     transaction_type = relationship('TransactionType', back_populates='subscription')
     payment_mode = relationship('PaymentMode', back_populates='subscription')
+    account = relationship('Account', back_populates='subscription')
 

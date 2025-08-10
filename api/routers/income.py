@@ -1,10 +1,9 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
-from api.schemas.transaction import TransactionQueryParam, IncomeResponse, IncomeRequest, IncomeOverview
+from api.schemas.transaction import TransactionQueryParam, IncomeResponse, IncomeRequest, IncomeOverview, PaginatedIncomeResponse
 from api.services.income_service import create_income_service, delete_income_service, get_income_service, update_income_service, overview_services
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from typing import List
 
 router = APIRouter(tags=['Income'], prefix='/api/v1/transaction/income')
 
@@ -15,7 +14,7 @@ def create_income(user_income : IncomeRequest,
     return create_income_service(user_income, user, db)
     
 
-@router.get('/', status_code=status.HTTP_200_OK, response_model=List[IncomeResponse])
+@router.get('/', status_code=status.HTTP_200_OK, response_model=PaginatedIncomeResponse)
 def get_income(user: dict = Depends(require_roles("user", "admin")), 
                         db : Session = Depends(get_db),
                         filter_query : TransactionQueryParam = Depends()):

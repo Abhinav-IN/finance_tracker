@@ -4,10 +4,12 @@ from api.models.transaction import Transaction
 from api.models.category import Category
 from api.models.transaction_type import TransactionType
 from api.models.payment_mode import PaymentMode
+from api.models.account import Account
 from api.schemas.transaction import IncomeRequest, IncomeResponse, TransactionQueryParam
-from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
+from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType, get_account_id
 from datetime import datetime, time, timedelta
 from fastapi import Depends, HTTPException, status
+from math import ceil
 from sqlalchemy import or_, func
 from sqlalchemy.orm import Session 
 from zoneinfo import ZoneInfo
@@ -19,11 +21,13 @@ def create_income_service(user_income : IncomeRequest,
     curr_category_id = get_or_create_category(user_income.category_name, user["id"], db)
     curr_transaction_type_id = get_or_create_transactionType(user_income.income_type_name, user["id"], db)
     curr_payment_mode_id = get_or_create_paymentMode(user_income.payment_mode_name, user["id"], db)
+    curr_account_id = get_account_id(user_income.account_name, user["id"], db)
     
     new_income = Transaction(transaction_name = user_income.income_name,
                               amount = user_income.amount,
                               description = user_income.additional_note,
                               transaction_date = user_income.recieved_date,
+                              account_linked = curr_account_id,
                               user_id = user["id"],
                               category_id = curr_category_id,
                               transaction_type_id = curr_transaction_type_id,
@@ -44,6 +48,8 @@ def create_income_service(user_income : IncomeRequest,
         income_name = new_income.transaction_name,
         amount = new_income.amount,
         recieved_date = new_income.transaction_date,
+        account_id = new_income.account_linked,
+        account_name = getattr(new_income.account, "account_name", None),
         additional_note = new_income.description,
         income_type_id = new_income.transaction_type_id,
         income_type_name = new_income.transaction_type.transaction_type,
@@ -53,63 +59,78 @@ def create_income_service(user_income : IncomeRequest,
         payment_mode_name = new_income.payment_mode.payment_mode
 )
 
-def get_income_service(user: dict = Depends(require_roles("user", "admin")), 
-                        db : Session = Depends(get_db),
-                        filter_query : TransactionQueryParam = Depends()):
-    curr_query = db.query(Transaction).filter(Transaction.user_id == user["id"], Transaction.is_income == True)
+def get_income_service(
+    user: dict = Depends(require_roles("user", "admin")), 
+    db: Session = Depends(get_db),
+    filter_query: TransactionQueryParam = Depends()
+):
+    # Step 1: Base query (no pagination yet)
+    base_query = db.query(Transaction).filter(
+        Transaction.user_id == user["id"], 
+        Transaction.is_income == True
+    )
+
     if filter_query.transaction_id:
-        curr_query = curr_query.filter(Transaction.transaction_id == filter_query.transaction_id)
-    if filter_query.name:
-        curr_query = curr_query.filter(Transaction.transaction_name.ilike(filter_query.name.strip()))
+        base_query = base_query.filter(Transaction.transaction_id == filter_query.transaction_id)
     if filter_query.exact_amount:
-        curr_query = curr_query.filter(Transaction.amount == filter_query.exact_amount)
+        base_query = base_query.filter(Transaction.amount == filter_query.exact_amount)
     if filter_query.greater_amount:
-        curr_query = curr_query.filter(Transaction.amount > filter_query.greater_amount)
+        base_query = base_query.filter(Transaction.amount > filter_query.greater_amount)
     if filter_query.lower_amount:
-        curr_query = curr_query.filter(Transaction.amount < filter_query.lower_amount)
+        base_query = base_query.filter(Transaction.amount < filter_query.lower_amount)
     if filter_query.date:
         ist = ZoneInfo("Asia/Kolkata")
         start_of_day = datetime.combine(filter_query.date, time.min).replace(tzinfo=ist)
         end_of_day = datetime.combine(filter_query.date, time.max).replace(tzinfo=ist)
-
-        curr_query = curr_query.filter(
-            Transaction.transaction_date.between(start_of_day, end_of_day)
-        )
+        base_query = base_query.filter(Transaction.transaction_date.between(start_of_day, end_of_day))
     if filter_query.search:
-        curr_query = curr_query\
-        .join(Category)\
-        .join(TransactionType)\
-        .join(PaymentMode)\
-        .filter(
-            or_(
-                Transaction.transaction_name.ilike(f"%{filter_query.search}%"),
-                Transaction.description.ilike(f"%{filter_query.search.strip()}%"),
-                Category.category_name.ilike(f"%{filter_query.search.strip()}%"),
-                TransactionType.transaction_type.ilike(f"%{filter_query.search.strip()}%"),
-                PaymentMode.payment_mode.ilike(f"%{filter_query.search.strip()}%"),
+        base_query = base_query\
+            .join(Category)\
+            .join(TransactionType)\
+            .join(Account)\
+            .join(PaymentMode)\
+            .filter(
+                or_(
+                    Transaction.transaction_name.ilike(f"%{filter_query.search}%"),
+                    Transaction.description.ilike(f"%{filter_query.search.strip()}%"),
+                    Category.category_name.ilike(f"%{filter_query.search.strip()}%"),
+                    Account.account_name.ilike(f"%{filter_query.search.strip()}%"),
+                    TransactionType.transaction_type.ilike(f"%{filter_query.search.strip()}%"),
+                    PaymentMode.payment_mode.ilike(f"%{filter_query.search.strip()}%"),
+                )
             )
-        )
 
-    curr_query = curr_query.offset(filter_query.get_offset).limit(filter_query.limit)
+    total_records = base_query.count()
+
+    curr_query = base_query.offset(filter_query.get_offset).limit(filter_query.limit)
     incomes = curr_query.all()
-    
-    response = []
-    for i in incomes:
-        response.append(IncomeResponse(
-            income_id = i.transaction_id,
-            income_name = i.transaction_name,
-            amount = i.amount,
-            recieved_date = i.transaction_date,
-            additional_note = i.description,
-            income_type_id = i.transaction_type_id,
-            income_type_name = i.transaction_type.transaction_type,
-            category_id = i.category_id,
-            category_name = i.category.category_name,
-            payment_mode_id = i.payment_mode_id,
-            payment_mode_name = i.payment_mode.payment_mode
-        ))
-    
-    return response
+
+    response = [
+        IncomeResponse(
+            income_id=i.transaction_id,
+            income_name=i.transaction_name,
+            amount=i.amount,
+            recieved_date=i.transaction_date,
+            account_id=i.account_linked,
+            account_name=getattr(i.account, "account_name", None),
+            additional_note=i.description,
+            income_type_id=i.transaction_type_id,
+            income_type_name=i.transaction_type.transaction_type,
+            category_id=i.category_id,
+            category_name=i.category.category_name,
+            payment_mode_id=i.payment_mode_id,
+            payment_mode_name=i.payment_mode.payment_mode
+        )
+        for i in incomes
+    ]
+
+    return {
+        "total_pages": ceil(total_records / filter_query.limit) if filter_query.limit else 1,
+        "current_page": filter_query.page,
+        "total_incomes": total_records,
+        "incomes": response
+    }
+
 
 def update_income_service(
     income_id: int,
@@ -126,10 +147,12 @@ def update_income_service(
     curr_category_id = get_or_create_category(income_update.category_name, user["id"], db)
     curr_transaction_type_id = get_or_create_transactionType(income_update.income_type_name, user["id"], db)
     curr_payment_mode_id = get_or_create_paymentMode(income_update.payment_mode_name, user["id"], db)
+    curr_account_id = get_account_id(income_update.account_name, user["id"], db)
 
     income_query.update({
         "amount": income_update.amount,
         "description": income_update.additional_note,
+        "amount_linked": curr_account_id,
         "category_id": curr_category_id,
         "transaction_type_id": curr_transaction_type_id,
         "payment_mode_id" : curr_payment_mode_id
@@ -142,6 +165,8 @@ def update_income_service(
         income_id = existing_income.transaction_id,
         income_name = existing_income.transaction_name,
         amount = existing_income.amount,
+        account_id = existing_income.account_linked,
+        account_name = getattr(existing_income.account, "account_name", None),
         recieved_date = existing_income.transaction_date,
         additional_note = existing_income.description,
         income_type_id = existing_income.transaction_type_id,
@@ -168,7 +193,6 @@ def delete_income_service(income_id : int,
     return
 
 def overview_services(user: dict = Depends(require_roles("user", "admin")), db: Session = Depends(get_db)):
-    #Calculating total income in last 30 days
     thirty_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=30)
     total_income = db.query(Transaction).filter(
         Transaction.user_id == user["id"],
@@ -176,7 +200,6 @@ def overview_services(user: dict = Depends(require_roles("user", "admin")), db: 
         Transaction.transaction_date >= thirty_days_ago
     ).with_entities(func.sum(Transaction.amount)).scalar() or 0
 
-    #Calculating total income in last 7 days
     seven_days_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=7)
     total_income_7_days = db.query(Transaction).filter(
         Transaction.user_id == user["id"],
@@ -184,7 +207,6 @@ def overview_services(user: dict = Depends(require_roles("user", "admin")), db: 
         Transaction.transaction_date >= seven_days_ago
     ).with_entities(func.sum(Transaction.amount)).scalar() or 0
 
-    # Average monthly income
     current_month_start = datetime.now(ZoneInfo("Asia/Kolkata")).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     total_income_current_month = db.query(Transaction).filter(
         Transaction.user_id == user["id"],
@@ -193,7 +215,6 @@ def overview_services(user: dict = Depends(require_roles("user", "admin")), db: 
     ).with_entities(func.sum(Transaction.amount)).scalar() or 0
     average_monthly_income = total_income_current_month / (datetime.now(ZoneInfo("Asia/Kolkata")).day or 1)
 
-    # Average weekly income
     current_week_start = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(days=datetime.now(ZoneInfo("Asia/Kolkata")).weekday())
     total_income_current_week = db.query(Transaction).filter(
         Transaction.user_id == user["id"],
@@ -205,7 +226,7 @@ def overview_services(user: dict = Depends(require_roles("user", "admin")), db: 
     return {
         "total_income_last_30_days": total_income,
         "total_income_last_7_days": total_income_7_days,
+        "total_income_current_month": total_income_current_month,
         "average_monthly_income": average_monthly_income,
         "average_weekly_income": average_weekly_income
     }
-

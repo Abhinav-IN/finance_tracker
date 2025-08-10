@@ -4,11 +4,13 @@ from api.models.subscription import Subscription
 from api.models.category import Category
 from api.models.payment_mode import PaymentMode
 from api.models.transaction_type import TransactionType
+from api.models.account import Account
 from api.schemas.subscription import SubscriptionRequest, SubscriptionQueryParam, SubscriptionResponse
-from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
+from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType, get_account_id
 from api.tasks.subscription import calculate_next_billing_date
 from datetime import datetime, time, timedelta
 from fastapi import Depends, HTTPException, status
+from math import ceil
 from sqlalchemy import or_, func
 from sqlalchemy.orm import Session
 from zoneinfo import ZoneInfo
@@ -21,6 +23,8 @@ def create_subscription_service(
     curr_category_id = get_or_create_category(user_subscription.category_name, user["id"], db)
     curr_transaction_type_id = get_or_create_transactionType(user_subscription.expense_type_name, user["id"], db)
     curr_payment_mode_id = get_or_create_paymentMode(user_subscription.payment_mode_name, user["id"], db)
+    curr_account_id = get_account_id(user_subscription.account_name, user["id"], db)
+
 
     next_billing = calculate_next_billing_date(
         start_date=user_subscription.start_date,
@@ -33,6 +37,7 @@ def create_subscription_service(
         amount=user_subscription.amount,
         description=user_subscription.description,
         currency=user_subscription.currency,
+        account_linked=curr_account_id,
         billing_cycle=user_subscription.billing_cycle.value,
         start_date=user_subscription.start_date,
         end_date=user_subscription.end_date,
@@ -67,6 +72,8 @@ def create_subscription_service(
             description = new_subscription.description,
             currency = new_subscription.currency,
             billing_cycle = new_subscription.billing_cycle,
+            account_id = new_subscription.account_linked,
+            account_name = getattr(new_subscription.account, "account_name", None),
             expense_type_id = new_subscription.transaction_type_id,
             expense_type_name = new_subscription.transaction_type.transaction_type,
             category_id = new_subscription.category_id,
@@ -76,85 +83,95 @@ def create_subscription_service(
             is_active = new_subscription.is_active
     )
 
-def get_subscription_service(filter_query : SubscriptionQueryParam,
-                            user : dict = Depends(require_roles("user", "admin")),
-                            db : Session = Depends(get_db)):
-    curr_query = db.query(Subscription).filter(Subscription.user_id == user["id"])
+def get_subscription_service(
+    filter_query: SubscriptionQueryParam,
+    user: dict = Depends(require_roles("user", "admin")),
+    db: Session = Depends(get_db)
+):
+    # Step 1: Base query (no pagination yet)
+    base_query = db.query(Subscription).filter(Subscription.user_id == user["id"])
+
     if filter_query.subscription_id:
-        curr_query = curr_query.filter(Subscription.subscription_id == filter_query.subscription_id)
+        base_query = base_query.filter(Subscription.subscription_id == filter_query.subscription_id)
     if filter_query.name:
-        curr_query = curr_query.filter(Subscription.subscription_name.ilike(filter_query.name.strip()))
+        base_query = base_query.filter(Subscription.subscription_name.ilike(filter_query.name.strip()))
     if filter_query.exact_amount:
-        curr_query = curr_query.filter(Subscription.amount == filter_query.exact_amount)
+        base_query = base_query.filter(Subscription.amount == filter_query.exact_amount)
     if filter_query.greater_amount:
-        curr_query = curr_query.filter(Subscription.amount > filter_query.greater_amount)
+        base_query = base_query.filter(Subscription.amount > filter_query.greater_amount)
     if filter_query.lower_amount:
-        curr_query = curr_query.filter(Subscription.amount < filter_query.lower_amount)
+        base_query = base_query.filter(Subscription.amount < filter_query.lower_amount)
     if filter_query.start_date:
         ist = ZoneInfo("Asia/Kolkata")
         start_of_day = datetime.combine(filter_query.start_date, time.min).replace(tzinfo=ist)
         end_of_day = datetime.combine(filter_query.start_date, time.max).replace(tzinfo=ist)
-
-        curr_query = curr_query.filter(
-            Subscription.start_date.between(start_of_day, end_of_day)
-        )
+        base_query = base_query.filter(Subscription.start_date.between(start_of_day, end_of_day))
     if filter_query.end_date:
         ist = ZoneInfo("Asia/Kolkata")
         start_of_day = datetime.combine(filter_query.end_date, time.min).replace(tzinfo=ist)
         end_of_day = datetime.combine(filter_query.end_date, time.max).replace(tzinfo=ist)
-
-        curr_query = curr_query.filter(
-            Subscription.end_date.between(start_of_day, end_of_day)
-        )
+        base_query = base_query.filter(Subscription.end_date.between(start_of_day, end_of_day))
     if filter_query.billing_date:
         ist = ZoneInfo("Asia/Kolkata")
         start_of_day = datetime.combine(filter_query.billing_date, time.min).replace(tzinfo=ist)
         end_of_day = datetime.combine(filter_query.billing_date, time.max).replace(tzinfo=ist)
-
-        curr_query = curr_query.filter(
-            Subscription.next_billing_date.between(start_of_day, end_of_day)
-        )
-    
+        base_query = base_query.filter(Subscription.next_billing_date.between(start_of_day, end_of_day))
     if filter_query.search:
-        curr_query = curr_query\
-        .join(Category)\
-        .join(TransactionType)\
-        .join(PaymentMode)\
-        .filter(
-            or_(
-                Subscription.description.ilike(f"%{filter_query.search.strip()}%"),
-                Category.category_name.ilike(f"%{filter_query.search.strip()}%"),
-                TransactionType.transaction_type.ilike(f"%{filter_query.search.strip()}%"),
-                PaymentMode.payment_mode.ilike(f"%{filter_query.search.strip()}%"),
+        base_query = base_query\
+            .join(Category)\
+            .join(TransactionType)\
+            .join(Account)\
+            .join(PaymentMode)\
+            .filter(
+                or_(
+                    Subscription.description.ilike(f"%{filter_query.search.strip()}%"),
+                    Category.category_name.ilike(f"%{filter_query.search.strip()}%"),
+                    Account.account_name.ilike(f"%{filter_query.search.strip()}%"),
+                    TransactionType.transaction_type.ilike(f"%{filter_query.search.strip()}%"),
+                    PaymentMode.payment_mode.ilike(f"%{filter_query.search.strip()}%"),
+                )
             )
-        )
 
-    curr_query = curr_query.offset(filter_query.get_offset).limit(filter_query.limit)
+    # Step 2: Count total records
+    total_records = base_query.count()
+
+    # Step 3: Apply pagination
+    curr_query = base_query.offset(filter_query.get_offset).limit(filter_query.limit)
     subscriptions = curr_query.all()
-    
-    response = []
-    for s in subscriptions:
-        response.append(SubscriptionResponse(
-            subscription_id = s.subscription_id,
-            subscription_name = s.subscription_name,
-            amount = s.amount,
-            start_date = s.start_date,
-            end_date = s.end_date,
-            next_billing_date = s.next_billing_date,
-            last_paid_at = s.last_paid_at,
-            description = s.description,
-            currency = s.currency,
-            billing_cycle = s.billing_cycle,
-            expense_type_id = s.transaction_type_id,
-            expense_type_name = s.transaction_type.transaction_type,
-            category_id = s.category_id,
-            category_name = s.category.category_name,
-            payment_mode_id = s.payment_mode_id,
-            payment_mode_name = s.payment_mode.payment_mode,
-            is_active = s.is_active
-        ))
-    
-    return response
+
+    # Step 4: Build response list
+    response = [
+        SubscriptionResponse(
+            subscription_id=s.subscription_id,
+            subscription_name=s.subscription_name,
+            amount=s.amount,
+            start_date=s.start_date,
+            end_date=s.end_date,
+            next_billing_date=s.next_billing_date,
+            last_paid_at=s.last_paid_at,
+            description=s.description,
+            currency=s.currency,
+            billing_cycle=s.billing_cycle,
+            account_id=s.account_linked,
+            account_name=getattr(s.account, "account_name", None),
+            expense_type_id=s.transaction_type_id,
+            expense_type_name=s.transaction_type.transaction_type,
+            category_id=s.category_id,
+            category_name=s.category.category_name,
+            payment_mode_id=s.payment_mode_id,
+            payment_mode_name=s.payment_mode.payment_mode,
+            is_active=s.is_active
+        )
+        for s in subscriptions
+    ]
+
+    # Step 5: Return with pagination info
+    return {
+        "total_pages": ceil(total_records / filter_query.limit) if filter_query.limit else 1,
+        "current_page": filter_query.page,
+        "total_subscriptions": total_records,
+        "subscriptions": response
+    }
 
 def update_subscription_service(subscription_id : int,
                                 user_subscription : SubscriptionRequest,
@@ -169,6 +186,7 @@ def update_subscription_service(subscription_id : int,
     curr_category_id = get_or_create_category(user_subscription.category_name, user["id"], db)
     curr_expense_type_id = get_or_create_transactionType(user_subscription.expense_type_name, user["id"], db)
     curr_payment_mode_id = get_or_create_paymentMode(user_subscription.payment_mode_name, user["id"], db)
+    curr_account_id = get_account_id(user_subscription.account_name, user["id"], db)
 
     next_billing = calculate_next_billing_date(
         start_date=user_subscription.start_date,
@@ -185,6 +203,7 @@ def update_subscription_service(subscription_id : int,
         "start_date" : user_subscription.start_date,
         "end_date" : user_subscription.end_date,
         "next_billing_date" : next_billing,
+        "account_linked" : curr_account_id,
         "category_id" : curr_category_id,
         "transaction_type_id" : curr_expense_type_id,
         "payment_mode_id" : curr_payment_mode_id,
@@ -209,6 +228,8 @@ def update_subscription_service(subscription_id : int,
             description = curr_subscription.description,
             currency = curr_subscription.currency,
             billing_cycle = curr_subscription.billing_cycle,
+            account_id = curr_subscription.account_linked,
+            account_name = getattr(curr_subscription.account, "account_name", None),
             expense_type_id = curr_subscription.transaction_type_id,
             expense_type_name = curr_subscription.transaction_type.transaction_type,
             category_id = curr_subscription.category_id,
@@ -268,6 +289,7 @@ def overview_services(user: dict = Depends(require_roles("user", "admin")), db :
     return {
         "total_subscription_last_30_days": total_subscription,
         "total_subscription_last_7_days": total_subscription_7_days,
+        "total_subscription_current_month": total_subscription_current_month,
         "average_monthly_subscription": average_monthly_subscription,
         "average_weekly_subscription": average_weekly_subscription
     }

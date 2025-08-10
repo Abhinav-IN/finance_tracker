@@ -97,19 +97,7 @@ class Settings(BaseSettings):
     smtp_from: str = Field("no-reply@yourdomain.com", alias="SMTP_FROM")
     config_logger.info(f" SMTP (Email) Settings Loaded Fully")
     print("-----------------------------------------------")
-
-    #Third party API for Investment API and currency conversion
-    config_logger.info(f"Loading Third party API settings")
-    currency_api_key: str = Field("a_very_api_key_that_should_be_long_and_random", alias="CURRENCY_API_KEY")
-    currency_api_url: str =Field("URL of currency api", alias="CURRENCY_API_URL")
-    finnhub_api_key: str = Field("a_very_api_key_that_should_be_long_and_random", alias="FINNHUB_API_KEY")
-    finnhub_api_url: str = Field("URL of finnhib api", alias="FINNHUB_API_URL")
-    finnhub_us_exchange: str = Field("URL of finnhub us exchange", alias="FINNHUB_US_EXCHANGE")
-    coingecko_api_url: str = Field("URL of coingecko api", alias="COINGECKO_API_URL")
-    print("-----------------------------------------------")
-
-
-
+    
     # CORS Settings
     config_logger.info(f" Loading CORS Settings/Information")
     origins_string: str = Field("http://localhost:3000,http://localhost:8000,http://localhost:5173/", alias="ORIGINS")

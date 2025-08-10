@@ -15,10 +15,9 @@ class Investment(Base):
     investment_date = Column(DateTime(timezone=True), nullable=False)
     description = Column(String(255), nullable=False)
     platform = Column(String(104), nullable=False)
-    ticker_symbol = Column(String(104), nullable=True)
-    exchange_symbol = Column(String(104), nullable=True)
     amount_invested = Column(Float, nullable=False)
     units = Column(Float, nullable=True)
+    account_linked = Column(Integer, ForeignKey("account.account_id"), nullable=True)
     buy_price_per_unit = Column(Float, nullable=True)
     maturity_date = Column(DateTime(timezone=True), nullable=True)
     current_price_per_unit = Column(Float, nullable=True)
@@ -26,16 +25,19 @@ class Investment(Base):
     gain_or_loss = Column(Float, nullable=True)
     interest_rate = Column(Float, nullable=True)
     compounding_frequency = Column(String(104), nullable=True)
-    is_active = Column(Boolean, nullable=False)
+    status = Column(String(255), nullable=False)
+    withdrawl_amount = Column(Float, nullable=True)
+    withdrawl_date = Column(DateTime(timezone=True), nullable=True)
+    units_withdrawl = Column(Float, nullable=True)
     last_synced_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
 
     __table_args__ = (
         CheckConstraint("amount_invested > 0", name="Amount invested check"),
-        CheckConstraint("buy_price_per_unit > 0", name="Buying price of unit check"),
-        CheckConstraint("current_price_per_unit IS NULL OR current_price_per_unit > 0", name="Current price check"),
-        CheckConstraint("current_value IS NULL OR current_value > 0", name="Current value check"),
+        CheckConstraint("buy_price_per_unit >= 0", name="Buying price of unit check"),
+        CheckConstraint("current_price_per_unit IS NULL OR current_price_per_unit >= 0", name="Current price check"),
+        CheckConstraint("current_value IS NULL OR current_value >= 0", name="Current value check"),
 
     )
 
@@ -45,3 +47,4 @@ class Investment(Base):
         secondary=investment_goal_link,
         back_populates="investments"
     )
+    account = relationship('Account', back_populates='investment')

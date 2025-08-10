@@ -1,5 +1,5 @@
 from api.tasks.compound_task import calculate_compound_growth
-from api.schemas.investment import InvestmentType
+from api.schemas.investment import InvestmentType, InvestmentStatus
 from api.database.session import SessionLocal
 from api.models.investment_goal import InvestmentGoal
 from api.models.investment import Investment
@@ -9,99 +9,12 @@ from fastapi import HTTPException, status
 from typing import List
 from sqlalchemy.orm import Session
 from zoneinfo import ZoneInfo
-from api.tasks.finnhub_task import get_current_price_of_stock
-from api.tasks.coingecko_task import get_current_crypto_price
-from api.services.investment_service import calculate_current_value, calculate_gain_or_loss
-import asyncio
 
+def calculate_current_value(units: float, price_per_unit: float) -> float:
+    return round(units * price_per_unit, 2)
 
-@shared_task
-def sync_stock_and_etf_prices():
-    db = SessionLocal()
-    ist = ZoneInfo("Asia/Kolkata")
-    now = datetime.now(ist)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    try:
-        stocks = db.query(Investment).filter(
-            Investment.is_active == True,
-            Investment.investment_type.in_([InvestmentType.stock, InvestmentType.etf])
-        ).all()
-
-        for inv in stocks:
-            try:
-                if not inv.ticker_symbol or not inv.exchange_symbol:
-                    continue
-
-                price = loop.run_until_complete(
-                    get_current_price_of_stock(inv.ticker_symbol, inv.exchange_symbol)
-                )
-
-                if price:
-                    curr_value = calculate_current_value(inv.units or 0, price)
-                    gain_loss = calculate_gain_or_loss(curr_value, inv.amount_invested)
-
-                    inv.current_price_per_unit = price
-                    inv.current_value = curr_value
-                    inv.gain_or_loss = gain_loss
-                    inv.last_synced_at = now  
-
-            except Exception as e:
-                print(f"[Stock Sync Error] {inv.investment_name}: {e}")
-                continue
-
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        print(f"[Stock Sync DB Error] {e}")
-    finally:
-        db.close()
-        loop.close()
-
-
-@shared_task
-def sync_crypto_prices():
-    db = SessionLocal()
-    ist = ZoneInfo("Asia/Kolkata")
-    now = datetime.now(ist)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    try:
-        cryptos = db.query(Investment).filter(
-            Investment.is_active == True,
-            Investment.investment_type == InvestmentType.crypto
-        ).all()
-
-        for inv in cryptos:
-            try:
-                if not inv.ticker_symbol:
-                    continue
-
-                price = loop.run_until_complete(get_current_crypto_price(inv.ticker_symbol))
-
-                if price:
-                    curr_value = calculate_current_value(inv.units or 0, price)
-                    gain_loss = calculate_gain_or_loss(curr_value, inv.amount_invested)
-
-                    inv.current_price_per_unit = price
-                    inv.current_value = curr_value
-                    inv.gain_or_loss = gain_loss
-                    inv.last_synced_at = now  
-
-            except Exception as e:
-                print(f"[Crypto Sync Error] {inv.investment_name}: {e}")
-                continue
-
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        print(f"[Crypto Sync DB Error] {e}")
-    finally:
-        db.close()
-        loop.close()
-
+def calculate_gain_or_loss(current_value: float, amount_invested: float) -> float:
+    return round(current_value - amount_invested, 2)
 
 def link_investments_to_goal(
     db: Session,
@@ -147,7 +60,7 @@ def update_all_investment_goal_values():
             if goal.applies_to_all_investments:
                 investments = db.query(Investment).filter(
                     Investment.user_id == goal.user_id,
-                    Investment.is_active == True
+                    Investment.status.notin_([InvestmentStatus.fully_withdrawl, InvestmentStatus.matured])
                 ).all()
             else:
                 investments = goal.investments
@@ -169,7 +82,7 @@ def update_fd_and_bond_values():
     try:
         investments = db.query(Investment).filter(
             Investment.investment_type.in_([InvestmentType.fd, InvestmentType.bond]),
-            Investment.is_active == True
+            Investment.status.notin_([InvestmentStatus.fully_withdrawl, InvestmentStatus.matured])
         ).all()
 
         for inv in investments:
@@ -192,3 +105,10 @@ def update_fd_and_bond_values():
         print(f"[FD/Bond Update Error] {str(e)}")
     finally:
         db.close()
+
+def get_basic_data(investment_id: int, user_id: int, db : Session):
+    investment = db.query(Investment).filter(Investment.investment_id == investment_id, Investment.user_id == user_id).first()
+    if not investment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Investment not found")
+    
+    return investment.investment_type, investment.account_linked
