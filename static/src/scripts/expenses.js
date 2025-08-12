@@ -1,45 +1,49 @@
 // main.js
-import rivets from "rivets";
-import { data } from "../main.js";
+import { data, token, body } from "../main.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const expenseForm = document.getElementById("expense-addition-form");
+
+body.addEventListener("click", (e) => {
+  const target = e.target;
+
+  if (target.classList.contains("expense-info")) {
+    console.log(target.getAttribute("expense-id"));
+  }
+});
+
 if (expenseForm) {
   expenseForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-
-    const expenseName = document.getElementById("expense_name").value;
-    const expensePrice = document.getElementById("expense_price").value;
-    const expenseDate = document.getElementById("expense_date").value;
-    const expenseCategory = document.getElementById("expense_category").value;
-    const expensePaymentMode = document.getElementById(
-      "expense_payment_mode"
-    ).value;
-    const expenseNote = document.getElementById("expense_note").value;
-
-    const payload = {
-      expense_name: expenseName,
-      expense_date: expenseDate ? new Date(expenseDate).toISOString() : null,
-      price: parseFloat(expensePrice),
-      expense_type_name: "Nill",
-      category_name: expenseCategory,
-      payment_mode_name: expensePaymentMode,
-      additional_note: expenseNote,
-    };
-
+    const payload = createPayload();
     await addExpense(payload);
   });
 }
-async function addExpense(payload) {
+
+export function createPayload() {
+  const expenseName = document.getElementById("expense_name").value;
+  const expensePrice = document.getElementById("expense_price").value;
+  const expenseDate = document.getElementById("expense_date").value;
+  const expenseCategory = document.getElementById("expense_category").value;
+  const expensePaymentMode = document.getElementById(
+    "expense_payment_mode"
+  ).value;
+  const expenseNote = document.getElementById("expense_note").value;
+
+  const payload = {
+    expense_name: expenseName,
+    expense_date: expenseDate ? new Date(expenseDate).toISOString() : null,
+    price: parseFloat(expensePrice),
+    expense_type_name: "Nill",
+    category_name: expenseCategory,
+    payment_mode_name: expensePaymentMode,
+    additional_note: expenseNote,
+  };
+  return payload;
+}
+
+export async function addExpense(payload) {
   console.log("Formatted data to send:", payload);
-
-  const jwtToken = localStorage.getItem("jwtToken");
-
-  if (!jwtToken) {
-    console.error("No JWT token found. User is not logged in.");
-    window.location.href = "/login.html";
-    return;
-  }
 
   try {
     const response = await fetch(
@@ -48,7 +52,7 @@ async function addExpense(payload) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${token()}`,
         },
         body: JSON.stringify(payload),
       }
@@ -73,7 +77,8 @@ async function addExpense(payload) {
     alert(`Error adding expense: ${error.message}`);
   }
 }
-async function getExpense(params) {
+
+export async function getExpense(params) {
   try {
     const response = await fetch(`${API_URL}/api/v1/transaction/expense/`, {
       method: "GET",
@@ -100,14 +105,5 @@ async function getExpense(params) {
     console.log(error);
   }
 }
-getExpense();
 
-function token() {
-  const jwtToken = localStorage.getItem("jwtToken");
-  if (!jwtToken) {
-    console.error("No JWT token found. User is not logged in.");
-    window.location.href = "/login.html";
-    return;
-  }
-  return jwtToken;
-}
+getExpense();

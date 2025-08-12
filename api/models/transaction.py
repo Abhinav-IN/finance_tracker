@@ -12,6 +12,7 @@ class Transaction(Base):
     amount = Column(Float, nullable=False)
     description = Column(String(140), nullable=False)
     transaction_date = Column(DateTime(timezone=True), nullable=False)
+    account_linked = Column(Integer, ForeignKey("account.account_id"),  nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -29,3 +30,4 @@ class Transaction(Base):
     category = relationship('Category', back_populates='transactions')
     transaction_type = relationship('TransactionType', back_populates='transaction')
     payment_mode = relationship('PaymentMode', back_populates='transaction')
+    account = relationship('Account', back_populates='transaction')

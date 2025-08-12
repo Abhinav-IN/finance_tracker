@@ -72,6 +72,7 @@ def get_next_billing_date():
                 amount=sub.amount,
                 description=f"Auto billed for subscription: {sub.subscription_name}",
                 transaction_date=now,
+                account_linked=sub.account_linked,
                 user_id=sub.user_id,
                 category_id=sub.category_id,
                 transaction_type_id=sub.transaction_type_id,

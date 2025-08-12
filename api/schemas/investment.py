@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import Optional, Union, Literal, Annotated
+from typing import Optional, Union, Literal, Annotated, List
 from pydantic import BaseModel, Field
 
 class InvestmentType(str, Enum):
@@ -10,6 +10,12 @@ class InvestmentType(str, Enum):
     etf = "etf"
     fd = "fd"
     bond = "bond"
+
+class InvestmentStatus(str, Enum):
+    active = "active"
+    partially_withdrawl = "partially_withdrawl"
+    fully_withdrawl = "fully_withdrawl"
+    matured = "matured"
 
 class CompoundingFrequency(str, Enum):
     yearly = "annually"
@@ -26,13 +32,16 @@ class BaseInvestmentRequest(BaseModel):
     description: Optional[str] = Field(default=None, max_length=255)
     platform: str = Field(..., max_length=104)
     amount_invested: float = Field(gt=0)
-    is_active: bool
+    status: InvestmentStatus = InvestmentStatus.active  
+    withdrawl_amount: Optional[float] = 0               
+    withdrawl_date: Optional[datetime.datetime] = None 
+    account_name: Optional[str] = None
 
 class TickerBasedInvestment(BaseInvestmentRequest):
-    ticker_symbol: str = Field(..., min_length=2)
-    exchange_symbol: str = Field(..., min_length=2)
     units: float = Field(gt=0)
+    units_withdrawl : Optional[float] = 0.0
     buy_price_per_unit: float = Field(gt=0)
+    current_price_per_unit: float = Field(gt=0)
     maturity_date: Optional[datetime.datetime] = None  
 
 class StockInvestmentRequest(TickerBasedInvestment):
@@ -77,13 +86,13 @@ class investmentResponse(BaseInvestmentRequest):
     current_value: Optional[float] = None
     last_synced_at: datetime.datetime
     gain_or_loss: Optional[float] = None
-    ticker_symbol: Optional[str] = None
-    exchange_symbol: Optional[str] = None
     units: Optional[float] = None
+    units_withdrawl : Optional[float] = 0.0
     buy_price_per_unit: Optional[float] = None
     maturity_date: Optional[datetime.datetime] = None
     interest_rate: Optional[float] = None
     compounding_frequency: Optional[CompoundingFrequency] = None
+    account_linked: Optional[int] = None
 
     model_config = {"from_attributes": True}
 
@@ -97,23 +106,12 @@ class InvestmentQueryParam(BaseModel):
     exact_amount: Optional[int] = None
     greater_amount: Optional[int] = Field(None, gt=0)
     lower_amount: Optional[int] = Field(None, gt=0)
-    limit: Optional[int] = Field(5)
+    limit: Optional[int] = Field(20)
     search: Optional[str] = None
-    active_investments: Optional[bool] = None
 
     @property
     def get_offset(self):
         return (self.page - 1) * self.limit
-
-class stockSuggestionQueryParam(BaseModel):
-    company_name: str 
-
-class SymbolSuggestionResponse(BaseModel):
-    company: str
-    symbol: str
-    exchange: str
-
-    model_config = {"from_attributes": True}
 
 class InvestmentUpdateRequest(BaseModel):
     investment_name: str 
@@ -121,12 +119,9 @@ class InvestmentUpdateRequest(BaseModel):
     investment_date: datetime.date
     description: str 
     platform: str
-
-    ticker_symbol: Optional[str] = None
-    exchange_symbol: Optional[str] = None
-
     amount_invested: float 
     units: Optional[float] = None
+    units_withdrawl : Optional[float] = 0.0
     buy_price_per_unit: Optional[float] = None
 
     current_price_per_unit: Optional[float] = None  
@@ -135,6 +130,26 @@ class InvestmentUpdateRequest(BaseModel):
     interest_rate: Optional[float] = None
     compounding_frequency: Optional[str] = None
 
-    is_active: Optional[bool] = True
+    account_name: Optional[str] = None
+
+    status: InvestmentStatus 
+    withdrawl_amount: Optional[float] = 0               
+    withdrawl_date: Optional[datetime.datetime] = None 
+
 
     model_config = {"from_attributes": True}
+
+class InvestmentWithdrawalRequest(BaseModel):
+    investment_id: int
+    withdraw_amount: float = Field(..., description="Amount to withdraw in ₹")
+    withdrawal_date: datetime.date
+
+class PaginatedInvestmentResponse(BaseModel):
+    total_pages: int
+    current_page: int
+    total_investments: int
+    investments: List[investmentResponse]
+
+    model_config = {
+        "from_attributes": True
+    }

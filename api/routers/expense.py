@@ -1,10 +1,9 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
-from api.schemas.transaction import TransactionQueryParam, ExpenseResponse, ExpenseRequest, ExpenseOverview
+from api.schemas.transaction import TransactionQueryParam, ExpenseResponse, ExpenseRequest, ExpenseOverview, PaginatedExpenseResponse
 from api.services.expense_service import create_expense_service, delete_expense_service, get_expense_service, update_expense_service, overview_services
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from typing import List
 
 router = APIRouter(tags=['Expense'], prefix='/api/v1/transaction/expense')
 
@@ -15,7 +14,7 @@ def create_expense(user_expense : ExpenseRequest,
     return create_expense_service(user_expense, user, db)
     
 
-@router.get('/', status_code=status.HTTP_200_OK, response_model=List[ExpenseResponse])
+@router.get('/', status_code=status.HTTP_200_OK, response_model=PaginatedExpenseResponse)
 def get_expense(user: dict = Depends(require_roles("user", "admin")), 
                         db : Session = Depends(get_db),
                         filter_query : TransactionQueryParam = Depends()):

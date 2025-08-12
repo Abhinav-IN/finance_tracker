@@ -13,14 +13,6 @@ beat_schedule = {
         "task": "api.tasks.scheduler_service.run_daily_fd_and_bond_update",  
         "schedule": crontab(hour=8, minute=35),
     },
-    "run-daily-stock-and-etf-update":{
-        "task": "api.tasks.scheduler_service.run_daily_stock_price_update",
-        "schedule": crontab(hour=10, minute=0)
-    },
-    "run-daily-crypto-price-update":{
-        "task": "api.tasks.scheduler_service.run_daily_crypto_price_update",
-        "schedule": crontab(hour=10, minute=0)
-    },
 }
 
 timezone = "Asia/Kolkata"

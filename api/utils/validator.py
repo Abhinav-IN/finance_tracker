@@ -21,11 +21,6 @@ def gender_check(gender: str) -> str:
         raise ValueError(f"Gender must be one of {allowed}")
     return gender.lower()
 
-def user_active(user : dict, db : Session):
-    is_active = db.query(User.is_active).filter(User.id == user["id"]).scalar()
-    if not is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is not verified")
-
 def validate_date_and_amount(self : Self):
     if self.start_date >= self.end_date:
         raise ValueError("Minimum duration of budget should be one day")

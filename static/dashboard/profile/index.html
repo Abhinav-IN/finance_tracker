@@ -9,13 +9,13 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../../src/style.css" rel="stylesheet">
-    <title>Fi-Track :: Expense</title>
+    <title>Fi-Track :: Income</title>
 </head>
 
-<body class="w-full h-screen overflow-hidden bg-gray-50 dark:bg-black/95 dark:text-white/80 text-black/70">
+<body class="w-full h-screen overflow-hidden text-bg-colours">
 
     <div class="w-full h-full flex items-start justify-start  ">
-        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-40 bg-gray-50 dark:bg-black/95 dark:text-white/80 text-black/70
+        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-20 text-bg-colours
         -translate-x-full 2xl:relative 2xl:translate-x-0  transition-all duration-300" id="navigation-panel">
             <div class="flex items-center justify-between">
                 <a href="/dashboard">
@@ -60,7 +60,7 @@
                         </a>
                     </li>
                     <li class="">
-                        <a href="/dashboard/expense/" class="button-active">
+                        <a href="/dashboard/expense/" class="button-inactive">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -99,7 +99,7 @@
             </div>
         </div>
         <main class="w-full overflow-y-scroll h-full no-scroll-bar">
-            <section class=" border-b border-black/20 shadow-sm dark:shadow-white/10 h-16 flex items-center justify-between sticky top-0 z-20 text-bg-colours
+            <section class=" border-b border-black/20 shadow-sm dark:shadow-white/10 h-16 flex items-center justify-between sticky top-0 z-10 text-bg-colours
             px-4">
                 <button class="2xl:hidden cursor-pointer navigation-toggle">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -108,7 +108,7 @@
                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
                 </button>
-                <h1 class="font-bold text-lg xl:text-2xl ">Expense</h1>
+                <h1 class="font-bold text-lg xl:text-2xl ">Profile</h1>
                 <div class="flex gap-4 items-center">
                     <div class="relative" id="user-panel-container">
                         <button id="user-panel-toggle"
@@ -166,188 +166,226 @@
                     </div>
                 </div>
             </section>
-            <section class="transition-fade p-4  overflow-y-scroll no-scroll-bar relative z-0 " id="swup">
+            <section
+                class="transition-fade p-4 h-screen overflow-y-scroll no-scroll-bar relative z-0 text-bg-colours   "
+                id="swup">
                 <div>
                     <h2 class="font-medium text-lg">
-                        Expense Overview
+                        Welcome {data.user.first_name} {data.user.last_name},
                     </h2>
                 </div>
-                <div class="p-2 bg-black">
-
-                </div>
-                <div class="">
-                    <h3>
-                        Most Recent Expenses
-                    </h3>
-                    <div class="w-full p-2">
-                        <div
-                            class="relative overflow-x-auto max-h-[500px] border border-black/20 dark:border-white/20 rounded-md shadow-md  w-full">
-                            <table class="w-full text-sm text-left rtl:text-right ">
-                                <thead
-                                    class="font-medium  uppercase  border-b-2 border-black/20 dark:border-white/20 sticky top-0 z-0 text-bg-colours">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 min-w-min border/5">
-                                            Info
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 min-w-52 border/5">
-                                            Name
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 min-w-32 border/5">
-                                            Category
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 min-w-48 border/5">
-                                            Date
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 min-w-28 border/5">
-                                            Mode
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 min-w-28 border/5 text-right">
-                                            Amount
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="">
-                                    <tr rv-each-expense="data.expense.list" rv-expense-id="expense.expense_id"
-                                        class="expenses-list capitalize odd:bg-white odd:dark:bg-gray-900 even:bg-gray-200 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                        <th scope="row" rv-expense-id="expense.expense_id"
-                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white expense-info">
-                                            <button type="button"
-                                                class="expense-info flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer"
-                                                rv-expense-id="expense.expense_id">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    rv-expense-id="expense.expense_id" stroke-width="1.5"
-                                                    stroke="currentColor" class="size-4 expense-info"
-                                                    rv-expense-id="expense.expense_id">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        rv-expense-id="expense.expense_id" class="expense-info"
-                                                        d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                                </svg>
-                                                Open
-                                            </button>
-                                        </th>
-                                        <td scope="row"
-                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                            {expense.expense_name}
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            {expense.category_name}
-                                        </td>
-                                        <td class="px-6 py-4 flex flex-row gap-2">
-                                            <span>
-                                                {expense.expense_date | date}
-                                            </span>
-                                            <span>
-                                                {expense.expense_date | time}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            {expense.payment_mode_name}
-                                        </td>
-                                        <td class="px-6 py-4 text-right font-medium ">
-                                            {expense.price | money} ₹
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <div>
+                    <section class="bg-white rounded-2xl overflow-hidden shadow-sm">
+                        <div class="h-40 bg-gradient-to-br from-blue-300 to-pink-300">
                         </div>
-                    </div>
+                        <div class="p-4">
+                            <div class=" flex flex-col md:flex-row items-center justify-center md:justify-between">
+                                <div class="md:flex items-center gap-4 ">
+                                    <div
+                                        class="mx-auto bg-gradient-to-br from-pink-300 to to-blue-400 w-40 h-40 flex items-center justify-center font-black text-white text-5xl rounded-full">
+                                        {data.user.first_name | firstletter} {data.user.last_name | firstletter}
+                                    </div>
+                                    <div class="text-center md:text-left text-2xl font-semibold capitalize">
+                                        {data.user.first_name} {data.user.last_name}
+                                        <br>
+                                        <span class="text-lg">
+                                            {data.user.email}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="w-32 h-10 hidden md:block">
+                                    <button class="primary-button edit-profile-button screen-toggle">
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-6 mt-8">
+                                <div class="flex flex-col gap-2">
+                                    <span>
+                                        Usernmae
+                                    </span>
+                                    <span class="w-full border-b border-black/20 dark:border-white/20 p-2">
+                                        {data.user.username}
+                                    </span>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <span>
+                                        Email
+                                    </span>
+                                    <span class="w-full border-b border-black/20 dark:border-white/20 p-2">
+                                        {data.user.email}
+                                    </span>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <span>
+                                        Date Of Birth
+                                    </span>
+                                    <span class="w-full border-b border-black/20 dark:border-white/20 p-2">
+                                        {data.user.dob}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </section>
         </main>
+
     </div>
-    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30 hidden capitalize"
+
+    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30  capitalize"
         id="overlay-screen">
         <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
-            <form id="expense-addition-form"
-                class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
-                <div class="font-semibold flex items-center justify-between">
-                    <span class="text-lg">
-                        Add Expense
+            <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
+                <div id="change-dropdown" class="flex flex-col gap-2 ">
+                    <span class="">
+                        What Do You Want To Change?
                     </span>
-                    <button class="screen-toggle cursor-pointer" type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6 screen-toggle">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"
-                                class="screen-toggle" />
-                        </svg>
-                    </button>
+                    <select name="" id="" class="border-b border-black/20 w-full">
+                        <option value="name">Name</option>
+                        <option value="email">Email</option>
+                        <option value="username">Username</option>
+                        <option value="password">Password</option>
+                        <option value="dob">Date of Birth</option>
+                    </select>
+                    <div class="w-full flex items-center justify-between gap-4 mt-4">
+                        <div class="w-40">
+                            <button class="secondary-button prev-option">
+                                Prev
+                            </button>
+                        </div>
+                        <div class="w-40">
+                            <button class="primary-button next-option">
+                                Next
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="pt-4 dark:text-white space-y-6">
-                    <div class="font-medium flex flex-col gap-2 ">
-                        <label for="expense_name" class="text-sm">
-                            Name
-                        </label>
-                        <input type="text" name="expense_name" id="expense_name"
-                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                            placeholder="Ice Cream From Amul">
+                <div class="w-full flex flex-col gap-4 hidden  type-to-change" id="change-name">
+                    <span class="text-black dark:text-white font-medium text-sm">
+                        Your Are Changing Your Name
+                    </span>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-sm font-medium">
+                            New Frist Name
+                        </span>
+                        <input type="text" name="first_name" id="first_name" class="text-input">
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_price" class="text-sm">
-                                Price (₹)
-                            </label>
-                            <input type="number" name="expense_price" id="expense_price" class="text-input "
-                                placeholder="199">
-                        </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_date" class="text-sm">
-                                Spent Date
-                            </label>
-                            <input type="date" name="expense_date" id="expense_date"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                                placeholder="Ice Cream From Amul">
-                        </div>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-sm font-medium">
+                            New Last Name
+                        </span>
+                        <input type="text" name="last_name" id="last_name" class="text-input">
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_category" class="text-sm">
-                                Category
-                            </label>
-                            <input type="text" name="expense_category" id="expense_category" class="text-input "
-                                placeholder="Category Name">
+                    <div class="w-full flex items-center justify-between gap-4 ">
+                        <div class="w-40">
+                            <button class="secondary-button prev-option">
+                                Prev
+                            </button>
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_payment_mode" class="text-sm">
-                                Payment Mode
-                            </label>
-                            <select name="expense_payment_mode" id="expense_payment_mode"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                <option class="bg-white dark:bg-black" value="cash">CASH</option>
-                                <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                                <option class="bg-white dark:bg-black" value="credit_card">Credit Card</option>
-                                <option class="bg-white dark:bg-black" value="debit_card">Credit Card</option>
-                                <option class="bg-white dark:bg-black" value="Wallet">Wallet</option>
-                            </select>
+                        <div class="w-40">
+                            <button submit-for="name" class="primary-button submit-option">
+                                Submit
+                            </button>
                         </div>
                     </div>
-                    <div class="font-medium flex flex-col gap-2 ">
-                        <label for="expense_note" class="text-sm">
-                            Additional Note
-                        </label>
-                        <textarea type="text" name="expense_note" id="expense_note" maxlength="140"
-                            class="text-input min-h-20" placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
-                    </div>
-                    <button type="submit"
-                        class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
-                        Submit
-                    </button>
                 </div>
-            </form>
+                <div class="w-full flex flex-col gap-4 hidden  type-to-change" id="change-email">
+                    <span class="text-black dark:text-white font-medium text-sm">
+                        Your Are Changing Your Email
+                    </span>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-sm font-medium">
+                            Ente You New Email
+                        </span>
+                        <input type="email" name="email" id="email" class="text-input">
+                    </div>
+                    <div class="w-full flex items-center justify-between gap-4">
+                        <div class="w-40">
+                            <button class="secondary-button prev-option">
+                                Prev
+                            </button>
+                        </div>
+                        <div class="w-40">
+                            <button submit-for="email" class="primary-button next-option">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full flex flex-col gap-4 hidden  type-to-change" id="change-username">
+                    <span class="text-black dark:text-white font-medium text-sm">
+                        Your Are Changing Your Username
+                    </span>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-sm font-medium capitalize">
+                            Enter A new username
+                        </span>
+                        <input type="text" name="username" id="username" class="text-input">
+                    </div>
+                    <div class="w-full flex items-center justify-between gap-4">
+                        <div class="w-40">
+                            <button class="secondary-button prev-option">
+                                Prev
+                            </button>
+                        </div>
+                        <div class="w-40">
+                            <button submit-for="username" class="primary-button next-option">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full flex flex-col gap-4 font-medium hidden type-to-change" id="change-password">
+                    <span class="text-black dark:text-white font-medium text-sm">
+                        Your Are Changing Your Password
+                    </span>
+                    <div>
+                        <Label for="old-password" class="text-sm">Enter Your Old Password</Label>
+                        <input type="password" name="old-password" id="old-password" class="text-input password-field">
+                    </div>
+                    <div>
+                        <Label for="new-password" class="text-sm">Password New Password</Label>
+                        <input type="password" name="new-password" id="new-password" class="text-input password-field">
+                    </div>
+                    <div>
+                        <Label for="confirm_password" class="text-sm">Confirm Your Password</Label>
+                        <input type="password" name="confirm_password" id="confirm-password"
+                            class="text-input password-field">
+                    </div>
+                    <div class="">
+                        <p class="text-xs text-red-600" id="password-length">* Password Must Be 8 Character Long</p>
+                        <p class="text-xs text-red-600" id="password-number">* Password Must Contain A Number</p>
+                        <p class="text-xs text-red-600" id="password-symbol">* Password Must Contain A Symbol</p>
+                        <p class="text-xs text-red-600" id="password-lowercase">* Password Must Contain A
+                            Lowercase Letter</p>
+                        <p class="text-xs text-red-600" id="password-uppercase">* Password Must Contain A Uppercase
+                            Letter</p>
+                        <p class="text-xs text-red-600" id="is-password-matching">* Password Does Not Match</p>
+                    </div>
+                    <div class="w-full flex items-center justify-between gap-4">
+                        <div class="w-40">
+                            <button class="secondary-button prev-option">
+                                Prev
+                            </button>
+                        </div>
+                        <div class="w-40">
+                            <button submit-for="password" class="primary-button next-option">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
-    <div class="fixed bottom-5 right-5 ">
-        <button type="button"
-            class="screen-toggle bg-black rounded-full  w-10 h-10 p-1 cursor-pointer text-white flex items-center justify-center"><svg
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor" class="w-full h-full screen-toggle">
-                <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-        </button>
-    </div>
-    <script type="module" src="../../src/scripts//binding//formatter.js"></script>
+
+    <script type="module" src="../../src/scripts/binding/formatter.js"></script>
     <script type="module" src="../../src/main.js"></script>
     <script type="module" src="../../src/scripts/theme/theme.js"></script>
-    <script type="module" src="../../src/scripts/expenses.js"></script>
+    <script type="module" src="../../src/scripts/profile.js"></script>
+
 </body>
 
 </html>

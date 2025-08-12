@@ -1,8 +1,8 @@
 """Initial database schema
 
-Revision ID: 2ab888324c40
+Revision ID: 55596e074371
 Revises: 
-Create Date: 2025-07-19 19:29:15.105938
+Create Date: 2025-08-09 12:07:06.561297
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '2ab888324c40'
+revision: str = '55596e074371'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -56,6 +56,21 @@ def upgrade() -> None:
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('username')
     )
+    op.create_table('account',
+    sa.Column('account_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('account_name', sa.String(length=104), nullable=False),
+    sa.Column('account_type', sa.String(length=104), nullable=False),
+    sa.Column('bank_name', sa.String(length=104), nullable=True),
+    sa.Column('balance_amount', sa.Float(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.CheckConstraint('balance_amount > 0', name='Balanace_amount_check'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('account_id'),
+    sa.UniqueConstraint('account_name')
+    )
     op.create_table('categories',
     sa.Column('category_id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('category_name', sa.String(length=255), nullable=False),
@@ -63,36 +78,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('category_id'),
     sa.UniqueConstraint('user_id', 'category_name', name='uix_user_category')
-    )
-    op.create_table('investment',
-    sa.Column('investment_id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('investment_name', sa.String(length=104), nullable=False),
-    sa.Column('investment_type', sa.String(length=104), nullable=False),
-    sa.Column('investment_date', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('description', sa.String(length=255), nullable=False),
-    sa.Column('platform', sa.String(length=104), nullable=False),
-    sa.Column('ticker_symbol', sa.String(length=104), nullable=True),
-    sa.Column('exchange_symbol', sa.String(length=104), nullable=True),
-    sa.Column('amount_invested', sa.Float(), nullable=False),
-    sa.Column('units', sa.Float(), nullable=True),
-    sa.Column('buy_price_per_unit', sa.Float(), nullable=True),
-    sa.Column('maturity_date', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('current_price_per_unit', sa.Float(), nullable=True),
-    sa.Column('current_value', sa.Float(), nullable=True),
-    sa.Column('gain_or_loss', sa.Float(), nullable=True),
-    sa.Column('interest_rate', sa.Float(), nullable=True),
-    sa.Column('compounding_frequency', sa.String(length=104), nullable=True),
-    sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.Column('last_synced_at', sa.DateTime(), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
-    sa.CheckConstraint('amount_invested > 0', name='Amount invested check'),
-    sa.CheckConstraint('buy_price_per_unit > 0', name='Buying price of unit check'),
-    sa.CheckConstraint('current_price_per_unit IS NULL OR current_price_per_unit > 0', name='Current price check'),
-    sa.CheckConstraint('current_value IS NULL OR current_value > 0', name='Current value check'),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('investment_id')
     )
     op.create_table('investmentGoal',
     sa.Column('goal_id', sa.Integer(), autoincrement=True, nullable=False),
@@ -126,11 +111,38 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('budget_id'),
     sa.UniqueConstraint('user_id', 'category_id', name='uix_user_category')
     )
-    op.create_table('investment_goal_link',
-    sa.Column('goal_id', sa.Integer(), nullable=True),
-    sa.Column('investment_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['goal_id'], ['investmentGoal.goal_id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['investment_id'], ['investment.investment_id'], ondelete='CASCADE')
+    op.create_table('investment',
+    sa.Column('investment_id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('investment_name', sa.String(length=104), nullable=False),
+    sa.Column('investment_type', sa.String(length=104), nullable=False),
+    sa.Column('investment_date', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('description', sa.String(length=255), nullable=False),
+    sa.Column('platform', sa.String(length=104), nullable=False),
+    sa.Column('amount_invested', sa.Float(), nullable=False),
+    sa.Column('units', sa.Float(), nullable=True),
+    sa.Column('account_linked', sa.Integer(), nullable=True),
+    sa.Column('buy_price_per_unit', sa.Float(), nullable=True),
+    sa.Column('maturity_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('current_price_per_unit', sa.Float(), nullable=True),
+    sa.Column('current_value', sa.Float(), nullable=True),
+    sa.Column('gain_or_loss', sa.Float(), nullable=True),
+    sa.Column('interest_rate', sa.Float(), nullable=True),
+    sa.Column('compounding_frequency', sa.String(length=104), nullable=True),
+    sa.Column('status', sa.String(length=255), nullable=False),
+    sa.Column('withdrawl_amount', sa.Float(), nullable=True),
+    sa.Column('withdrawl_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('units_withdrawl', sa.Float(), nullable=True),
+    sa.Column('last_synced_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.CheckConstraint('amount_invested > 0', name='Amount invested check'),
+    sa.CheckConstraint('buy_price_per_unit > 0', name='Buying price of unit check'),
+    sa.CheckConstraint('current_price_per_unit IS NULL OR current_price_per_unit > 0', name='Current price check'),
+    sa.CheckConstraint('current_value IS NULL OR current_value > 0', name='Current value check'),
+    sa.ForeignKeyConstraint(['account_linked'], ['account.account_id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('investment_id')
     )
     op.create_table('subscription',
     sa.Column('subscription_id', sa.Integer(), autoincrement=True, nullable=False),
@@ -142,6 +154,7 @@ def upgrade() -> None:
     sa.Column('start_date', sa.DateTime(timezone=True), nullable=False),
     sa.Column('end_date', sa.DateTime(timezone=True), nullable=True),
     sa.Column('next_billing_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('account_linked', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=False),
     sa.Column('transaction_type_id', sa.Integer(), nullable=False),
@@ -151,6 +164,7 @@ def upgrade() -> None:
     sa.Column('last_paid_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.CheckConstraint('amount > 0', name='chk_amount'),
+    sa.ForeignKeyConstraint(['account_linked'], ['account.account_id'], ),
     sa.ForeignKeyConstraint(['category_id'], ['categories.category_id'], ),
     sa.ForeignKeyConstraint(['payment_mode_id'], ['paymentmode.payment_mode_id'], ),
     sa.ForeignKeyConstraint(['transaction_type_id'], ['transactiontype.transaction_type_id'], ),
@@ -163,6 +177,7 @@ def upgrade() -> None:
     sa.Column('amount', sa.Float(), nullable=False),
     sa.Column('description', sa.String(length=140), nullable=False),
     sa.Column('transaction_date', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('account_linked', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -172,11 +187,18 @@ def upgrade() -> None:
     sa.Column('is_income', sa.Boolean(), nullable=False),
     sa.Column('payment_mode_id', sa.Integer(), nullable=False),
     sa.CheckConstraint('amount > 0', name='amount_check'),
+    sa.ForeignKeyConstraint(['account_linked'], ['account.account_id'], ),
     sa.ForeignKeyConstraint(['category_id'], ['categories.category_id'], ),
     sa.ForeignKeyConstraint(['payment_mode_id'], ['paymentmode.payment_mode_id'], ),
     sa.ForeignKeyConstraint(['transaction_type_id'], ['transactiontype.transaction_type_id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('transaction_id')
+    )
+    op.create_table('investment_goal_link',
+    sa.Column('goal_id', sa.Integer(), nullable=True),
+    sa.Column('investment_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['goal_id'], ['investmentGoal.goal_id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['investment_id'], ['investment.investment_id'], ondelete='CASCADE')
     )
     # ### end Alembic commands ###
 
@@ -184,13 +206,14 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table('investment_goal_link')
     op.drop_table('transaction')
     op.drop_table('subscription')
-    op.drop_table('investment_goal_link')
+    op.drop_table('investment')
     op.drop_table('budget')
     op.drop_table('investmentGoal')
-    op.drop_table('investment')
     op.drop_table('categories')
+    op.drop_table('account')
     op.drop_table('users')
     op.drop_table('transactiontype')
     op.drop_table('paymentmode')

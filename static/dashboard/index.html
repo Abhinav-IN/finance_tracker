@@ -110,29 +110,32 @@
                 </button>
                 <h1 class="font-bold text-lg xl:text-2xl ">Overview</h1>
                 <div class="flex gap-4 items-center">
-                    <button
-                        class="rounded-full w-full flex items-center justify-center gap-2 h-10 p-2 border border-black/50 dark:border-white/20 cursor-pointer hover:bg-gray-100 hover:text-black/90 transition-all duration-200"
-                        id="darkModeButton">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-full h-full">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
-                        </svg>
-                    </button>
                     <div class="relative" id="user-panel-container">
                         <button id="user-panel-toggle"
                             class="rounded-full w-full flex items-center justify-center gap-2 h-10 p-2 border border-black/50 dark:border-white/20 cursor-pointer hover:bg-gray-100 hover:text-black/90 transition-all duration-200 user-panel-toggle">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
+                                stroke="currentColor" class="size-6 user-panel-toggle">
+                                <path stroke-linecap="round" stroke-linejoin="round" class="user-panel-toggle"
                                     d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                             </svg>
                         </button>
                         <div id="user-panel"
-                            class="absolute font-medium z-10 min-w-max right-0 p-2 rounded-lg bg-gray-100 dark:bg-gray-900 text-white/90 text-sm popUp hidden">
-                            <ul class="space-y-2 w-32">
+                            class="absolute font-medium z-30 w-40 right-0 p-2 rounded-lg bg-gray-100 dark:bg-gray-900 text-white/90 text-sm popUp hidden">
+                            <ul class="space-y-2  w-full">
+                                <li class="" id="darkModeButton">
+                                    <div class="list-button">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
+                                        </svg>
+                                        <span>
+                                            Dark Mode
+                                        </span>
+                                    </div>
+                                </li>
                                 <li class="">
-                                    <a href="../dashboard/profile" class="list-button">
+                                    <a href="../dashboard/profile/" class="list-button">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="size-6">
                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -146,142 +149,167 @@
                                     </a>
                                 </li>
                                 <li class="">
-                                    <button class="list-button logout">
+                                    <button class="list-button ">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="size-6 logout">
-                                            <path stroke-linecap="round" stroke-linejoin="round" class="logout"
+                                            stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                                         </svg>
-                                        <span class="logout">
+
+                                        <span>
                                             Logout
                                         </span>
                                     </button>
                                 </li>
-
                             </ul>
                         </div>
                     </div>
                 </div>
             </section>
             <section class="transition-fade p-4 h-screen overflow-y-scroll no-scroll-bar" id="swup">
-                <div class="">
-                    <h2 class="font-medium text-lg">
-                        Summary
-                    </h2>
-                </div>
-                <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4  2xl:grid-cols-5 gap-4">
-                    <div class="border border-black/20 space-y-4 p-4 rounded-lg shadow-md dark:border-white/20 ">
-                        <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Total Income</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
-                            </svg>
-                        </div>
-                        <div class="flex items-center gap-2 font-bold text-2xl ">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            <span>
-                                123,456,789,0
-                            </span>
-                        </div>
-                    </div>
-                    <div class="border border-black/20 space-y-4 p-4 rounded-lg shadow-md dark:border-white/20 ">
-                        <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Available Balance</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-                            </svg>
-                        </div>
-                        <div class="flex items-center gap-2 font-bold text-2xl ">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            <span>
-                                123,456,789,0
-                            </span>
-                        </div>
-                    </div>
-                    <div class="border border-black/20 space-y-4 p-4 rounded-lg shadow-md dark:border-white/20 ">
-                        <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Total Spent</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                            </svg>
+                <section>
 
-                        </div>
-                        <div class="flex items-center gap-2 font-bold text-2xl ">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            <span>
-                                123,456,789,0
-                            </span>
-                        </div>
+                    <div class="">
+                        <h2 class="font-medium text-lg">
+                            Summary
+                        </h2>
                     </div>
-                    <div class="border border-black/20 space-y-4 p-4 rounded-lg shadow-md dark:border-white/20 ">
-                        <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Total Investment</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-                            </svg>
+                    <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4  2xl:grid-cols-5 gap-4 relative">
+                        <div class="overview-card">
+                            <div class="font-semibold text-lg flex items-center justify-between">
+                                <span>Total Income</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                                </svg>
+                            </div>
+                            <div class="flex items-center gap-2 font-bold text-2xl ">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                <span class="">
+                                    {data.overview.total_income | money}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="overview-card ">
+                            <div class="font-semibold text-lg flex items-center justify-between">
+                                <span>Total Expense</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                                </svg>
 
+                            </div>
+                            <div class="flex items-center gap-2 font-bold text-2xl ">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                <span>
+                                    {data.overview.total_expense | money}
+                                </span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 font-bold text-2xl ">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            <span>
-                                123,456,789,0
-                            </span>
-                        </div>
-                    </div>
-                    <div class="border border-black/20 space-y-4 p-4 rounded-lg shadow-md dark:border-white/20 ">
-                        <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Total Subscriptions</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3 3m0 0 3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75" />
-                            </svg>
+                        <div class="overview-card ">
+                            <div class="font-semibold text-lg flex items-center justify-between">
+                                <span>Total Budget</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                </svg>
 
+                            </div>
+                            <div class="flex items-center gap-2 font-bold text-2xl ">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                <span>
+                                    {data.overview.total_budget | money}
+
+                                </span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 font-bold text-2xl ">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                            <span>
-                                123,456,789,0
-                            </span>
+                        <div class="overview-card ">
+                            <div class="font-semibold text-lg flex items-center justify-between">
+                                <span>Total Investment</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                                </svg>
+
+                            </div>
+                            <div class="flex items-center gap-2 font-bold text-2xl ">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                <span>
+                                    {data.overview.total_investment | money}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="overview-card ">
+                            <div class="font-semibold text-lg flex items-center justify-between">
+                                <span>Total Subscriptions</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3 3m0 0 3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75" />
+                                </svg>
+
+                            </div>
+                            <div class="flex items-center gap-2 font-bold text-2xl ">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                <span>
+                                    {data.overview.total_subscription | money}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                </section>
+                <section class="pt-6">
+                    <h3 class="font-medium text-lg">
+                        Overview For The Past 30 Days Expense And Income
+                    </h3>
+                    <div class="pt-4 flex flex-col gap-4 lg:flex-row items-center lg:gap-8">
+                        <div
+                            class="w-full lg:w-6/12 border rounded-md shadow-md border-black/20 dark:border-white/20 p-2">
+                            <span class="font-medium">
+                                Expense Chart
+                            </span>
+                            <canvas class="w-full h-full" id="expense-chart-overview"></canvas>
+                        </div>
+                        <div
+                            class="w-full lg:w-6/12 border rounded-md shadow-md border-black/20 dark:border-white/20 p-2">
+                            <span class="font-medium">
+                                Income Chart
+                            </span>
+                            <canvas class="w-full h-full" id="income-chart-overview"></canvas>
+                        </div>
+                    </div>
+                </section>
             </section>
-            <section class="">
 
-            </section>
         </main>
     </div>
     <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30 hidden capitalize"
-        id="addition-screen">
+        id="overlay-screen">
         <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
             <form id="expense-addition-form"
                 class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
@@ -289,7 +317,7 @@
                     <span class="text-lg">
                         Add Expense
                     </span>
-                    <button class="screen-toggle cursor-pointer">
+                    <button type="button" class="screen-toggle cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6 screen-toggle">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"
@@ -311,8 +339,7 @@
                             <label for="expense_price" class="text-sm">
                                 Price (₹)
                             </label>
-                            <input type="number" name="expense_price" id="expense_price"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20 "
+                            <input type="number" name="expense_price" id="expense_price" class="text-input "
                                 placeholder="199">
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
@@ -329,8 +356,7 @@
                             <label for="expense_category" class="text-sm">
                                 Category
                             </label>
-                            <input type="text" name="expense_category" id="expense_category"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20 "
+                            <input type="text" name="expense_category" id="expense_category" class="text-input "
                                 placeholder="Category Name">
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
@@ -352,8 +378,7 @@
                             Additional Note
                         </label>
                         <textarea type="text" name="expense_note" id="expense_note" maxlength="140"
-                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20 min-h-20"
-                            placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
+                            class="text-input min-h-20" placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
                     </div>
                     <button type="submit"
                         class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
@@ -363,18 +388,20 @@
             </form>
         </div>
     </div>
-    <div class="fixed bottom-5 right-5 ">
+    <div class="fixed bottom-5 right-5 screen-toggle ">
         <button type="button"
-            class="screen-toggle bg-black rounded-full  w-10 h-10 p-1 cursor-pointer text-white flex items-center justify-center"><svg
+            class="screen-toggle bg-black rounded-full  w-10 h-10 p-1 cursor-pointer text-white flex items-center justify-center dark:border-white/40 border-2"><svg
                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
                 stroke="currentColor" class="w-full h-full screen-toggle">
                 <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
         </button>
     </div>
+
+    <script type="module" src="../src/scripts//binding//formatter.js"></script>
     <script type="module" src="../src/main.js"></script>
     <script type="module" src="../src/scripts/theme/theme.js"></script>
-    <script type="module" src="../src/scripts/expenses.js"></script>
+    <script type="module" src="../src/scripts/dashboard.js"></script>
 </body>
 
 </html>

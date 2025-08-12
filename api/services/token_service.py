@@ -15,7 +15,7 @@ def verify_token_service(token: str, secret_key: str, algorithm: str):
         payload = jwt.decode(token, secret_key, algorithms=algorithm)
         return payload
     except ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired ")
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is tampered")
 

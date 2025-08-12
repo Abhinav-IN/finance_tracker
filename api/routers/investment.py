@@ -1,16 +1,15 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
-from api.schemas.investment import InvestmentRequest, investmentResponse, InvestmentQueryParam, stockSuggestionQueryParam, SymbolSuggestionResponse, InvestmentUpdateRequest
+from api.schemas.investment import InvestmentRequest, investmentResponse, InvestmentQueryParam, InvestmentUpdateRequest, InvestmentWithdrawalRequest, PaginatedInvestmentResponse
 from api.services.investment_service import (
     create_investment_service,
     get_investment_service,
     update_investment_service,
     delete_investment_service,
-    suggest_symbols
+    withdraw_investment_service
 )
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from typing import List
 
 router = APIRouter(tags=['Investment'], prefix='/api/v1/investment')
 
@@ -22,7 +21,7 @@ async def create_investment(
 ):
     return await create_investment_service(user_investment, user, db)
 
-@router.get('/', status_code=status.HTTP_200_OK, response_model=List[investmentResponse])
+@router.get('/', status_code=status.HTTP_200_OK, response_model=PaginatedInvestmentResponse)
 def get_investment(
     filter_query: InvestmentQueryParam = Depends(),
     user: dict = Depends(require_roles("user", "admin")),
@@ -47,7 +46,6 @@ def delete_investment(
 ):
     return delete_investment_service(investment_id, user, db)
 
-@router.get('/stock/suggestion', status_code=status.HTTP_200_OK, response_model=List[SymbolSuggestionResponse])
-async def get_stock_suggestion(filter_query: stockSuggestionQueryParam = Depends(),
-                               user : dict = Depends(require_roles("user", "admin"))):
-    return await suggest_symbols(filter_query, user)
+@router.post('/withdraw', status_code=status.HTTP_200_OK)
+async def withdraw_investment(data : InvestmentWithdrawalRequest, user : dict = Depends(require_roles("user", "admin")), db : Session = Depends(get_db)):
+    return await withdraw_investment_service(user["id"], data, db)

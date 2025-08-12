@@ -7,16 +7,32 @@ import rivets from "rivets";
 
 export const data = {
   user: {},
-  income: {},
-  expense: {},
+  income: {
+    list: [],
+  },
+  expense: {
+    list: [],
+  },
   investment: {},
   subscription: {},
+  overview: {},
 };
 
-const body = document.querySelector("body");
+export const body = document.querySelector("body");
 rivets.bind(body, {
   data: data,
 });
+
+rivets.formatters.date = function (value) {
+  const date = new Date(value);
+
+  return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
+};
+rivets.formatters.time = function (value) {
+  const date = new Date(value);
+
+  return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+};
 
 body.addEventListener("click", (e) => {
   const target = e.target;
@@ -28,12 +44,14 @@ body.addEventListener("click", (e) => {
   if (target.classList.contains("navigation-toggle")) {
     toggleNavigationPanel();
   }
+
   if (target.classList.contains("logout")) {
     logout();
   }
 
   if (target.classList.contains("screen-toggle")) {
-    toggleHiddenElement(document.getElementById("addition-screen"));
+    console.log("Toggling Pop Up Screen");
+    toggleHiddenElement(document.getElementById("overlay-screen"));
   }
 });
 
@@ -54,10 +72,11 @@ function toggleHiddenElement(element) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const jwtToken = localStorage.getItem("jwtToken");
+  getUserDetails();
   if (jwtToken) {
-    console.log("User appears to be logged in.");
+    console.log("user token is present");
   } else {
-    console.log("User is not logged in.");
+    console.log("user token is not present, redirecting");
     window.location.href = "/";
   }
 });
@@ -71,4 +90,44 @@ function logout() {
   localStorage.removeItem("jwtToken");
   alert("User Has Been Logged Out");
   window.location.href = "/";
+}
+
+async function getUserDetails() {
+  try {
+    const response = await fetch(`${API_URL}/api/v1/user/profile`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+
+      if (response.status === 401) {
+        alert("User is not authenticated");
+        window.location.href = "/";
+        return;
+      }
+    }
+    const result = await response.json();
+    console.log("User Info:", result);
+    data.user = result;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export function token() {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.error("No JWT token found. User is not logged in.");
+    window.location.href = "/login.html";
+    return;
+  }
+  return jwtToken;
 }
