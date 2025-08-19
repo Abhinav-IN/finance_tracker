@@ -9,9 +9,67 @@ export const data = {
   user: {},
   income: {
     list: [],
+    page: {
+      total_pages: 1,
+      current_page: 1,
+      total_incomes: 0,
+    },
+    search: {
+      input: "",
+      lower_price: null,
+      greater_price: null,
+      exact_price: null,
+    },
+    overview: {
+      total_income_current_month: 0,
+      total_income_last_30_days: 0,
+      total_income_last_7_days: 0,
+      average_monthly_income: 0,
+      average_weekly_income: 0,
+    },
+    incomeToEdit: {
+      income_id: "",
+      income_name: "",
+      recieved_date: "",
+      amount: "",
+      income_type_name: "",
+      category_name: "",
+      payment_mode_name: "",
+      account_name: "",
+      additional_note: "",
+    },
   },
   expense: {
     list: [],
+    page: {
+      total_pages: 1,
+      current_page: 1,
+      total_incomes: 0,
+    },
+    search: {
+      input: "",
+      lower_price: null,
+      greater_price: null,
+      exact_price: null,
+    },
+    overview: {
+      total_expense_current_month: 0,
+      total_expense_last_30_days: 0,
+      total_expense_last_7_days: 0,
+      average_monthly_expense: 0,
+      average_weekly_expense: 0,
+    },
+    expenseToEdit: {
+      expense_id: "",
+      expense_name: "",
+      expense_date: "",
+      price: "",
+      expense_type_name: "",
+      category_name: "",
+      payment_mode_name: "",
+      account_name: "",
+      additional_note: "",
+    },
   },
   investment: {},
   subscription: {},
@@ -51,7 +109,7 @@ body.addEventListener("click", (e) => {
 
   if (target.classList.contains("screen-toggle")) {
     console.log("Toggling Pop Up Screen");
-    toggleHiddenElement(document.getElementById("overlay-screen"));
+    toggleHiddenElement({ element: document.getElementById("overlay-screen") });
   }
 });
 
@@ -66,20 +124,20 @@ function toggleNavigationPanel(element) {
   panel.classList.toggle("-translate-x-full");
 }
 
-function toggleHiddenElement(element) {
-  element.classList.toggle("hidden");
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const jwtToken = localStorage.getItem("jwtToken");
-  getUserDetails();
-  if (jwtToken) {
-    console.log("user token is present");
+function toggleHiddenElement({ element, elemnetsToHide } = {}) {
+  if (elemnetsToHide) {
+    elemnetsToHide.forEach((element) => {
+      element.classList.add("hidden");
+    });
   } else {
-    console.log("user token is not present, redirecting");
-    window.location.href = "/";
+    console.log("Elements To Hide Is Not Present");
   }
-});
+  if (element) {
+    element.classList.toggle("hidden");
+  } else {
+    console.log("Element To Toggle Is Not Present");
+  }
+}
 
 function logout() {
   const jwtToken = localStorage.getItem("jwtToken");
@@ -131,3 +189,14 @@ export function token() {
   }
   return jwtToken;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const jwtToken = localStorage.getItem("jwtToken");
+  getUserDetails();
+  if (jwtToken) {
+    console.log("user token is present");
+  } else {
+    console.log("user token is not present, redirecting");
+    window.location.href = "/";
+  }
+});

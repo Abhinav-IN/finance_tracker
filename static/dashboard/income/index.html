@@ -12,10 +12,10 @@
     <title>Fi-Track :: Income</title>
 </head>
 
-<body class="w-full h-screen overflow-hidden bg-gray-50 dark:bg-black/95 dark:text-white/80 text-black/70">
+<body class="w-full h-screen overflow-hidden text-bg-colours">
 
     <div class="w-full h-full flex items-start justify-start  ">
-        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-20 bg-gray-50 dark:bg-black/95 dark:text-white/80 text-black/70
+        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-20 text-bg-colours
         -translate-x-full 2xl:relative 2xl:translate-x-0  transition-all duration-300" id="navigation-panel">
             <div class="flex items-center justify-between">
                 <a href="/dashboard">
@@ -172,7 +172,26 @@
                         Income Overview
                     </h2>
                 </div>
-                <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 relative pt-4">
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5  gap-4 relative pt-4">
+                    <div class="overview-card relative">
+                        <div class="font-semibold text-lg flex items-center justify-between">
+                            <span>Current Month Income</span>
+                            <span
+                                class="text-8xl absolute -z-10 text-black/10 dark:text-white/10 right-5 -bottom-5 font-bold">
+                                C-M
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2 font-bold text-2xl ">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="size-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <span class="">
+                                {data.income.overview.total_income_current_month | money}
+                            </span>
+                        </div>
+                    </div>
                     <div class="overview-card relative">
                         <div class="font-semibold text-lg flex items-center justify-between">
                             <span>Past 30 Days Income</span>
@@ -255,12 +274,82 @@
                 </div>
 
                 <div class="pt-6 ">
-                    <h3>
-                        Most Recent Income
-                    </h3>
+                    <div class="w-full space-y-4">
+                        <h3 class="text-lg font-medium">
+                            Most Recent Income
+                        </h3>
+                        <div class="flex items-center w-full gap-4 ">
+                            <input type="text" class="text-input" placeholder="Search For Something"
+                                rv-value="data.income.search.input">
+                            <div class="relative">
+                                <button
+                                    class="p-2 rounded-md shadow-md bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer filter-toggle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                                    </svg>
+                                </button>
+                                <div class="text-bg-colours absolute right-0 z-10 mt-4 hidden" id="filter-options">
+                                    <div class="shadow-sm rounded-md p-2 space-y-4 ">
+                                        <div class="font-medium flex items-center justify-between">
+                                            Extra Filters
+                                            <button class="cursor-pointer filter-toggle" id="close-filter">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <div class="flex justify-between items-center gap-4 w-full">
+                                            <label for="lower-price" class="text-nowrap font-medium text-xs">
+                                                Less Than
+                                            </label>
+                                            <input type="number" name="lower-price" id="lower-price" min="0"
+                                                max="9999999999" rv-value="data.income.search.lower_price"
+                                                placeholder="100"
+                                                class="border border-black/20 dark:border-white/20 px-2 py-1 w-32 rounded-sm shadow-xs">
+                                        </div>
+                                        <div class="flex justify-between items-center gap-4 w-full">
+                                            <label for="greater-price" class="text-nowrap font-medium text-xs">
+                                                More Than
+                                            </label>
+                                            <input type="number" name="greater-price" id="greater-price" min="0"
+                                                rv-value="data.income.search.greater_price" max="9999999999"
+                                                placeholder="100"
+                                                class="border border-black/20 dark:border-white/20 px-2 py-1 w-32 rounded-sm shadow-xs">
+                                        </div>
+                                        <div class="flex justify-between items-center gap-4 w-full">
+                                            <label for="exact-price" class="text-nowrap font-medium text-xs">
+                                                Exact Value
+                                            </label>
+                                            <input type="number" name="exact-price" id="exact-price" min="0"
+                                                max="9999999999" rv-value="data.income.search.exact_price"
+                                                placeholder="100"
+                                                class="border border-black/20 dark:border-white/20 px-2 py-1 w-32 rounded-sm shadow-xs">
+                                        </div>
+                                        <button
+                                            class="w-full text-center p-1 rounded-md shadow-md bg-blue-500 font-medium text-white cursor-pointer filter-toggle">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="search-btn"
+                                class="p-2 rounded-md shadow-md bg-black dark:bg-gray-800 hover:bg-black/80 dark:hover:bg- text-white  cursor-pointer ">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div class="w-full pt-4">
                         <div
-                            class="relative max-h-[500px] min-h-96 border border-black w-full rounded-md shadow-md overflow-y-scroll ">
+                            class="relative max-h-[500px] min-h-96 border border-black/20 dark:border-white/20 w-full rounded-md shadow-md overflow-y-scroll ">
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead
                                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 border-b border-black/20 dark:border-white/20">
@@ -285,13 +374,13 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody class="">
+                                <tbody class="capitalize">
                                     <tr rv-each-income="data.income.list"
                                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 even:bg-gray-200 dark:even:bg-gray-900">
                                         <th scope="row" rv-income-id="income.income_id"
                                             class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20 income-info">
                                             <button type="button"
-                                                class="income-info flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer "
+                                                class="income-info flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer open-income-editor "
                                                 rv-income-id="income.income_id">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                     rv-income-id="income.income_id" stroke-width="1.5"
@@ -324,6 +413,35 @@
                                     </tr>
                                 </tbody>
                             </table>
+
+                        </div>
+                        <div class="w-full text-center py-6 flex items-center justify-between sm:justify-end gap-4">
+                            <button id="prev-page"
+                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                </svg>
+
+                                <span class="">
+                                    Prev
+                                </span>
+                            </button>
+                            <span class="px-4 py-2 bg-gray-100 rounded-md shadow-md dark:bg-gray-900 ">
+                                {data.income.page.current_page} / {data.income.page.total_pages}
+                            </span>
+                            <button id="next-page"
+                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <span class="">
+                                    Next
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -332,9 +450,9 @@
     </div>
     <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30 hidden capitalize"
         id="overlay-screen">
-        <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
-            <form id="income-addition-form"
-                class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
+        <form class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs"
+            id="income-addition-form">
+            <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
                 <div class="font-semibold flex items-center justify-between">
                     <span class="text-lg">
                         Add Income
@@ -418,11 +536,115 @@
                         Submit
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
+    </div>
+    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30 bg-black/90 dark:bg-black/20 capitalize backdrop-blur-sm hidden capitalize"
+        id="income-edit-screen">
+        <form id="edit-income-form" class="w-11/12 sm:max-w-md  ">
+            <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
+                <div class="font-semibold flex items-center justify-between">
+                    <span class="text-lg">
+                        Editiing Income
+                    </span>
+                    <button type="button" class="edit-screen-toggle cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6 edit-screen-toggle">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"
+                                class="edit-screen-toggle" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="pt-4 dark:text-white space-y-6">
+                    <div class="font-medium flex flex-col gap-2 ">
+                        <label for="edit_income_name" class="text-sm">
+                            Name
+                        </label>
+                        <input type="text" name="income_name" id="edit_income_name"
+                            rv-value="data.income.incomeToEdit.income_name"
+                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
+                            placeholder="Salary">
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="font-medium flex flex-col gap-2 w-full">
+                            <label for="edit_income_amount" class="text-sm">
+                                Amount (₹)
+                            </label>
+                            <input type="number" name="edit_income_amount" id="edit_income_amount" class="text-input "
+                                rv-value="data.income.incomeToEdit.amount" placeholder="20099">
+                        </div>
+                        <div class="font-medium flex flex-col gap-2 w-full">
+                            <label for="edit_income_date" class="text-sm">
+                                Received Date
+                            </label>
+                            <input type="date" name="edit_income_date" id="edit_income_date"
+                                rv-value="data.income.incomeToEdit.income_date"
+                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
+                                placeholder="07-02-2025">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between w-full gap-2">
+                        <div class="flex items-center justify-between gap-4 w-full">
+                            <div class="font-medium flex flex-col gap-2 w-full">
+                                <label for="edit_payment_mode_name" class="text-sm">
+                                    Payment Mode
+                                </label>
+                                <select name="edit_payment_mode_name" id="edit_payment_mode_name"
+                                    rv-value="data.income.incomeToEdit.payment_mode_name"
+                                    class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
+                                    <option class="bg-white dark:bg-black" value="cash">Cash</option>
+                                    <option class="bg-white dark:bg-black" value="bank_transfer">Bank Transfer
+                                    </option>
+                                    <option class="bg-white dark:bg-black" value="upi">UPI</option>
+                                    <option class="bg-white dark:bg-black" value="credit">Credit Card</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 w-full">
+                            <div class="font-medium flex flex-col gap-2 w-full">
+                                <label for="edit_income_category" class="text-sm">
+                                    Category
+                                </label>
+                                <select name="income_category" id="income_category"
+                                    rv-value="data.income.incomeToEdit.category_name"
+                                    class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
+                                    <option class="bg-white dark:bg-black" value="salary">Salary</option>
+                                    <option class="bg-white dark:bg-black" value="advertisement">Advertisement
+                                    </option>
+                                    <option class="bg-white dark:bg-black" value="passive_income">Passive Income
+                                    </option>
+                                    <option class="bg-white dark:bg-black" value="rental">Rental</option>
+                                    <option class="bg-white dark:bg-black" value="interest">Interest</option>
+                                    <option class="bg-white dark:bg-black" value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="font-medium flex flex-col gap-2 ">
+                        <label for="edit_income_note" class="text-sm">
+                            Additional Note
+                        </label>
+                        <textarea type="text" name="edit_income_note" id="edit_income_note" maxlength="140"
+                            rv-value="data.income.incomeToEdit.additional_note" class="text-input min-h-20"
+                            placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
+                    </div>
+                    <div class="space-y-4">
+                        <button type="submit"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
+                            Submit
+                        </button>
+                        <button type="button" income-id="data.income.incomeToEdit.income_id"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90  transition-all duration-200">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
     <div class="fixed bottom-5 right-5 ">
-        <button type="button"
+        <button type="button" data-screen="income-addition-form"
             class="screen-toggle bg-black rounded-full  w-10 h-10 p-1 cursor-pointer text-white flex items-center justify-center"><svg
                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
                 stroke="currentColor" class="w-full h-full screen-toggle">
@@ -430,7 +652,10 @@
             </svg>
         </button>
     </div>
-    <script type="module" src="../../src/scripts//binding//formatter.js"></script>
+
+
+
+    <script type="module" src="../../src/scripts/binding/formatter.js"></script>
 
     <script type="module" src="../../src/main.js"></script>
     <script type="module" src="../../src/scripts/theme/theme.js"></script>

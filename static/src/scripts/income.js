@@ -1,7 +1,15 @@
-import { data } from "../main";
+import { body, data } from "../main";
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
+const nextPageBtn = document.getElementById("next-page");
+const prevPageBtn = document.getElementById("prev-page");
+const searchBtn = document.getElementById("search-btn");
+const filterToggleBtn = document.querySelectorAll(".filter-toggle");
+const filterOption = document.getElementById("filter-options");
+
 const incomeForm = document.getElementById("income-addition-form");
+const editIncomeForm = document.getElementById("edit-income-form");
+
 if (incomeForm) {
   incomeForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -24,6 +32,16 @@ if (incomeForm) {
     };
 
     await addIncome(payload);
+  });
+}
+
+if (editIncomeForm) {
+  editIncomeForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    editIncome({
+      incomeId: data.income.incomeToEdit.income_id,
+      payload: data.income.incomeToEdit,
+    });
   });
 }
 
@@ -95,6 +113,68 @@ async function incomeOverview() {
   }
 }
 
+async function editIncome({ incomeId = "", payload } = {}) {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/v1/transaction/income/update/${incomeId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+      throw new Error(
+        `Failed to edit income: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result = await response.json();
+    console.log("income edited successfully:", result);
+  } catch (error) {
+    console.log(error);
+    alert(`Error editing income: ${error.message}`);
+  }
+}
+async function deleteIncome({ incomeId = "" } = {}) {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/v1/transaction/income/delete/${incomeId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+      throw new Error(
+        `Failed to edit income: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result = await response.json();
+    console.log("income edited successfully:", result);
+  } catch (error) {
+    console.log(error);
+    alert(`Error editing income: ${error.message}`);
+  }
+}
+
 async function getIncome({
   page = 1,
   limit = 20,
@@ -123,24 +203,30 @@ async function getIncome({
   if (transaction_id) {
     queryParams.append("transaction_id", transaction_id);
   }
+
   if (exact_amount !== null && exact_amount !== undefined) {
-    // For numbers, explicitly check for null/undefined as 0 is a valid value
     queryParams.append("exact_amount", exact_amount);
   }
+
   if (greater_amount !== null && greater_amount !== undefined) {
     queryParams.append("greater_amount", greater_amount);
   }
+
   if (lower_amount !== null && lower_amount !== undefined) {
     queryParams.append("lower_amount", lower_amount);
   }
+
   if (date) {
     queryParams.append("date", date);
   }
   if (search) {
     queryParams.append("search", search);
+  } else {
+    queryParams.append("search", data.income.search.input);
   }
 
   const queryString = queryParams.toString();
+  console.log(queryParams);
 
   try {
     const response = await fetch(
@@ -165,18 +251,99 @@ async function getIncome({
     }
 
     const result = await response.json();
-    data.income.list = result;
-    console.log(data.income.list);
+    data.income.list = result.incomes;
+    data.income.page.total_pages = result.total_pages;
+    data.income.page.current_page = result.current_page;
+    data.income.page.total_incomes = result.total_income;
   } catch (error) {
     console.error("Error fetching income overview:", error);
-    alert(`Error fetching income overview: ${error.message}`);
+    // alert(`Error fetching income overview: ${error.message}`);
   }
 }
 
-incomeOverview();
+function nextPage() {
+  let nextPage = Number(data.income.page.current_page) + 1;
 
-getIncome();
+  if (nextPage > data.income.page.total_pages) {
+    nextPage = data.income.page.total_pages;
+  }
 
+  getIncome({
+    page: nextPage,
+
+    greater_amount: data.income.search.greater_price,
+    lower_amount: data.income.search.lower_price,
+    exact_amount: data.income.search.exact_price,
+  });
+}
+
+function prevPage() {
+  let prevPage = Number(data.income.page.current_page) - 1;
+
+  if (prevPage < 1) {
+    prevPage = 1;
+  }
+  getIncome({
+    page: prevPage,
+    greater_amount: data.income.search.greater_price,
+    lower_amount: data.income.search.lower_price,
+    exact_amount: data.income.search.exact_price,
+  });
+}
+
+function openIncomeEditor({ incomeId = null, incomeList = [] } = {}) {
+  if (!incomeId || incomeId == null) {
+    return alert("Income ID is invalid");
+  }
+
+  if (!incomeList || incomeList.length <= 0) {
+    return alert("Income List To Filter From Is Empty Or Invalid");
+  }
+
+  data.income.incomeToEdit = incomeList.filter(
+    (income) => Number(income.income_id) === Number(incomeId)
+  )[0];
+}
+
+if (searchBtn) {
+  searchBtn.addEventListener("click", (e) => {
+    getIncome({
+      page: 1,
+      search: data.income.search.input,
+      greater_amount: data.income.search.greater_price,
+      lower_amount: data.income.search.lower_price,
+      exact_amount: data.income.search.exact_price,
+    });
+  });
+} else {
+  console.log("SEARCH BUTTON NOT FOUND ON THIS PAGE");
+}
+
+if (nextPageBtn) {
+  nextPageBtn.addEventListener("click", (e) => {
+    nextPage();
+  });
+} else {
+  console.log("NEXT PAGE BUTTON NOT FOUND ON THIS PAGE");
+}
+
+if (prevPageBtn) {
+  prevPageBtn.addEventListener("click", (e) => {
+    prevPage();
+  });
+} else {
+  console.log("PREV PAGE BUTTON NOT FOUND ON THIS PAGE");
+}
+
+if (filterToggleBtn) {
+  filterToggleBtn.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      filterOption.classList.toggle("hidden");
+    });
+  });
+} else {
+  console.log("FILTER OPTIONS ARE NOT FOUND ON THIS PAGE");
+}
 function token() {
   const jwtToken = localStorage.getItem("jwtToken");
   if (!jwtToken) {
@@ -185,4 +352,36 @@ function token() {
     return;
   }
   return jwtToken;
+}
+
+document.addEventListener("DOMContentLoaded", (e) => {
+  incomeOverview();
+  getIncome({
+    page: data.income.page.current_page,
+    search: data.income.search.input,
+    greater_amount: data.income.search.greater_price,
+    lower_amount: data.income.search.lower_price,
+    exact_amount: data.income.search.exact_price,
+  });
+});
+
+body.addEventListener("click", (e) => {
+  const target = e.target;
+
+  if (target.classList.contains("open-income-editor")) {
+    const incomeId = target.getAttribute("income-id");
+    openIncomeEditor({
+      incomeId: incomeId,
+      incomeList: data.income.list,
+    });
+    toggleElement(document.getElementById("income-edit-screen"));
+  }
+
+  if (target.classList.contains("edit-screen-toggle")) {
+    toggleElement(document.getElementById("income-edit-screen"));
+  }
+});
+
+function toggleElement(element) {
+  element.classList.toggle("hidden");
 }
