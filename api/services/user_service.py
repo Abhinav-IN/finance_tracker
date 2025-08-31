@@ -10,7 +10,10 @@ from api.models.investment import Investment
 from api.models.investment_goal import InvestmentGoal
 from api.models.subscription import Subscription
 from api.schemas.user import UserProfile, passwordRequest
+from api.utils.validator import gender_check
+from datetime import date
 from fastapi import Depends, HTTPException, status
+from pydantic import EmailStr
 from sqlalchemy import delete, or_
 from sqlalchemy.orm import Session
 
@@ -22,6 +25,7 @@ def get_profile_service(user_id: int, db: Session = Depends(get_db)):
 
     return UserProfile.model_validate(curr_user)  
 
+""""
 def update_profile_service(userProfileRequest: UserProfile, user_id: int, db: Session = Depends(get_db)):
     curr_user_query = db.query(User).filter(User.id == user_id)     
     curr_user = curr_user_query.first()
@@ -44,6 +48,95 @@ def update_profile_service(userProfileRequest: UserProfile, user_id: int, db: Se
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating user profile")
 
     return UserProfile.model_validate(curr_user)
+"""
+
+def update_username_service(newUserName : str, user_id : int, db : Session):
+    curr_user_query = db.query(User).filter(User.id == user_id)
+    curr_user = curr_user_query.first()
+
+    if not curr_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found")
+    
+    curr_user.username = newUserName
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating username")
+    
+    return
+
+def update_fullname_service(newFirstName : str, newLastName : str, user_id : int, db : Session):
+    curr_user_query = db.query(User).filter(User.id == user_id)
+    curr_user = curr_user_query.first()
+
+    if not curr_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found")
+    
+    curr_user.first_name = newFirstName
+    curr_user.last_name = newLastName
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating full name")
+    
+    return
+
+def update_email_service(newEmail : EmailStr, user_id : int, db : Session):
+    curr_user_query = db.query(User).filter(User.id == user_id)
+    curr_user = curr_user_query.first()
+
+    if not curr_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found")
+    
+    curr_user.email = newEmail
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating email")
+    
+    return
+
+def update_dob_service(new_dob : date, user_id : int, db : Session):
+    curr_user_query = db.query(User).filter(User.id == user_id)
+    curr_user = curr_user_query.first()
+
+    if not curr_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found")
+    
+    curr_user.dob = new_dob
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating date of birth")
+    
+    return
+
+def update_gender_service(new_gender : str, user_id : int, db : Session):
+    final_gender = gender_check(new_gender)
+    curr_user_query = db.query(User).filter(User.id == user_id)
+    curr_user = curr_user_query.first()
+
+    if not curr_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found")
+
+    curr_user.gender = final_gender
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating gender")
+
+    return
+
 
 
 def delete_profile_service(user_id: int, db: Session = Depends(get_db)):
