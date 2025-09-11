@@ -12,10 +12,10 @@
     <title>Fi-Track :: Expense</title>
 </head>
 
-<body class="w-full h-screen overflow-hidden bg-text-colours">
+<body class="w-full h-screen overflow-hidden text-bg-colours">
 
     <div class="w-full h-full flex items-start justify-start  ">
-        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-40 bg-text-colours
+        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-40 text-bg-colours
         -translate-x-full 2xl:relative 2xl:translate-x-0  transition-all duration-300" id="navigation-panel">
             <div class="flex items-center justify-between">
                 <a href="/dashboard">
@@ -273,9 +273,20 @@
                 </div>
                 <div class="pt-6 ">
                     <div class="w-full space-y-4">
-                        <h3 class="text-lg font-medium">
-                            Most Recent expense
-                        </h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-medium">
+                                Most Recent expense
+                            </h3>
+                            <button type="button"
+                                class="screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
+                                Add
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="2.5" stroke="currentColor" class="size-6 screen-toggle">
+                                    <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                            </button>
+                        </div>
                         <div class="flex items-center w-full gap-4 ">
                             <input type="text" class="text-input" placeholder="Search For Something"
                                 rv-value="data.expense.search.input">
@@ -505,9 +516,9 @@
                                 class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
                                 <option class="bg-white dark:bg-black" value="cash">CASH</option>
                                 <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                                <option class="bg-white dark:bg-black" value="credit_card">Credit Card</option>
-                                <option class="bg-white dark:bg-black" value="debit_card">Credit Card</option>
-                                <option class="bg-white dark:bg-black" value="Wallet">Wallet</option>
+                                <option class="bg-white dark:bg-black" value="credit card">Credit Card</option>
+                                <option class="bg-white dark:bg-black" value="debit card">Debit Card</option>
+                                <option class="bg-white dark:bg-black" value="wallet">Wallet</option>
                             </select>
                         </div>
                     </div>
@@ -581,9 +592,9 @@
                                     class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
                                     <option class="bg-white dark:bg-black" value="cash">CASH</option>
                                     <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                                    <option class="bg-white dark:bg-black" value="credit_card">Credit Card</option>
-                                    <option class="bg-white dark:bg-black" value="debit_card">Credit Card</option>
-                                    <option class="bg-white dark:bg-black" value="Wallet">Wallet</option>
+                                    <option class="bg-white dark:bg-black" value="credit card">Credit Card</option>
+                                    <option class="bg-white dark:bg-black" value="debit card">Debit Card</option>
+                                    <option class="bg-white dark:bg-black" value="wallet">Wallet</option>
                                 </select>
                             </div>
                         </div>
@@ -615,15 +626,7 @@
 
         </form>
     </div>
-    <div class="fixed bottom-5 right-5 ">
-        <button type="button"
-            class="screen-toggle bg-black rounded-full  w-10 h-10 p-1 cursor-pointer text-white flex items-center justify-center"><svg
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor" class="w-full h-full screen-toggle">
-                <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-        </button>
-    </div>
+
     <script type="module" src="../../src/scripts//binding//formatter.js"></script>
     <script type="module" src="../../src/main.js"></script>
     <script type="module" src="../../src/scripts/theme/theme.js"></script>

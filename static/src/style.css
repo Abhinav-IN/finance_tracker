@@ -80,7 +80,7 @@
 
 .primary-button {
   @apply text-center inline-block w-full h-full font-medium  bg-black/90 text-white/90 rounded-lg p-2 hover:bg-black/80 hover:text-white dark:bg-white/80 dark:text-black/80 dark:hover:bg-white/90 dark:hover:text-black/90 transition-all 
-        focus:outline-none focus:border-2 cursor-pointer;
+        focus:outline-none focus:border-2 cursor-pointer   disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .secondary-button {
@@ -109,7 +109,7 @@
 }
 
 .text-bg-colours {
-  @apply bg-gray-50 dark:bg-black/95 dark:text-white/80 text-black/70;
+  @apply bg-gray-50 dark:bg-gray-950 dark:text-white/80 text-black/70;
 }
 
 .text-input {

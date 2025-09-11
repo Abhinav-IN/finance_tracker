@@ -303,6 +303,7 @@ function openIncomeEditor({ incomeId = null, incomeList = [] } = {}) {
   data.income.incomeToEdit = incomeList.filter(
     (income) => Number(income.income_id) === Number(incomeId)
   )[0];
+  console.log(data.income.incomeToEdit);
 }
 
 if (searchBtn) {

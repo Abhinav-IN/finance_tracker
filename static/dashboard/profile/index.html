@@ -9,7 +9,7 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../../src/style.css" rel="stylesheet">
-    <title>Fi-Track :: Income</title>
+    <title>Fi-Track :: User Profile</title>
 </head>
 
 <body class="w-full h-screen overflow-hidden text-bg-colours">
@@ -135,7 +135,7 @@
                                     </div>
                                 </li>
                                 <li class="">
-                                    <a href="../dashboard/profile/" class="list-button">
+                                    <a href="./" class="list-button">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="size-6">
                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -171,11 +171,11 @@
                 id="swup">
                 <div>
                     <h2 class="font-medium text-lg">
-                        Welcome {data.user.first_name} {data.user.last_name},
+                        Welcome {data.user.first_name} {data.user.last_name}
                     </h2>
                 </div>
-                <div>
-                    <section class="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <div class="pt-6">
+                    <section class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm relative">
                         <div class="h-40 bg-gradient-to-br from-blue-300 to-pink-300">
                         </div>
                         <div class="p-4">
@@ -193,8 +193,8 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="w-32 h-10 hidden md:block">
-                                    <button class="primary-button edit-profile-button screen-toggle">
+                                <div class="w-32 absolute top-5 right-5 md:relative md:top-0 md:right-0 ">
+                                    <button class="primary-button" id="open-user-profile-edit-button">
                                         Edit
                                     </button>
                                 </div>
@@ -232,37 +232,45 @@
         </main>
 
     </div>
-
-    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30  capitalize"
-        id="overlay-screen">
-        <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
-            <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
-                <div id="change-dropdown" class="flex flex-col gap-2 ">
-                    <span class="">
-                        What Do You Want To Change?
-                    </span>
-                    <select name="" id="" class="border-b border-black/20 w-full">
-                        <option value="name">Name</option>
-                        <option value="email">Email</option>
-                        <option value="username">Username</option>
-                        <option value="password">Password</option>
-                        <option value="dob">Date of Birth</option>
-                    </select>
-                    <div class="w-full flex items-center justify-between gap-4 mt-4">
-                        <div class="w-40">
-                            <button class="secondary-button prev-option">
-                                Prev
-                            </button>
-                        </div>
-                        <div class="w-40">
-                            <button class="primary-button next-option">
-                                Next
-                            </button>
-                        </div>
-                    </div>
+    <div id="user-profile-edit-panel"
+        class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30 bg-black/90 backdrop-blur-md dark:bg-black/20 hidden">
+        <div
+            class="w-11/12 sm:max-w-md text-bg-colours bg-white p-4 rounded-md shadow-md border border-black/20 dark:border-white/20">
+            <div class="w-full flex items-center justify-between">
+                <h4 class="font-medium text-sx">
+                    Editing User Profile
+                </h4>
+                <button class="rounded-full border border-black/20 dark:border-white/20 cursor-pointer p-1"
+                    id="close-user-profile-edit-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="py-2 " id="user-change-options">
+                Let's get Started, Choose What You Want To Change.
+                <div class="flex flex-wrap items-center justify-center pt-4 gap-4">
+                    <button data-value="email-change" class="primary-button min-w-40 option-to-edit">
+                        Email
+                    </button>
+                    <button data-value="name-change" class="primary-button min-w-40 option-to-edit">
+                        Full Name
+                    </button>
+                    <button data-value="username-change" class="primary-button min-w-40 option-to-edit">
+                        Username
+                    </button>
+                    <button data-value="password-change" class="primary-button min-w-40 option-to-edit">
+                        Password
+                    </button>
+                    <button data-value="date-of-birth-change" class="primary-button min-w-40 option-to-edit">
+                        Date Of Birth
+                    </button>
                 </div>
-                <div class="w-full flex flex-col gap-4 hidden  type-to-change" id="change-name">
-                    <span class="text-black dark:text-white font-medium text-sm">
+            </div>
+            <div class="hidden options-panel" id="name-change">
+                <div class="pt-4 flex flex-col gap-2">
+                    <span class="text-black dark:text-white font-medium text-sm ">
                         Your Are Changing Your Name
                     </span>
                     <div class="flex flex-col gap-2">
@@ -277,81 +285,70 @@
                         </span>
                         <input type="text" name="last_name" id="last_name" class="text-input">
                     </div>
-                    <div class="w-full flex items-center justify-between gap-4 ">
-                        <div class="w-40">
-                            <button class="secondary-button prev-option">
-                                Prev
-                            </button>
-                        </div>
-                        <div class="w-40">
-                            <button submit-for="name" class="primary-button submit-option">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
+                    <button class="primary-button mt-4" id="name-change-button">
+                        Submit
+                    </button>
+                    <button class="secondary-button go-back">
+                        Back
+                    </button>
                 </div>
-                <div class="w-full flex flex-col gap-4 hidden  type-to-change" id="change-email">
-                    <span class="text-black dark:text-white font-medium text-sm">
+            </div>
+            <div class="hidden options-panel" id="email-change">
+                <div class="pt-4 flex flex-col gap-2">
+                    <span class="text-black dark:text-white font-medium text-sm ">
                         Your Are Changing Your Email
                     </span>
                     <div class="flex flex-col gap-2">
                         <span class="text-sm font-medium">
-                            Ente You New Email
+                            Enter Your New Email
                         </span>
                         <input type="email" name="email" id="email" class="text-input">
                     </div>
-                    <div class="w-full flex items-center justify-between gap-4">
-                        <div class="w-40">
-                            <button class="secondary-button prev-option">
-                                Prev
-                            </button>
-                        </div>
-                        <div class="w-40">
-                            <button submit-for="email" class="primary-button next-option">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
+                    <button class="primary-button mt-4" id="email-change-button">
+                        Submit
+                    </button>
+                    <button class="secondary-button go-back">
+                        Back
+                    </button>
                 </div>
-                <div class="w-full flex flex-col gap-4 hidden  type-to-change" id="change-username">
-                    <span class="text-black dark:text-white font-medium text-sm">
+            </div>
+            <div class="hidden options-panel" id="username-change">
+                <div class="pt-4 flex flex-col gap-2">
+                    <span class="text-black dark:text-white font-medium text-sm ">
                         Your Are Changing Your Username
                     </span>
                     <div class="flex flex-col gap-2">
-                        <span class="text-sm font-medium capitalize">
-                            Enter A new username
+                        <span class="text-sm font-medium">
+                            Enter Your New Username
                         </span>
                         <input type="text" name="username" id="username" class="text-input">
                     </div>
-                    <div class="w-full flex items-center justify-between gap-4">
-                        <div class="w-40">
-                            <button class="secondary-button prev-option">
-                                Prev
-                            </button>
-                        </div>
-                        <div class="w-40">
-                            <button submit-for="username" class="primary-button next-option">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
+                    <button class="primary-button mt-4" id="username-change-button">
+                        Submit
+                    </button>
+                    <button class="secondary-button go-back">
+                        Back
+                    </button>
                 </div>
-                <div class="w-full flex flex-col gap-4 font-medium hidden type-to-change" id="change-password">
+            </div>
+            <div class="hidden options-panel" id="password-change">
+                <div class="pt-4 flex flex-col gap-2">
+
                     <span class="text-black dark:text-white font-medium text-sm">
                         Your Are Changing Your Password
                     </span>
                     <div>
                         <Label for="old-password" class="text-sm">Enter Your Old Password</Label>
-                        <input type="password" name="old-password" id="old-password" class="text-input password-field">
+                        <input type="password" name="old-password" id="old-password" class="text-input">
                     </div>
                     <div>
                         <Label for="new-password" class="text-sm">Password New Password</Label>
-                        <input type="password" name="new-password" id="new-password" class="text-input password-field">
+                        <input type="password" name="new-password" id="new-password" class="text-input passwordFields">
                     </div>
                     <div>
                         <Label for="confirm_password" class="text-sm">Confirm Your Password</Label>
                         <input type="password" name="confirm_password" id="confirm-password"
-                            class="text-input password-field">
+                            class="text-input passwordFields">
                     </div>
                     <div class="">
                         <p class="text-xs text-red-600" id="password-length">* Password Must Be 8 Character Long</p>
@@ -363,23 +360,36 @@
                             Letter</p>
                         <p class="text-xs text-red-600" id="is-password-matching">* Password Does Not Match</p>
                     </div>
-                    <div class="w-full flex items-center justify-between gap-4">
-                        <div class="w-40">
-                            <button class="secondary-button prev-option">
-                                Prev
-                            </button>
-                        </div>
-                        <div class="w-40">
-                            <button submit-for="password" class="primary-button next-option">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
+                    <button class="primary-button mt-4" id="password-change-button" disabled>
+                        Submit
+                    </button>
+                    <button class="secondary-button go-back">
+                        Back
+                    </button>
                 </div>
-
+            </div>
+            <div class="hidden options-panel" id="date-of-birth-change">
+                <div class="pt-4 flex flex-col gap-2">
+                    <span class="text-black dark:text-white font-medium text-sm ">
+                        Your Are Changing Your Username
+                    </span>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-sm font-medium">
+                            Enter Your New Date Of Birth
+                        </span>
+                        <input type="date" name="date-of-birth" id="date-of-birth" class="text-input">
+                    </div>
+                    <button class="primary-button mt-4" id="date-of-birth-change-button">
+                        Submit
+                    </button>
+                    <button class="secondary-button go-back">
+                        Back
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
 
     <script type="module" src="../../src/scripts/binding/formatter.js"></script>
     <script type="module" src="../../src/main.js"></script>

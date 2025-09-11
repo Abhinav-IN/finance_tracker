@@ -275,9 +275,20 @@
 
                 <div class="pt-6 ">
                     <div class="w-full space-y-4">
-                        <h3 class="text-lg font-medium">
-                            Most Recent Income
-                        </h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-medium">
+                                Most Recent Income
+                            </h3>
+                            <button type="button"
+                                class="screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
+                                Add
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="2.5" stroke="currentColor" class="size-6 screen-toggle">
+                                    <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                            </button>
+                        </div>
                         <div class="flex items-center w-full gap-4 ">
                             <input type="text" class="text-input" placeholder="Search For Something"
                                 rv-value="data.income.search.input">
@@ -574,13 +585,12 @@
                                 rv-value="data.income.incomeToEdit.amount" placeholder="20099">
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="edit_income_date" class="text-sm">
+                            <label for="edit_recieved_date" class="text-sm">
                                 Received Date
                             </label>
-                            <input type="date" name="edit_income_date" id="edit_income_date"
-                                rv-value="data.income.incomeToEdit.income_date"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                                placeholder="07-02-2025">
+                            <input type="date" name="edit_recieved_date" id="edit_recieved_date"
+                                rv-value="data.income.incomeToEdit.recieved_date | date"
+                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20" />
                         </div>
                     </div>
                     <div class="flex items-center justify-between w-full gap-2">
@@ -596,7 +606,7 @@
                                     <option class="bg-white dark:bg-black" value="bank_transfer">Bank Transfer
                                     </option>
                                     <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                                    <option class="bg-white dark:bg-black" value="credit">Credit Card</option>
+                                    <option class="bg-white dark:bg-black" value="credit card">Credit Card</option>
                                 </select>
                             </div>
                         </div>

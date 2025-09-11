@@ -74,6 +74,14 @@ export const data = {
   investment: {},
   subscription: {},
   overview: {},
+  password: {
+    length: false,
+    number: false,
+    lowercase: false,
+    uppercase: false,
+    symbol: false,
+    match: false,
+  },
 };
 
 export const body = document.querySelector("body");

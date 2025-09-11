@@ -168,13 +168,22 @@
             </section>
             <section class="transition-fade p-4 h-screen overflow-y-scroll no-scroll-bar" id="swup">
                 <section>
-
-                    <div class="">
-                        <h2 class="font-medium text-lg">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-medium">
                             Summary
                         </h2>
+                        <button type="button"
+                            class="screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
+                            Add
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="size-6 screen-toggle">
+                                <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </button>
                     </div>
-                    <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4  2xl:grid-cols-5 gap-4 relative">
+                    <div
+                        class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4  2xl:grid-cols-5 gap-4 relative pt-4">
                         <div class="overview-card">
                             <div class="font-semibold text-lg flex items-center justify-between">
                                 <span>Total Income</span>
@@ -367,9 +376,9 @@
                                 class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
                                 <option class="bg-white dark:bg-black" value="cash">CASH</option>
                                 <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                                <option class="bg-white dark:bg-black" value="credit_card">Credit Card</option>
-                                <option class="bg-white dark:bg-black" value="debit_card">Credit Card</option>
-                                <option class="bg-white dark:bg-black" value="Wallet">Wallet</option>
+                                <option class="bg-white dark:bg-black" value="credit card">Credit Card</option>
+                                <option class="bg-white dark:bg-black" value="debit card">Debit Card</option>
+                                <option class="bg-white dark:bg-black" value="wallet">Wallet</option>
                             </select>
                         </div>
                     </div>
@@ -388,15 +397,7 @@
             </form>
         </div>
     </div>
-    <div class="fixed bottom-5 right-5 ">
-        <button type="button"
-            class="screen-toggle bg-black rounded-full  w-10 h-10 p-1 cursor-pointer text-white flex items-center justify-center"><svg
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor" class="w-full h-full screen-toggle">
-                <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-        </button>
-    </div>
+
 
     <script type="module" src="../src/scripts/binding/formatter.js"></script>
     <script type="module" src="../src/main.js"></script>

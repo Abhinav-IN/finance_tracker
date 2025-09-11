@@ -1,13 +1,76 @@
 import { data } from "../main.js";
 
-const fname = document.getElementById("fi")
+const passwordRequirements = {
+  isPasswordMatching: document.getElementById("is-password-matching"),
+  passwordLengthField: document.getElementById("password-length"),
+  passwordNumber: document.getElementById("password-number"),
+  passwordLowercase: document.getElementById("password-lowercase"),
+  passwordUppercase: document.getElementById("password-uppercase"),
+  passwordSymbol: document.getElementById("password-symbol"),
+};
 
+const userProfileEditPanel = document.getElementById("user-profile-edit-panel");
+const openUserProfileEdit = document.getElementById(
+  "open-user-profile-edit-button"
+);
+const closeUserProfileEdit = document.getElementById(
+  "close-user-profile-edit-button"
+);
+
+openUserProfileEdit.addEventListener("click", (e) => {
+  userProfileEditPanel.classList.remove("hidden");
+});
+closeUserProfileEdit.addEventListener("click", (e) => {
+  userProfileEditPanel.classList.add("hidden");
+});
+
+const passwordFields = document.querySelectorAll(".passwordFields");
+const userChangeOptions = document.getElementById("user-change-options");
+const optionToEditBtn = document.querySelectorAll(".option-to-edit");
+const optionsPanel = document.querySelectorAll(".options-panel");
+const backButtons = document.querySelectorAll(".go-back");
+
+backButtons.forEach((button) => {
+  button.addEventListener("click", (e) => {
+    changeOptionsPanel({ panelToEnable: userChangeOptions });
+  });
+});
+
+optionToEditBtn.forEach((button) => {
+  button.addEventListener("click", (e) => {
+    const value = e.target.getAttribute("data-value");
+
+    changeOptionsPanel({
+      panelToEnable: document.getElementById(value),
+    });
+  });
+});
+
+function changeOptionsPanel({ panelToEnable = null } = {}) {
+  if (!panelToEnable || panelToEnable === "" || panelToEnable === undefined) {
+    alert("Panel To Enable Is Invalid");
+  }
+  optionsPanel.forEach((panel) => {
+    panel.classList.add("hidden");
+  });
+  userChangeOptions.classList.add("hidden");
+  panelToEnable.classList.remove("hidden");
+}
+
+const password = document.getElementById("new-password");
+const confirmPassword = document.getElementById("confirm-password");
 
 passwordFields.forEach((field, index) => {
   field.addEventListener("input", (e) => {
-    if (matchPassword(password.value, confirmPassword.value)) {
+    if (
+      matchPassword({
+        password: password.value,
+        passwordToMatch: confirmPassword.value,
+      })
+    ) {
       passwordRequirements.isPasswordMatching.classList.add("text-green-600");
       passwordRequirements.isPasswordMatching.classList.remove("text-red-600");
+      passwordRequirements.isPasswordMatching.textContent = "Password Match";
       return;
     }
     passwordRequirements.isPasswordMatching.textContent =
@@ -18,8 +81,22 @@ passwordFields.forEach((field, index) => {
 });
 
 password.addEventListener("input", (e) => {
-  validatePassword(password.value);
+  validatePassword(e.target.value);
 });
+
+function matchPassword({ password = "", passwordToMatch = "" } = {}) {
+  console.log(password, passwordToMatch);
+  if (password)
+    if (password === passwordToMatch) {
+      console.log(true);
+      data.password.match = true;
+      return true;
+    }
+
+  data.password.match = false;
+
+  return false;
+}
 
 function validatePassword(password) {
   const minLength = 8;
@@ -28,7 +105,7 @@ function validatePassword(password) {
   const hasUppercase = /[A-Z]/;
   const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
 
-  if (password.length > minLength) {
+  if (password.toString().length > minLength) {
     toggleFieldColour(passwordRequirements.passwordLengthField, true);
     data.password.length = true;
   } else {
@@ -67,7 +144,7 @@ function validatePassword(password) {
     data.password.symbol = false;
   }
 
-  toggleButton(submitBtn);
+  toggleButton(document.getElementById("password-change-button"));
 }
 
 function toggleFieldColour(field, state) {

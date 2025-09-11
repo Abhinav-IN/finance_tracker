@@ -3,7 +3,7 @@ import rivets from "rivets";
 rivets.formatters.date = function (value) {
   const date = new Date(value);
 
-  return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 };
 
 rivets.formatters.time = function (value) {
