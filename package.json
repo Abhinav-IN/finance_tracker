@@ -8,10 +8,8 @@
     "start:prod:api": "uvicorn api.server:app",
     "dev:frontend": "cd static && pnpm dev",
     "build:frontend": "cd static && pnpm install && pnpm build --emptyOutDir",
-
     "docker-up": "docker compose up -d mysql redis celery_worker celery_beat",
     "docker-down": "docker compose down",
-
     "start": "npm run docker-up && concurrently \"npm run start:dev:api\" \"npm run dev:frontend\""
   },
   "repository": {
