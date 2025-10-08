@@ -8,7 +8,7 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, income, admin, expense, budget, seed_data, subscription, investment, investment_goal, dashboard, user, account, document
+from api.routers import auth, category, income, admin, expense, budget, seed_data, subscription, investment, investment_goal, dashboard, user, account
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
@@ -99,10 +99,10 @@ app.include_router(account.router)
 server_logger.info("Account Router Loaded")
 print("--------------------------------")
 
-server_logger.info("Loading Document Scanner Router")
-app.include_router(document.router)
-server_logger.info("Document Scanner Router Loaded")
-print("--------------------------------")
+# server_logger.info("Loading Document Scanner Router")
+# app.include_router(document.router)
+# server_logger.info("Document Scanner Router Loaded")
+# print("--------------------------------")
 
 # Serve static files
 
