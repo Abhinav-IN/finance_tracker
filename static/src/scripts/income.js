@@ -168,10 +168,15 @@ async function deleteIncome({ incomeId = "" } = {}) {
     }
 
     const result = await response.json();
-    console.log("income edited successfully:", result);
+    console.log("income deleted successfully:", result);
+    data.income.list = data.income.list.filter(
+      (income) => income.income_id !== incomeId
+    );
   } catch (error) {
     console.log(error);
     alert(`Error editing income: ${error.message}`);
+  } finally {
+    toggleElement(document.getElementById("income-edit-screen"));
   }
 }
 
@@ -380,6 +385,10 @@ body.addEventListener("click", (e) => {
 
   if (target.classList.contains("edit-screen-toggle")) {
     toggleElement(document.getElementById("income-edit-screen"));
+  }
+  if (target.classList.contains("delete-income")) {
+    const incomeId = target.getAttribute("income-id");
+    deleteIncome({ incomeId: incomeId });
   }
 });
 

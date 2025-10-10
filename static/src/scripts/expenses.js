@@ -114,12 +114,47 @@ async function editExpense({ expenseId = "", payload = {} }) {
 
     const result = await response.json();
     console.log("Expense edited successfully:", result);
+    alert("Expense Edited Successfully.");
   } catch (error) {
     console.log(error);
     alert(`Error editing expense: ${error.message}`);
   }
 }
+async function deleteExpense({ expenseId = "" } = {}) {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/v1/transaction/expense/delete/${expenseId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+      }
+    );
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+      throw new Error(
+        `Failed to edit income: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result = await response.json();
+    console.log("expense deleted successfully:", result);
+    data.expense.list = data.expense.list.filter(
+      (expense) => expense.income_id !== expenseId
+    );
+  } catch (error) {
+    console.log(error);
+    alert(`Error editing expense: ${error.message}`);
+  } finally {
+    toggleElement(document.getElementById("expense-edit-screen"));
+  }
+}
 async function expenseOverview() {
   try {
     const response = await fetch(
@@ -234,7 +269,7 @@ async function getExpense({
     data.expense.page.total_expenses = result.total_expense;
   } catch (error) {
     console.error("Error fetching expense overview:", error);
-    // alert(`Error fetching expense overview: ${error.message}`);
+    alert("oops, error fetching the information about the expense");
   }
 }
 
@@ -348,6 +383,10 @@ body.addEventListener("click", (e) => {
 
   if (target.classList.contains("edit-screen-toggle")) {
     toggleElement(document.getElementById("expense-edit-screen"));
+  }
+  if (target.classList.contains("edit-screen-toggle")) {
+    const expenseId = target.getAttribute("expense-id");
+    deleteExpense({ expenseId: expenseId });
   }
 });
 

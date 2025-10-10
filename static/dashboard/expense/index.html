@@ -70,18 +70,7 @@
                             </span>
                         </a>
                     </li>
-                    <li class="">
-                        <a href="/dashboard/investment" class="button-inactive">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
-                            </svg>
-                            <span>
-                                Investment
-                            </span>
-                        </a>
-                    </li>
+
                     <li class="">
                         <a href="/dashboard/subscriptions/" class="button-inactive">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -501,12 +490,20 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_category" class="text-sm">
-                                Category
-                            </label>
-                            <input type="text" name="expense_category" id="expense_category" class="text-input "
-                                placeholder="Category Name">
+                        <div class="flex items-center justify-between gap-4 w-full">
+                            <div class="font-medium flex flex-col gap-2 w-full ">
+                                <label for="expense_category" class="text-sm">
+                                    Expense Category
+                                </label>
+                                <select name="expense_category" id="expense_category"
+                                    class="capitalize p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
+                                    <option rv-each-categories="data.expense.categories"
+                                        class="bg-white dark:bg-black capitalize" rv-value="categories.category_name">
+                                        {categories.category_name}
+                                    </option>
+
+                                </select>
+                            </div>
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
                             <label for="expense_payment_mode" class="text-sm">
@@ -599,6 +596,22 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-between gap-4 w-full">
+                            <div class="font-medium flex flex-col gap-2 w-full ">
+                                <label for="edit_expense_category" class="text-sm">
+                                    Expense Category
+                                </label>
+                                <select name="edit_expense_category" id="edit_expense_category"
+                                    rv-value="data.expense.expenseToEdit.category_name"
+                                    class="capitalize p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
+                                    <option rv-each-categories="data.expense.categories"
+                                        class="bg-white dark:bg-black capitalize" rv-value="categories.category_name">
+                                        {categories.category_name}
+                                    </option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="flex items-center justify-between gap-4 w-full">
                             <div class="font-medium flex flex-col gap-2 w-full">
                                 <label for="edit_expense_category" class="text-sm">
                                     Category
@@ -606,7 +619,7 @@
                                 <input type="text" name="expense_category" id="expense_category" class="text-input "
                                     placeholder="Category Name" rv-value="data.expense.expenseToEdit.category_name" />
                             </div>
-                        </div>
+                        </div> -->
 
                     </div>
                     <div class=" font-medium flex flex-col gap-2 ">
@@ -617,10 +630,16 @@
                             rv-value="data.expense.expenseToEdit.additional_note" class="text-input min-h-20"
                             placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
                     </div>
-                    <button type="submit"
-                        class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
-                        Submit
-                    </button>
+                    <div class="space-y-4">
+                        <button type="submit"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
+                            Submit
+                        </button>
+                        <button type="button" rv-expense-id="data.expense.expenseToEdit.income_id"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90  transition-all duration-200 delete-income">
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </div>
 

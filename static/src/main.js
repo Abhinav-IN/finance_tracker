@@ -40,6 +40,7 @@ export const data = {
     },
   },
   expense: {
+    categories: [],
     list: [],
     page: {
       total_pages: 1,
@@ -71,8 +72,105 @@ export const data = {
       additional_note: "",
     },
   },
-  investment: {},
-  subscription: {},
+  investments: {
+    list: [
+      {
+        investment_name: "string",
+        investment_type: "stock",
+        investment_date: "2025-09-11T14:25:01.118Z",
+        description: "string",
+        platform: "string",
+        amount_invested: 1,
+        status: "active",
+        withdrawl_amount: 0,
+        withdrawl_date: "2025-09-11T14:25:01.118Z",
+        account_name: "string",
+        investment_id: 0,
+        current_price_per_unit: 0,
+        current_value: 0,
+        last_synced_at: "2025-09-11T14:25:01.118Z",
+        gain_or_loss: 0,
+        units: 0,
+        units_withdrawl: 0,
+        buy_price_per_unit: 0,
+        maturity_date: "2025-09-11T14:25:01.118Z",
+        interest_rate: 0,
+        compounding_frequency: "annually",
+        account_linked: 0,
+      },
+    ],
+    investmentToEdit: {
+      investment_name: "string",
+      investment_type: "stock",
+      investment_date: "2025-09-11T14:25:01.118Z",
+      description: "string",
+      platform: "string",
+      amount_invested: 1,
+      status: "active",
+      withdrawl_amount: 0,
+      withdrawl_date: "2025-09-11T14:25:01.118Z",
+      account_name: "string",
+      investment_id: 0,
+      current_price_per_unit: 0,
+      current_value: 0,
+      last_synced_at: "2025-09-11T14:25:01.118Z",
+      gain_or_loss: 0,
+      units: 0,
+      units_withdrawl: 0,
+      buy_price_per_unit: 0,
+      maturity_date: "2025-09-11T14:25:01.118Z",
+      interest_rate: 0,
+      compounding_frequency: "annually",
+      account_linked: 0,
+    },
+    page: {
+      total_pages: 1,
+      current_page: 1,
+      total_investments: 0,
+    },
+    search: {
+      input: "",
+      lower_price: null,
+      greater_price: null,
+      exact_price: null,
+    },
+  },
+  subscription: {
+    list: [
+      {
+        subscription_name: "string",
+        amount: 1,
+        description: "string",
+        currency: "INR",
+        account_name: "string",
+        billing_cycle: "yearly",
+        category_name: "string",
+        expense_type_name: "string",
+        payment_mode_name: "string",
+        start_date: "2025-10-10T09:03:34.970Z",
+        end_date: "2025-10-10T09:03:34.970Z",
+        is_active: true,
+        last_paid_at: "2025-10-10T09:03:34.970Z",
+        subscription_id: 0,
+        category_id: 0,
+        expense_type_id: 0,
+        payment_mode_id: 0,
+        account_id: 0,
+        next_billing_date: "2025-10-10T09:03:34.970Z",
+      },
+    ],
+    page: {
+      total_pages: 1,
+      current_page: 1,
+      total_investments: 0,
+    },
+    search: {
+      input: "",
+      lower_price: null,
+      greater_price: null,
+      exact_price: null,
+    },
+  },
   overview: {},
   password: {
     length: false,
@@ -201,6 +299,7 @@ export function token() {
 document.addEventListener("DOMContentLoaded", () => {
   const jwtToken = localStorage.getItem("jwtToken");
   getUserDetails();
+  getCategoryList();
   if (jwtToken) {
     console.log("user token is present");
   } else {
@@ -208,3 +307,27 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "/";
   }
 });
+
+async function getCategoryList(params) {
+  try {
+    const response = await fetch(`${API_URL}/api/v1/category/`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+    }
+    const result = await response.json();
+    console.log("Category List:", result);
+    data.expense.categories = result;
+  } catch (error) {
+    console.log(error);
+  }
+}

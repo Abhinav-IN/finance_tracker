@@ -1,4 +1,5 @@
 import { data } from "../main.js";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 const passwordRequirements = {
   isPasswordMatching: document.getElementById("is-password-matching"),
@@ -172,4 +173,225 @@ function toggleButton(buttonToHide) {
   }
   buttonToHide.disabled = false;
   return;
+}
+
+const updateDateOfBirthBtn = document.getElementById(
+  "date-of-birth-change-button"
+);
+const updatePasswordBtn = document.getElementById("password-change-button");
+const updateUsernameBtn = document.getElementById("username-change-button");
+const updateEmailBtn = document.getElementById("email-change-button");
+const updateNameBtn = document.getElementById("name-change-button");
+
+updateNameBtn.addEventListener("click", (e) => {
+  updateTheName();
+});
+
+updateEmailBtn.addEventListener("click", (e) => {
+  updateTheEmail();
+});
+
+updateUsernameBtn.addEventListener("click", (e) => {
+  updateTheUsername();
+});
+updatePasswordBtn.addEventListener("click", (e) => {
+  updateThePassword();
+});
+updateDateOfBirthBtn.addEventListener("click", (e) => {
+  updateDateOfBirth();
+});
+
+async function updateTheName() {
+  const newFirstName = document.getElementById("first_name").value;
+  const newLastName = document.getElementById("last_name").value;
+
+  try {
+    if (!newFirstName || newFirstName === "" || newFirstName === null) {
+      console.log("new firstname not provided");
+      return alert("new firstname not provided");
+    }
+    if (!newLastName || newLastName === "" || newLastName === null) {
+      console.log("new firstname not provided");
+      return alert("new firstname not provided");
+    }
+
+    const response = await fetch(
+      `${API_URL}/api/v1/user/update_username?update_fullname?newFirstName=${newFirstName}&newLastName=${newLastName}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+      throw new Error(
+        `Failed to fetch income: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const resolved = await response.json();
+    console.log(resolved);
+  } catch (error) {
+    console.log(error);
+    alert("oops something went wrong, please again later.");
+  }
+}
+
+async function updateTheEmail() {
+  const newEmail = document.getElementById("email").value;
+
+  try {
+    if (!newEmail || newEmail === "" || newEmail === null) {
+      console.log("Email Not Provided");
+      return alert("Email Not Provided");
+    }
+
+    const response = await fetch(
+      `${API_URL}/api/v1/user/update_email?newEmail=${newEmail}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+      throw new Error(
+        `Failed to fetch income: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const resolved = await response.json();
+    console.log(resolved);
+  } catch (error) {
+    console.log(error);
+    alert("oops something went wrong, please again later.");
+  }
+}
+
+async function updateDateOfBirth() {
+  const newDob = document.getElementById("date-of-birth").value;
+
+  try {
+    if (!newDob || newDob === "" || newDob === null) {
+      console.log("Email Not Provided");
+      return alert("Email Not Provided");
+    }
+
+    const response = await fetch(
+      `${API_URL}/api/v1/user/update_dob?new_dob=${newDob}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+      throw new Error(
+        `Failed to fetch income: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const resolved = await response.json();
+    console.log(resolved);
+  } catch (error) {
+    console.log(error);
+    alert("oops something went wrong, please again later.");
+  }
+}
+
+async function updateThePassword() {
+  const newDob = document.getElementById("date-of-birth").value;
+
+  try {
+    if (!newDob || newDob === "" || newDob === null) {
+      console.log("Email Not Provided");
+      return alert("Email Not Provided");
+    }
+
+    const response = await fetch(
+      `${API_URL}/api/v1/user/update_dob?new_dob=${newDob}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+      }
+    );
+
+    const resolved = await response.json();
+    console.log(resolved);
+  } catch (error) {
+    console.log(error);
+    alert("oops something went wrong, please again later.");
+  }
+}
+
+async function updateTheUsername() {
+  const newUsername = document.getElementById("username").value;
+
+  try {
+    if (!newUsername || newUsername === "" || newUsername === null) {
+      console.log("username not provided");
+      return alert("username not provided");
+    }
+
+    const response = await fetch(
+      `${API_URL}/api/v1/user/update_username?newUserName=${newUsername}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+      throw new Error(
+        `Failed to fetch income: ${response.status} ${response.statusText}`
+      );
+    }
+    if (response.status === 200) {
+      const resolved = await response.json();
+      console.log(resolved);
+      alert("username updated");
+    }
+  } catch (error) {
+    console.log(error);
+    alert("oops something went wrong, please again later.");
+  }
+}
+
+function token() {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.error("No JWT token found. User is not logged in.");
+    window.location.href = "/login.html";
+    return;
+  }
+  return jwtToken;
 }

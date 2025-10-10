@@ -1,9 +1,13 @@
 import rivets from "rivets";
 
 rivets.formatters.date = function (value) {
-  const date = new Date(value);
+  const inputDate = new Date(value);
 
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  const year = inputDate.getFullYear();
+  const month = String(inputDate.getMonth() + 1).padStart(2, "0");
+  const day = String(inputDate.getDate()).padStart(2, "0");
+  const formattedDate = `${year}-${month}-${day}`;
+  return formattedDate;
 };
 
 rivets.formatters.time = function (value) {
