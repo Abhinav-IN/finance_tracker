@@ -138,7 +138,7 @@ export const data = {
   subscription: {
     list: [
       {
-        subscription_name: "string",
+        subscription_name: "test",
         amount: 1,
         description: "string",
         currency: "INR",
@@ -159,6 +159,34 @@ export const data = {
         next_billing_date: "2025-10-10T09:03:34.970Z",
       },
     ],
+    overview: {
+      total_subscription_last_30_days: 0,
+      total_subscription_last_7_days: 0,
+      total_subscription_current_month: 0,
+      average_monthly_subscription: 0,
+      average_weekly_subscription: 0,
+    },
+    subscriptionToEdit: {
+      subscription_name: "string",
+      amount: 1,
+      description: "string",
+      currency: "INR",
+      account_name: "string",
+      billing_cycle: "yearly",
+      category_name: "string",
+      expense_type_name: "string",
+      payment_mode_name: "string",
+      start_date: "2025-10-13T11:13:39.892Z",
+      end_date: "2025-10-13T11:13:39.893Z",
+      is_active: true,
+      last_paid_at: "2025-10-13T11:13:39.893Z",
+      subscription_id: 0,
+      category_id: 0,
+      expense_type_id: 0,
+      payment_mode_id: 0,
+      account_id: 0,
+      next_billing_date: "2025-10-13T11:13:39.893Z",
+    },
     page: {
       total_pages: 1,
       current_page: 1,

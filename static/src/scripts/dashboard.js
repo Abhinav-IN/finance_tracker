@@ -12,7 +12,6 @@ if (expenseForm) {
     await addExpense(payload);
   });
 }
-
 async function getOverview(params) {
   try {
     const response = await fetch(`${API_URL}/api/v1/dashboard/overview`, {
@@ -33,7 +32,7 @@ async function getOverview(params) {
       );
     }
     const result = await response.json();
-    console.log("Overviewinformation fetched :", result);
+    console.log("Overview information fetched :", result);
     data.overview = result;
     console.log(data.overview);
   } catch (error) {
