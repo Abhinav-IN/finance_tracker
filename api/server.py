@@ -8,8 +8,7 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, income, admin, expense, budget, seed_data, subscription, investment, investment_goal, dashboard, user, account 
-from api.routers import auth, category, income, admin, expense, budget, seed_data, subscription, investment, investment_goal, dashboard, user, account
+from api.routers import auth, category, transaction, admin, budget, seed_data, subscription, investment, investment_goal, dashboard, transaction, user, account
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
@@ -50,14 +49,9 @@ app.include_router(category.router)
 server_logger.info("Category Router Loaded")
 print("--------------------------------")
 
-server_logger.info("Loading Income Router")
-app.include_router(income.router)
-server_logger.info("Income Router Loaded")
-print("--------------------------------")
-
-server_logger.info("Loading Expense Router")
-app.include_router(expense.router)
-server_logger.info("Expense Router Loaded")
+server_logger.info("Loading Transaction Router")
+app.include_router(transaction.router)
+server_logger.info("Transaction Router Loaded")
 print("--------------------------------")
 
 server_logger.info("Loading Budget Router")
@@ -99,15 +93,6 @@ server_logger.info("Loading Account Router")
 app.include_router(account.router)
 server_logger.info("Account Router Loaded")
 print("--------------------------------")
-
-# server_logger.info("Loading Document Scanner Router")
-# app.include_router(document.router)
-# server_logger.info("Document Scanner Router Loaded")
-# print("--------------------------------")
-# server_logger.info("Loading Document Scanner Router")
-# app.include_router(document.router)
-# server_logger.info("Document Scanner Router Loaded")
-# print("--------------------------------")
 
 # Serve static files
 
