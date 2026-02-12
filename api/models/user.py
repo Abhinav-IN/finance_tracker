@@ -1,22 +1,16 @@
 from api.database.base import Base
+from api.utils.enums import UserRole
 from datetime import datetime
-import enum
 from sqlalchemy import Boolean, Column, Date, DateTime, Integer, JSON, String, Enum as sa_enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from zoneinfo import ZoneInfo
 
-class UserRole(str, enum.Enum):
-    user = "user"
-    admin = "admin"
-    moderator = "moderator"
-    support = "support"
-
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)  
-    username = Column(String(255), nullable=False, unique=True)
+    user_name = Column(String(255), nullable=False, unique=True)
     first_name = Column(String(255), nullable=True)
     last_name = Column(String(255), nullable=True)
     email = Column(String(255), nullable=False, unique=True)
@@ -34,12 +28,12 @@ class User(Base):
     last_login_at = Column(TIMESTAMP(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
-    role = Column(sa_enum(UserRole, name="userrole"), nullable=False, default=UserRole.user)
+    role = Column(sa_enum(UserRole, name="userrole"), nullable=False, default=UserRole.USER)
 
 
     category = relationship('Category', back_populates='user')
     budgets = relationship('Budget', back_populates='user')
-    transaction = relationship('Transaction', back_populates='user')
+    transactions = relationship('Transaction', back_populates='user')
     subscription = relationship('Subscription', back_populates='user')
     investment = relationship('Investment', back_populates='user')
     investment_goals = relationship('InvestmentGoal', back_populates='user')
