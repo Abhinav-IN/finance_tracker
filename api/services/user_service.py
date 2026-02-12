@@ -1,5 +1,4 @@
 from api.utils.hashing import verify_password, hashing_password
-from api.database.session import get_db
 from api.models.account import Account
 from api.models.category import Category
 from api.models.user import User
@@ -12,43 +11,18 @@ from api.models.subscription import Subscription
 from api.schemas.user import UserProfile, passwordRequest
 from api.utils.validator import gender_check
 from datetime import date
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from pydantic import EmailStr
 from sqlalchemy import delete, or_
 from sqlalchemy.orm import Session
 
 
-def get_profile_service(user_id: int, db: Session = Depends(get_db)):
+def get_profile_service(user_id: int, db: Session):
     curr_user = db.query(User).filter(User.id == user_id).first()
     if not curr_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return UserProfile.model_validate(curr_user)  
-
-""""
-def update_profile_service(userProfileRequest: UserProfile, user_id: int, db: Session = Depends(get_db)):
-    curr_user_query = db.query(User).filter(User.id == user_id)     
-    curr_user = curr_user_query.first()
-    if not curr_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    curr_user_query.update({
-        "username": userProfileRequest.username,
-        "first_name": userProfileRequest.first_name,
-        "last_name": userProfileRequest.last_name,
-        "email": userProfileRequest.email,
-        "dob": userProfileRequest.dob,
-        "gender": userProfileRequest.gender
-    }, synchronize_session=False)
-
-    try:
-        db.commit()
-    except Exception:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating user profile")
-
-    return UserProfile.model_validate(curr_user)
-"""
 
 def update_username_service(newUserName : str, user_id : int, db : Session):
     curr_user_query = db.query(User).filter(User.id == user_id)
@@ -57,11 +31,12 @@ def update_username_service(newUserName : str, user_id : int, db : Session):
     if not curr_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found")
     
-    curr_user.username = newUserName
+    curr_user.user_name = newUserName
 
     try:
         db.commit()
-    except Exception:
+    except Exception as e:
+        print(e)
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating username")
     
@@ -139,24 +114,21 @@ def update_gender_service(new_gender : str, user_id : int, db : Session):
 
 
 
-def delete_profile_service(user_id: int, db: Session = Depends(get_db)):
+def delete_profile_service(user_id: int, db: Session):
     curr_user_query = db.query(User).filter(User.id == user_id)
     curr_user = curr_user_query.first()
 
     if not curr_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    # Delete related simple entities first
     db.query(Transaction).filter(Transaction.user_id == user_id).delete(synchronize_session=False)
     db.query(Budget).filter(Budget.user_id == user_id).delete(synchronize_session=False)
     db.query(Subscription).filter(Subscription.user_id == user_id).delete(synchronize_session=False)
     db.query(Category).filter(Category.user_id == user_id).delete(synchronize_session=False)  
 
-    # Get investment and goal IDs
     investment_ids = [inv_id for (inv_id,) in db.query(Investment.investment_id).filter(Investment.user_id == user_id).all()]
     goal_ids = [goal_id for (goal_id,) in db.query(InvestmentGoal.goal_id).filter(InvestmentGoal.user_id == user_id).all()]
 
-    # Remove link table entries first
     if investment_ids or goal_ids:
         stmt = delete(investment_goal_link).where(
             or_(
@@ -166,20 +138,21 @@ def delete_profile_service(user_id: int, db: Session = Depends(get_db)):
         )
         db.execute(stmt)
 
-    # Delete investments and goals before accounts (to satisfy FK constraints)
     db.query(Investment).filter(Investment.user_id == user_id).delete(synchronize_session=False)
     db.query(InvestmentGoal).filter(InvestmentGoal.user_id == user_id).delete(synchronize_session=False)
 
-    # Now delete accounts (safe after investments are gone)
     db.query(Account).filter(Account.user_id == user_id).delete(synchronize_session=False)
 
-    # Finally, delete the user
     curr_user_query.delete(synchronize_session=False)
 
-    db.commit()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in deleting profile")
 
 
-def change_password_service(user_id: int, password_request: passwordRequest, db: Session = Depends(get_db)):
+def change_password_service(user_id: int, password_request: passwordRequest, db: Session):
     user = db.query(User).filter(User.id == user_id).first()
 
     if not user:
@@ -189,6 +162,11 @@ def change_password_service(user_id: int, password_request: passwordRequest, db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
 
     user.hashed_password = hashing_password(password_request.new_password)
-    db.commit()
+
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in updating password")
 
     return { "message": "Password updated successfully" }

@@ -1,16 +1,10 @@
-from api.core.oauth2 import require_roles
-from api.database.session import get_db
 from api.models.user import User
 from api.schemas.admin import UserRoleUpdate, UserStatusUpdate
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 
-def update_user_role_service(
-    request: UserRoleUpdate,
-    admin: dict = Depends(require_roles("admin")),
-    db: Session = Depends(get_db)
-):
+def update_user_role_service(request: UserRoleUpdate, admin: dict,db: Session):
     target_user = db.query(User).filter(User.id == request.user_id).first()
 
     if not target_user:
@@ -20,15 +14,14 @@ def update_user_role_service(
         raise HTTPException(status_code=400, detail="You cannot change your own role")
 
     target_user.role = request.role
-    db.commit()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in updating role")
     return {"message": f"Role updated to {request.role} for user ID {request.user_id}"}
 
-def update_user_status_service(
-    user_id: int,
-    status_data: UserStatusUpdate,
-    db: Session = Depends(get_db),
-    admin_data: dict = Depends(require_roles("admin"))
-):
+def update_user_status_service(user_id: int, status_data: UserStatusUpdate, db: Session, admin_data: dict):
     if user_id == admin_data["id"]:
         raise HTTPException(status_code=400, detail="You cannot change your own account status")
 
@@ -38,7 +31,12 @@ def update_user_status_service(
 
     user.is_active = status_data.is_active
     user.is_suspended = status_data.is_suspended
-    db.commit()
+
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Somethinf went wrong in updating status")
 
     return {
         "message": f"User status updated. Active: {user.is_active}, Suspended: {user.is_suspended}"

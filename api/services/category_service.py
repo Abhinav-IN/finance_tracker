@@ -1,17 +1,12 @@
-from api.core.oauth2 import require_roles
-from api.database.session import get_db
 from api.models.category import Category
-from api.models.user import User
 from api.schemas.category import categoryCreate
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-def create_category_service(category : categoryCreate, 
-                    user: dict = Depends(require_roles("user", "admin", "moderator")), 
-                    db : Session = Depends(get_db)):
-    category_name = category.category_name.strip().lower()
-    new_category = Category(category_name = category_name,  user_id=user["id"])
+def create_category_service(category : categoryCreate, user_id: int, db : Session):
+    category_name = category.name.strip().lower()
+    new_category = Category(name = category_name,  user_id = user_id)
     db.add(new_category)
     try:
         db.commit()
@@ -21,23 +16,16 @@ def create_category_service(category : categoryCreate,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category name already exist")
 
     return {
-        "category_id" : new_category.category_id,
-        "category_name" : new_category.category_name
+        "id" : new_category.id,
+        "name" : new_category.name
     }
 
-def get_categories_service(
-    user: dict = Depends(require_roles("user", "admin")),
-    db: Session = Depends(get_db)
-):
-    categories = db.query(Category).filter(Category.user_id == user["id"]).all()
+def get_categories_service(user_id: int, db: Session):
+    categories = db.query(Category).filter(Category.user_id == user_id).all()
     return categories
 
-def get_category_by_id_service(
-    category_id: int,
-    user: dict = Depends(require_roles("user", "admin")),
-    db: Session = Depends(get_db)
-):
-    category = db.query(Category).filter(Category.category_id == category_id).first()
+def get_category_by_id_service(category_id: int, user: dict, db: Session):
+    category = db.query(Category).filter(Category.id == category_id).first()
 
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
@@ -47,41 +35,28 @@ def get_category_by_id_service(
 
     return category
 
-def update_category_service(
-    category_id: int,
-    category_update: categoryCreate,
-    user: dict = Depends(require_roles("user", "admin", "moderator")),
-    db: Session = Depends(get_db)
-):
-
+def update_category_service(category_id: int, category_update: categoryCreate, user_id: int, db: Session ):
     category_query = db.query(Category).filter(
-        Category.category_id == category_id,
-        Category.user_id == user['id']
+        Category.id == category_id,
+        Category.user_id == user_id
     )
     existing_category = category_query.first()
 
     if existing_category is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category does not exist")
 
-    category_name = category_update.category_name.strip().lower()
+    category_name = category_update.name.strip().lower()
     try:
-        category_query.update({"category_name": category_name}, synchronize_session=False)
+        category_query.update({"name": category_name}, synchronize_session=False)
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Category name already exist"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category name already exist")
 
     return category_query.first()
 
-def delete_category_service(
-    category_id: int,
-    user: dict = Depends(require_roles("user", "admin")),  
-    db: Session = Depends(get_db)
-):
-    category = db.query(Category).filter(Category.category_id == category_id).first()
+def delete_category_service(category_id: int, user: dict, db: Session ):
+    category = db.query(Category).filter(Category.id == category_id).first()
 
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
@@ -93,5 +68,9 @@ def delete_category_service(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category is linked to other data and cannot be deleted")
 
     db.delete(category)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category cannot be deleted")
     return

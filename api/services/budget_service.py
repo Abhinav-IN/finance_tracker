@@ -1,22 +1,15 @@
-from api.core.oauth2 import require_roles
-from api.database.session import get_db
 from api.models.budget import Budget
-from api.models.category import Category
 from api.services.lookup_create_service import get_or_create_category
 from api.schemas.budget import budgetRequest, budgetResponse, budgetQueryParam
 from api.utils.budget import get_budget_status
-from datetime import datetime
-from fastapi import Depends, HTTPException, status
+from api.utils.budget_filter import apply_budget_filters, apply_pagination
+from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from zoneinfo import ZoneInfo
 
-def create_budget_service(budget_request : budgetRequest,
-                user: dict = Depends(require_roles("user", "admin")), 
-                db : Session = Depends(get_db)):
-    curr_category_id = get_or_create_category(budget_request.category_name, user['id'], db)
-    new_budget = Budget(start_date = budget_request.start_date, end_date = budget_request.end_date, user_id = user['id'], category_id = curr_category_id, 
-                        budget_amount = budget_request.budget_amount)
+def create_budget_service(budget_request : budgetRequest, user_id: int, db : Session):
+    curr_category_id = get_or_create_category(budget_request.category_name, user_id, db)
+    new_budget = Budget(start_date = budget_request.start_date, end_date = budget_request.end_date, user_id = user_id, category_id = curr_category_id, amount = budget_request.amount)
     db.add(new_budget)
     try:
         db.commit()
@@ -25,69 +18,48 @@ def create_budget_service(budget_request : budgetRequest,
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Multiple budget on this category")
     
-    return budgetResponse(
-        budget_id=new_budget.budget_id,
-        budget_amount=budget_request.budget_amount,
-        start_date=budget_request.start_date,
-        end_date=budget_request.end_date,
-        category_id=curr_category_id,
-        category_name=budget_request.category_name
-    )
+    return {
+        "id" : new_budget.id,
+        "amount" : new_budget.amount,
+        "start_date" : new_budget.start_date,
+        "end_date" : new_budget.end_date,
+        "category_id" : new_budget.category_id,
+        "category_name" : new_budget.category.name
+    }
 
-def get_budget_service(budgetQuery : budgetQueryParam = Depends(),
-                user: dict = Depends(require_roles("user", "admin")), 
-                db : Session = Depends(get_db)):
-    budgets_query = db.query(Budget).filter(Budget.user_id == user['id'])
-    if budgetQuery.budget_id:
-        budgets_query = budgets_query.filter(Budget.budget_id == budgetQuery.budget_id)
-    if budgetQuery.start_date:
-        budgets_query = budgets_query.filter(Budget.start_date == budgetQuery.start_date)
-    if budgetQuery.end_date:
-        budgets_query = budgets_query.filter(Budget.end_date == budgetQuery.end_date)
-    if budgetQuery.category_name:
-        budgets_query = budgets_query.join(Budget.category)
-        budgets_query = budgets_query.filter(Category.category_name.ilike(f"%{budgetQuery.category_name}%"))
-    if budgetQuery.greater_budget_amount:
-        budgets_query = budgets_query.filter(Budget.budget_amount > budgetQuery.greater_budget_amount)
-    if budgetQuery.lower_budget_amount:
-        budgets_query = budgets_query.filter(Budget.budget_amount < budgetQuery.lower_budget_amount)
-    if budgetQuery.exact_budget_amount:
-        budgets_query = budgets_query.filter(Budget.budget_amount == budgetQuery.exact_budget_amount)
-    
-    budgets_query = budgets_query.offset(budgetQuery.get_offset).limit(budgetQuery.limit)
-    budgets = budgets_query.all()
+def get_budget_service(budgetQuery : budgetQueryParam, user_id: int, db : Session):
+    base_query = db.query(Budget).filter(Budget.user_id == user_id)
+    base_query = apply_budget_filters(base_query, budgetQuery)
+    base_query = apply_pagination(base_query, budgetQuery)
+    budgets = base_query.all()
 
     response = []
     for b in budgets:
         response.append(budgetResponse(
-            budget_id=b.budget_id,
-            budget_amount=b.budget_amount,
+            id=b.id,
+            amount=b.amount,
             start_date=b.start_date,
             end_date=b.end_date,
             category_id=b.category_id,
-            category_name=b.category.category_name 
+            category_name=b.category.name 
         ))
     return response
     
-def update_budget_service(budget_id : int,
-                budget_request : budgetRequest,
-                user: dict = Depends(require_roles("user", "admin")), 
-                db : Session = Depends(get_db)):
-    
-    budget_query = db.query(Budget).filter(Budget.user_id == user['id'], Budget.budget_id == budget_id)
+def update_budget_service(budget_id : int, budget_request : budgetRequest, user_id: int, db : Session):
+    budget_query = db.query(Budget).filter(Budget.user_id == user_id, Budget.id == budget_id)
     existing_budget = budget_query.first()
 
     if not existing_budget:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Budget not found")
     
-    curr_category_id = get_or_create_category(budget_request.category_name, user['id'], db)
+    curr_category_id = get_or_create_category(budget_request.category_name, user_id, db)
     
     budget_query = budget_query.update({
         "start_date" : budget_request.start_date,
         "end_date" : budget_request.end_date,
-        "user_id" : user['id'],
+        "user_id" : user_id,
         "category_id" : curr_category_id,
-        "budget_amount" : budget_request.budget_amount
+        "amount" : budget_request.amount
     }, synchronize_session=False)
 
     try:
@@ -97,20 +69,17 @@ def update_budget_service(budget_id : int,
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Multiple budget on this category")
     
-    return budgetResponse(
-        budget_id=existing_budget.budget_id,
-        budget_amount=existing_budget.budget_amount,
-        start_date=existing_budget.start_date,
-        end_date=existing_budget.end_date,
-        category_id=curr_category_id,
-        category_name=existing_budget.category.category_name
-    )
+    return {
+        "id" : existing_budget.id,
+        "amount" : existing_budget.amount,
+        "start_date" : existing_budget.start_date,
+        "end_date" : existing_budget.end_date,
+        "category_id" : existing_budget.category_id,
+        "category_name" : existing_budget.category.name
+    }
 
-def delete_budget_service(budget_id : int,
-                user: dict = Depends(require_roles("user", "admin")), 
-                db : Session = Depends(get_db)):
-
-    budget = db.query(Budget).filter(Budget.budget_id == budget_id).first()
+def delete_budget_service(budget_id : int, user: dict, db : Session):
+    budget = db.query(Budget).filter(Budget.id == budget_id).first()
 
     if not budget:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Budget not found")
@@ -119,28 +88,19 @@ def delete_budget_service(budget_id : int,
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only delete your own budget")
     
     db.delete(budget)
-    db.commit()
+
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went erong in deleting budget")
     return 
 
-def get_all_budget_status(user_id: int, db: Session):
-    today = datetime.now(ZoneInfo("Asia/Kolkata"))
-
-    categories = db.query(Category).filter(Category.user_id == user_id).all()
-
+def predict_budget_status(user_id: int, budget_id : int, db: Session):
     result = []
-
-    for category in categories:
-        status = get_budget_status(
+    status = get_budget_status(
             user_id=user_id,
-            category_id=category.category_id,
-            expense_date=today,
+            budget_id = budget_id,
             db=db
         )
-        if status:  
-            result.append({
-                "category_id": category.category_id,
-                "category_name": category.category_name,
-                **status
-            })
-
     return result
