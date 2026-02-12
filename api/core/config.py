@@ -1,49 +1,16 @@
-# from pydantic_settings import BaseSettings
-# from pydantic import Field
-
-# class Settings(BaseSettings):
-#     database_hostname: str = Field(..., alias="DATABASE_HOSTNAME")
-#     database_port: int = Field(..., alias="DATABASE_PORT")
-#     database_username: str = Field(..., alias="DATABASE_USERNAME")
-#     database_password: str = Field(..., alias="DATABASE_PASSWORD")
-#     database_name: str = Field(..., alias="DATABASE_NAME")
-#     secret_key: str = Field(..., alias="SECRET_KEY")
-#     algorithm: str = Field(..., alias="ALGORITHM")
-#     access_token_expire_in_minutes: int = Field(..., alias="ACCESS_TOKEN_EXPIRE_IN_MINUTES")
-#     redis_hostname: str = Field(..., alias="REDIS_HOSTNAME")
-#     redis_port: int = Field(..., alias="REDIS_PORT")
-#     redis_db: int = Field(..., alias="REDIS_DB")
-#     maximum_failed_attempts: int = Field(..., alias="MAXIMUM_FAILED_ATTEMPTS")
-#     block_duration: int = Field(..., alias="BLOCK_DURATION")
-#     password_token_expire_in_minutes: int = Field(..., alias="PASSWORD_TOKEN_EXPIRE_IN_MINUTES")
-#     smtp_host: str = Field(..., alias="SMTP_HOST")
-#     smtp_port: int = Field(..., alias="SMTP_PORT")
-#     smtp_user: str = Field(..., alias="SMTP_USER")
-#     smtp_pass: str = Field(..., alias="SMTP_PASS")
-#     smtp_from: str = Field(..., alias="SMTP_FROM")
-#     verification_token_expire_in_minutes: int = Field(..., alias="VERIFICATION_TOKEN_EXPIRE_IN_MINUTES")
-#     origins : str = Field (..., alias="ORIGIN")
-
-
-#     class Config:
-#         env_file = ".env"
-
-# settings = Settings()
-
+from api.utils.time import ist_now
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 import os
-from datetime import datetime # Import datetime
-
+from datetime import datetime 
 from api.utils.logger import create_info_logger
 
 config_logger = create_info_logger("Configuration Logger")
-# Function to get current timestamp for print statements
+
 def get_timestamp():
-    return datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+    return ist_now().strftime("[%Y-%m-%d %H:%M:%S]")
 
 class Settings(BaseSettings):
-    # Model configuration for pydantic_settings
     config_logger.info(f" Please Wait, Loading Settings")
 
 
@@ -97,6 +64,11 @@ class Settings(BaseSettings):
     smtp_from: str = Field("no-reply@yourdomain.com", alias="SMTP_FROM")
     config_logger.info(f" SMTP (Email) Settings Loaded Fully")
     print("-----------------------------------------------")
+
+    # Google Gemini settings
+    config_logger.info(f" Loading Google Gemini Settings")
+    google_gemini_api_key: str = Field("gemini_api_key", alias="GEMINI_API_KEY") 
+
     
     # CORS Settings
     config_logger.info(f" Loading CORS Settings/Information")
