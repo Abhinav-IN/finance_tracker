@@ -17,7 +17,7 @@ class Investment(Base):
     platform = Column(String(104), nullable=False)
     amount_invested = Column(Float, nullable=False)
     units = Column(Float, nullable=True)
-    account_linked = Column(Integer, ForeignKey("account.account_id"), nullable=True)
+    account_linked = Column(Integer, ForeignKey("account.id"), nullable=True)
     buy_price_per_unit = Column(Float, nullable=True)
     maturity_date = Column(DateTime(timezone=True), nullable=True)
     current_price_per_unit = Column(Float, nullable=True)
