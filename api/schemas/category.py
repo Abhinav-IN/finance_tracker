@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
 class categoryCreate(BaseModel):
-    category_name : str
+    name : str
 
 class categoryResponse(BaseModel):
-    category_id : int
-    category_name : str
+    id : int
+    name : str

@@ -1,11 +1,10 @@
 from api.utils.validator import gender_check, validate_password_strength
 import datetime
-from enum import Enum
 from pydantic import BaseModel, Field, field_validator, EmailStr
 from typing import Optional
 
 class userRegister(BaseModel):
-    username : str
+    user_name : str
     first_name : str
     last_name : Optional[str] = None
     email : EmailStr
@@ -24,7 +23,7 @@ class userRegister(BaseModel):
         return gender_check(value)
 
 class userRegisterResponse(BaseModel):
-    username: str
+    user_name: str
     email: str
 
     class Config:

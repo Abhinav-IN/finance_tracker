@@ -1,11 +1,5 @@
-from enum import Enum
+from api.utils.enums import UserRole
 from pydantic import BaseModel
-
-class UserRole(str, Enum):
-    user = "user"
-    admin = "admin"
-    moderator = "moderator"
-    support = "support"
 
 class UserRoleUpdate(BaseModel):
     role: UserRole

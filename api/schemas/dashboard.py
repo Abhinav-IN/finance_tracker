@@ -1,4 +1,6 @@
+from api.utils.enums import TransactionDirection
 from datetime import date
+from decimal import Decimal
 from pydantic import BaseModel
 
 class overviewResponse(BaseModel):
@@ -8,10 +10,6 @@ class overviewResponse(BaseModel):
     total_subscription : float 
     total_investment : float 
 
-class expense_record(BaseModel):
+class transaction_record(BaseModel):
     date : date
-    total_expense : float
-
-class income_record(BaseModel):
-    date : date
-    total_income : float
+    total_transaction : Decimal
