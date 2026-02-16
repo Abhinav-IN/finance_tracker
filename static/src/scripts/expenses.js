@@ -10,6 +10,30 @@ const filterOption = document.getElementById("filter-options");
 
 const expenseForm = document.getElementById("expense-addition-form");
 const expenseEditingForm = document.getElementById("edit-expense-form");
+const searchInputEl = document.getElementById("search-input");
+const lowerPriceEl = document.getElementById("lower-price");
+const greaterPriceEl = document.getElementById("greater-price");
+const exactPriceEl = document.getElementById("exact-price");
+
+function parseFilterNumber(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getExpenseSearchState() {
+  const input = typeof data.expense.search.input === "string" ? data.expense.search.input.trim() : "";
+  const lower = parseFilterNumber(data.expense.search.lower_price);
+  const greater = parseFilterNumber(data.expense.search.greater_price);
+  const exact = parseFilterNumber(data.expense.search.exact_price);
+
+  data.expense.search.input = input;
+  data.expense.search.lower_price = lower;
+  data.expense.search.greater_price = greater;
+  data.expense.search.exact_price = exact;
+
+  return { search: input, lower_amount: lower, greater_amount: greater, exact_amount: exact };
+}
 
 function buildTransactionCreatePayload({ title, date, amount, category_name, payment_mode_name, description }) {
   const dateObj = date ? new Date(date) : new Date();
@@ -108,11 +132,13 @@ export async function addExpense(payload) {
     }
 
     if (expenseForm) expenseForm.reset();
-    toggleElement(document.getElementById("overlay-screen"));
+    hideExpenseOverlay();
+    data.expense.error = null;
     await Promise.all([expenseOverview(), getExpense({ page: data.expense.page.current_page })]);
   } catch (error) {
     console.error("Error adding expense:", error);
     data.expense.error = error.message || "Failed to add expense.";
+    hideExpenseOverlay();
   } finally {
     data.expense.loading = false;
   }
@@ -169,8 +195,9 @@ async function getExpense({
       },
     });
     if (!response.ok) throw new Error("Failed to fetch expense list");
-    const result = await response.json();
-    data.expense.list = result.transactions || [];
+    const result = await response.json().catch(() => ({}));
+    const list = Array.isArray(result?.transactions) ? result.transactions : [];
+    data.expense.list.splice(0, data.expense.list.length, ...list);
     data.expense.page.total_pages = result.total_pages ?? 1;
     data.expense.page.current_page = result.current_page ?? 1;
     data.expense.page.total_transactions = result.total_transactions ?? 0;
@@ -222,7 +249,8 @@ async function deleteExpense({ transactionId } = {}) {
     });
     if (!response.ok) throw new Error("Failed to delete expense");
 
-    data.expense.list = data.expense.list.filter((t) => Number(t.id) !== Number(transactionId));
+    const kept = data.expense.list.filter((t) => Number(t.id) !== Number(transactionId));
+    data.expense.list.splice(0, data.expense.list.length, ...kept);
     await expenseOverview();
     toggleElement(document.getElementById("expense-edit-screen"));
   } catch (error) {
@@ -253,37 +281,21 @@ function openExpenseEditor({ transactionId = null, expenseList = [] } = {}) {
 
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
-    getExpense({
-      page: 1,
-      search: data.expense.search.input,
-      greater_amount: data.expense.search.greater_price,
-      lower_amount: data.expense.search.lower_price,
-      exact_amount: data.expense.search.exact_price,
-    });
+    getExpense({ page: 1, ...getExpenseSearchState() });
   });
 }
 
 if (nextPageBtn) {
   nextPageBtn.addEventListener("click", () => {
     const next = Math.min(data.expense.page.current_page + 1, data.expense.page.total_pages);
-    getExpense({
-      page: next,
-      greater_amount: data.expense.search.greater_price,
-      lower_amount: data.expense.search.lower_price,
-      exact_amount: data.expense.search.exact_price,
-    });
+    getExpense({ page: next, ...getExpenseSearchState() });
   });
 }
 
 if (prevPageBtn) {
   prevPageBtn.addEventListener("click", () => {
     const prev = Math.max(1, data.expense.page.current_page - 1);
-    getExpense({
-      page: prev,
-      greater_amount: data.expense.search.greater_price,
-      lower_amount: data.expense.search.lower_price,
-      exact_amount: data.expense.search.exact_price,
-    });
+    getExpense({ page: prev, ...getExpenseSearchState() });
   });
 }
 
@@ -293,19 +305,57 @@ if (filterToggleBtn?.length && filterOption) {
   });
 }
 
+function showAddExpenseOverlay() {
+  const overlay = document.getElementById("overlay-screen");
+  if (overlay && document.getElementById("expense-addition-form")) {
+    overlay.classList.remove("hidden");
+    overlay.style.display = "flex";
+  }
+}
+
+function hideExpenseOverlay() {
+  const overlay = document.getElementById("overlay-screen");
+  if (overlay) {
+    overlay.classList.add("hidden");
+    overlay.style.display = "none";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   expenseOverview();
-  getExpense({
-    page: data.expense.page.current_page,
-    search: data.expense.search.input,
-    greater_amount: data.expense.search.greater_price,
-    lower_amount: data.expense.search.lower_price,
-    exact_amount: data.expense.search.exact_price,
+  getExpense({ page: data.expense.page.current_page, ...getExpenseSearchState() });
+
+  if (searchInputEl) {
+    searchInputEl.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      getExpense({ page: 1, ...getExpenseSearchState() });
+    });
+  }
+
+  [lowerPriceEl, greaterPriceEl, exactPriceEl].forEach((input) => {
+    if (!input) return;
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      getExpense({ page: 1, ...getExpenseSearchState() });
+    });
+  });
+
+  document.querySelectorAll("button.open-add-expense-form").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showAddExpenseOverlay();
+    });
   });
 });
 
 body.addEventListener("click", (e) => {
   const target = e.target;
+  if (target.closest && target.closest(".open-add-expense-form")) {
+    showAddExpenseOverlay();
+  }
   if (target.classList.contains("open-expense-editor")) {
     const id = target.getAttribute("data-transaction-id");
     openExpenseEditor({ transactionId: id, expenseList: data.expense.list });
@@ -313,6 +363,9 @@ body.addEventListener("click", (e) => {
   }
   if (target.classList.contains("edit-screen-toggle")) {
     toggleElement(document.getElementById("expense-edit-screen"));
+  }
+  if (target.closest && target.closest(".screen-toggle") && target.closest("#overlay-screen")) {
+    hideExpenseOverlay();
   }
   if (target.classList.contains("delete-expense")) {
     const id = target.getAttribute("data-transaction-id");

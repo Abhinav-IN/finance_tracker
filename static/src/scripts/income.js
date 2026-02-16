@@ -10,6 +10,30 @@ const filterOption = document.getElementById("filter-options");
 
 const incomeForm = document.getElementById("income-addition-form");
 const editIncomeForm = document.getElementById("edit-income-form");
+const searchInputEl = document.getElementById("search-input");
+const lowerPriceEl = document.getElementById("lower-price");
+const greaterPriceEl = document.getElementById("greater-price");
+const exactPriceEl = document.getElementById("exact-price");
+
+function parseFilterNumber(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getIncomeSearchState() {
+  const input = typeof data.income.search.input === "string" ? data.income.search.input.trim() : "";
+  const lower = parseFilterNumber(data.income.search.lower_price);
+  const greater = parseFilterNumber(data.income.search.greater_price);
+  const exact = parseFilterNumber(data.income.search.exact_price);
+
+  data.income.search.input = input;
+  data.income.search.lower_price = lower;
+  data.income.search.greater_price = greater;
+  data.income.search.exact_price = exact;
+
+  return { search: input, lower_amount: lower, greater_amount: greater, exact_amount: exact };
+}
 
 function buildTransactionCreatePayload({ title, date, amount, category_name, payment_mode_name, description }) {
   const dateObj = date ? new Date(date) : new Date();
@@ -91,11 +115,13 @@ async function addIncome(payload) {
     }
 
     if (incomeForm) incomeForm.reset();
-    toggleElement(document.getElementById("overlay-screen"));
+    hideOverlay();
+    data.income.error = null;
     await Promise.all([incomeOverview(), getIncome({ page: data.income.page.current_page })]);
   } catch (error) {
     console.error("Error adding income:", error);
     data.income.error = error.message || "Failed to add income.";
+    hideOverlay();
   } finally {
     data.income.loading = false;
   }
@@ -152,8 +178,9 @@ async function getIncome({
       },
     });
     if (!response.ok) throw new Error("Failed to fetch income list");
-    const result = await response.json();
-    data.income.list = result.transactions || [];
+    const result = await response.json().catch(() => ({}));
+    const list = Array.isArray(result?.transactions) ? result.transactions : [];
+    data.income.list.splice(0, data.income.list.length, ...list);
     data.income.page.total_pages = result.total_pages ?? 1;
     data.income.page.current_page = result.current_page ?? 1;
     data.income.page.total_transactions = result.total_transactions ?? 0;
@@ -205,7 +232,8 @@ async function deleteIncome({ transactionId } = {}) {
     });
     if (!response.ok) throw new Error("Failed to delete income");
 
-    data.income.list = data.income.list.filter((t) => Number(t.id) !== Number(transactionId));
+    const kept = data.income.list.filter((t) => Number(t.id) !== Number(transactionId));
+    data.income.list.splice(0, data.income.list.length, ...kept);
     await incomeOverview();
     toggleElement(document.getElementById("income-edit-screen"));
   } catch (error) {
@@ -238,37 +266,21 @@ function openIncomeEditor({ transactionId = null, incomeList = [] } = {}) {
 
 if (searchBtn) {
   searchBtn.addEventListener("click", () => {
-    getIncome({
-      page: 1,
-      search: data.income.search.input,
-      greater_amount: data.income.search.greater_price,
-      lower_amount: data.income.search.lower_price,
-      exact_amount: data.income.search.exact_price,
-    });
+    getIncome({ page: 1, ...getIncomeSearchState() });
   });
 }
 
 if (nextPageBtn) {
   nextPageBtn.addEventListener("click", () => {
     const next = Math.min(data.income.page.current_page + 1, data.income.page.total_pages);
-    getIncome({
-      page: next,
-      greater_amount: data.income.search.greater_price,
-      lower_amount: data.income.search.lower_price,
-      exact_amount: data.income.search.exact_price,
-    });
+    getIncome({ page: next, ...getIncomeSearchState() });
   });
 }
 
 if (prevPageBtn) {
   prevPageBtn.addEventListener("click", () => {
     const prev = Math.max(1, data.income.page.current_page - 1);
-    getIncome({
-      page: prev,
-      greater_amount: data.income.search.greater_price,
-      lower_amount: data.income.search.lower_price,
-      exact_amount: data.income.search.exact_price,
-    });
+    getIncome({ page: prev, ...getIncomeSearchState() });
   });
 }
 
@@ -278,19 +290,57 @@ if (filterToggleBtn?.length && filterOption) {
   });
 }
 
+function showAddIncomeOverlay() {
+  const overlay = document.getElementById("overlay-screen");
+  if (overlay && document.getElementById("income-addition-form")) {
+    overlay.classList.remove("hidden");
+    overlay.style.display = "flex";
+  }
+}
+
+function hideOverlay() {
+  const overlay = document.getElementById("overlay-screen");
+  if (overlay) {
+    overlay.classList.add("hidden");
+    overlay.style.display = "none";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   incomeOverview();
-  getIncome({
-    page: data.income.page.current_page,
-    search: data.income.search.input,
-    greater_amount: data.income.search.greater_price,
-    lower_amount: data.income.search.lower_price,
-    exact_amount: data.income.search.exact_price,
+  getIncome({ page: data.income.page.current_page, ...getIncomeSearchState() });
+
+  if (searchInputEl) {
+    searchInputEl.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      getIncome({ page: 1, ...getIncomeSearchState() });
+    });
+  }
+
+  [lowerPriceEl, greaterPriceEl, exactPriceEl].forEach((input) => {
+    if (!input) return;
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      getIncome({ page: 1, ...getIncomeSearchState() });
+    });
+  });
+
+  document.querySelectorAll("button.open-add-income-form").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showAddIncomeOverlay();
+    });
   });
 });
 
 body.addEventListener("click", (e) => {
   const target = e.target;
+  if (target.closest && target.closest(".open-add-income-form")) {
+    showAddIncomeOverlay();
+  }
   if (target.classList.contains("open-income-editor")) {
     const id = target.getAttribute("data-transaction-id");
     openIncomeEditor({ transactionId: id, incomeList: data.income.list });
@@ -298,6 +348,9 @@ body.addEventListener("click", (e) => {
   }
   if (target.classList.contains("edit-screen-toggle")) {
     toggleElement(document.getElementById("income-edit-screen"));
+  }
+  if (target.closest && target.closest(".screen-toggle") && target.closest("#overlay-screen")) {
+    hideOverlay();
   }
   if (target.classList.contains("delete-income")) {
     const id = target.getAttribute("data-transaction-id");

@@ -12,10 +12,10 @@ def apply_search_filter(query, search: str):
 
     return (
         query
-        .join(Category)
-        .join(Account)
-        .join(TransactionType)
-        .join(PaymentMode)
+        .join(Category, isouter=True)
+        .join(Account, isouter=True)
+        .join(TransactionType, isouter=True)
+        .join(PaymentMode, isouter=True)
         .filter(
             or_(
                 Transaction.title.ilike(f"%{search}%"),
@@ -37,16 +37,16 @@ def apply_transaction_filters(query, filters):
     if filters.direction:
         query = query.filter(Transaction.direction == filters.direction)
     
-    if filters.id:
+    if filters.id is not None:
         query = query.filter(Transaction.id == filters.id)
 
-    if filters.exact_amount:
+    if filters.exact_amount is not None:
         query = query.filter(Transaction.amount == filters.exact_amount)
 
-    if filters.greater_amount:
+    if filters.greater_amount is not None:
         query = query.filter(Transaction.amount > filters.greater_amount)
 
-    if filters.lower_amount:
+    if filters.lower_amount is not None:
         query = query.filter(Transaction.amount < filters.lower_amount)
 
     if filters.date:

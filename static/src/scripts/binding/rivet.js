@@ -1323,6 +1323,9 @@
       },
       observe: function (t, e, i) {
         var n, r, s;
+        if (Array.isArray(t) && e === "length") {
+          return;
+        }
         return (
           (n = this.weakReference(t).callbacks),
           null == n[e] &&
@@ -1330,31 +1333,49 @@
             (r = Object.getOwnPropertyDescriptor(t, e)),
             (null != r ? r.get : void 0) ||
               (null != r ? r.set : void 0) ||
-              ((s = t[e]),
-              Object.defineProperty(t, e, {
-                enumerable: !0,
-                get: function () {
-                  return s;
-                },
-                set: (function (i) {
-                  return function (r) {
-                    var o, u, l, a, p;
-                    if (
-                      r !== s &&
-                      (i.unobserveMutations(s, t[i.id], e),
-                      (s = r),
-                      (u = i.weakmap[t[i.id]]))
-                    ) {
-                      if (((n = u.callbacks), n[e]))
-                        for (p = n[e].slice(), l = 0, a = p.length; a > l; l++)
-                          (o = p[l]), h.call(n[e], o) >= 0 && o();
-                      return i.observeMutations(r, t[i.id], e);
-                    }
-                  };
-                })(this),
-              }))),
+              (function() {
+                try {
+                  if (r && r.configurable === !1) return;
+                  s = t[e];
+                  Object.defineProperty(t, e, {
+                    enumerable: !0,
+                    configurable: !0,
+                    get: function () {
+                      return s;
+                    },
+                    set: (function (i) {
+                      return function (r) {
+                        var o, u, l, a, p;
+                        if (
+                          r !== s &&
+                          (i.unobserveMutations(s, t[i.id], e),
+                          (s = r),
+                          (u = i.weakmap[t[i.id]]))
+                        ) {
+                          if (((n = u.callbacks), n[e]))
+                            for (p = n[e].slice(), l = 0, a = p.length; a > l; l++)
+                              (o = p[l]), h.call(n[e], o) >= 0 && o();
+                          return i.observeMutations(r, t[i.id], e);
+                        }
+                      };
+                    })(this),
+                  });
+                } catch (err) {
+                  if (err.message && err.message.indexOf("Cannot redefine property") === -1) {
+                    throw err;
+                  }
+                }
+              })()),
           h.call(n[e], i) < 0 && n[e].push(i),
-          this.observeMutations(t[e], t[this.id], e)
+          (function() {
+            try {
+              this.observeMutations(t[e], t[this.id], e);
+            } catch (err) {
+              if (err.message && err.message.indexOf("Cannot redefine property") === -1) {
+                throw err;
+              }
+            }
+          }.call(this))
         );
       },
       unobserve: function (t, e, i) {

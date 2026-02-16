@@ -266,11 +266,11 @@
                                 Most Recent expense
                             </h3>
                             <button type="button"
-                                class="screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
+                                class="open-add-expense-form screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
                                 Add
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2.5" stroke="currentColor" class="size-6 screen-toggle">
-                                    <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2.5" stroke="currentColor" class="size-6 open-add-expense-form screen-toggle">
+                                    <path class="open-add-expense-form screen-toggle" stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 4.5v15m7.5-7.5h-15" />
                                 </svg>
                             </button>
@@ -279,7 +279,7 @@
                             {data.expense.error}
                         </div>
                         <div class="flex items-center w-full gap-4 ">
-                            <input type="text" class="text-input" placeholder="Search For Something"
+                            <input type="text" id="search-input" class="text-input" placeholder="Search For Something"
                                 rv-value="data.expense.search.input">
                             <div class="relative">
                                 <button
@@ -502,14 +502,8 @@
                                 <label for="expense_category" class="text-sm">
                                     Expense Category
                                 </label>
-                                <select name="expense_category" id="expense_category"
-                                    class="capitalize p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                    <option rv-each-categories="data.expense.categories"
-                                        class="bg-white dark:bg-black capitalize" rv-value="categories.category_name">
-                                        {categories.category_name}
-                                    </option>
-
-                                </select>
+                                <input type="text" name="expense_category" id="expense_category"
+                                    class="text-input capitalize" placeholder="Category Name">
                             </div>
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
@@ -607,15 +601,9 @@
                                 <label for="edit_expense_category" class="text-sm">
                                     Expense Category
                                 </label>
-                                <select name="edit_expense_category" id="edit_expense_category"
+                                <input type="text" name="edit_expense_category" id="edit_expense_category"
                                     rv-value="data.expense.expenseToEdit.category_name"
-                                    class="capitalize p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                    <option rv-each-categories="data.expense.categories"
-                                        class="bg-white dark:bg-black capitalize" rv-value="categories.category_name">
-                                        {categories.category_name}
-                                    </option>
-
-                                </select>
+                                    class="text-input capitalize" placeholder="Category Name">
                             </div>
                         </div>
                         <!-- <div class="flex items-center justify-between gap-4 w-full">
@@ -653,7 +641,7 @@
         </form>
     </div>
 
-    <script type="module" src="../../src/scripts//binding//formatter.js"></script>
+    <script type="module" src="../../src/scripts/binding/formatter.js"></script>
     <script type="module" src="../../src/main.js"></script>
     <script type="module" src="../../src/scripts/theme/theme.js"></script>
     <script type="module" src="../../src/scripts/expenses.js"></script>

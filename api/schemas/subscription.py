@@ -34,6 +34,9 @@ class SubscriptionResponse(BaseModel):
     payment_mode_id: int
     account_id: Optional[int]
     is_active: bool
+    category_name: Optional[str] = None
+    payment_mode_name: Optional[str] = None
+    account_name: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -56,9 +59,9 @@ class SubscriptionQueryParam(BaseModel):
     page : int = Field(1, ge=1, description="Page number starting from 1")
     id : Optional[int] = Field(None, description="Subscription ID")
     name : Optional[str] = Field(None, description = "Name of subscription")
-    exact_amount : Optional[int] = Field(None, description="Exact amount subscription")
-    greater_amount : Optional[int] = Field(None, gt=0, description="Subscriptions greater than this amount")
-    lower_amount : Optional[int] = Field(None, gt=0, description="Subscriptions smaller than this amount")
+    exact_amount : Optional[float] = Field(None, description="Exact amount subscription")
+    greater_amount : Optional[float] = Field(None, ge=0, description="Subscriptions greater than this amount")
+    lower_amount : Optional[float] = Field(None, ge=0, description="Subscriptions smaller than this amount")
     start_date : Optional[datetime] = Field(None, description="Start date of subscription")
     end_date : Optional[datetime] = Field(None, description="End date of subscription")
     billing_date : Optional[datetime] = Field(None, description="Billing date of the subscription")

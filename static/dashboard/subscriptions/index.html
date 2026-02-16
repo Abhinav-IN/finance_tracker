@@ -280,7 +280,7 @@
                                 </button>
                             </div>
                             <div class="flex items-center w-full gap-4 ">
-                                <input type="text" class="text-input" placeholder="Search For Something"
+                                <input type="text" id="search-input" class="text-input" placeholder="Search For Something"
                                     rv-value="data.subscription.search.input">
                                 <div class="relative">
                                     <button
@@ -388,15 +388,12 @@
                                                 class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20 subscription-edit-screen-toggle">
                                                 <button type="button"
                                                     class="subscription-edit-screen-toggle flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer open-subscription-editor "
-                                                    rv-subscription-id="subscription.subscription_id">
+                                                    rv-data-subscription-id="subscription.subscription_id">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                         viewBox="0 0 24 24"
-                                                        rv-subscription-id="subscription.subscription_id"
                                                         stroke-width="1.5" stroke="currentColor"
-                                                        class="size-4 subscription-edit-screen-toggle"
-                                                        rv-subscription-id="subscription.subscription_id">
+                                                        class="size-4 subscription-edit-screen-toggle">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                                            rv-subscription-id="subscription.subscription_id"
                                                             class="subscription-edit-screen-toggle"
                                                             d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                                     </svg>
@@ -460,14 +457,14 @@
 
         </main>
     </div>
-    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 hidden  capitalize"
+    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 hidden capitalize"
         id="subscription-addition-screen">
         <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
             <form id="subscription-addition-form"
                 class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
                 <div class="font-semibold flex items-center justify-between">
                     <span class="text-lg">
-                        Add subscription
+                        Add Subscription
                     </span>
                     <button class="subscription-screen-toggle cursor-pointer" type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -479,17 +476,17 @@
                 </div>
                 <div class="pt-4 dark:text-white space-y-6">
                     <div class="font-medium flex flex-col gap-2 ">
-                        <label for="c" class="text-sm">
+                        <label for="subscription_name" class="text-sm">
                             Name
                         </label>
                         <input type="text" name="subscription_name" id="subscription_name"
-                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
+                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20"
                             placeholder="Netflix">
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <div class="font-medium flex flex-col gap-2 w-full">
                             <label for="subscription_amount" class="text-sm">
-                                amount (₹)
+                                Amount (₹)
                             </label>
                             <input type="number" name="subscription_amount" id="subscription_amount" class="text-input"
                                 placeholder="199">
@@ -499,8 +496,8 @@
                                 Last Paid Date
                             </label>
                             <input type="date" name="subscription_last_paid_at" id="subscription_last_paid_at"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                                placeholder="Ice Cream From Amul">
+                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20"
+                                placeholder="2025-02-07">
                         </div>
                     </div>
                     <div class="flex items-center justify-between gap-4">
@@ -510,8 +507,7 @@
                                     Subscription Category
                                 </label>
                                 <input type="text" name="subscription_category_name" id="subscription_category_name"
-                                    class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                                    placeholder="">
+                                    class="text-input capitalize" placeholder="Category Name">
                             </div>
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
@@ -519,11 +515,11 @@
                                 Billing Cycle
                             </label>
                             <select name="subscription_billing_cycle" id="subscription_billing_cycle"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                <option class="bg-white dark:bg-black" value="yearly">Yearly</option>
-                                <option class="bg-white dark:bg-black" value="monthly">Monthly</option>
-                                <option class="bg-white dark:bg-black" value="weekly">Weekly</option>
-                                <option class="bg-white dark:bg-black" value="daily">Daily</option>
+                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20">
+                                <option class="bg-white dark:bg-black" value="MONTHLY">Monthly</option>
+                                <option class="bg-white dark:bg-black" value="WEEKLY">Weekly</option>
+                                <option class="bg-white dark:bg-black" value="YEARLY">Yearly</option>
+                                <option class="bg-white dark:bg-black" value="ONE_TIME">One Time</option>
                             </select>
                         </div>
                     </div>
@@ -533,14 +529,14 @@
                                 Start Date
                             </label>
                             <input type="date" name="subscription_start_date" id="subscription_start_date"
-                                class="text-input ">
+                                class="text-input">
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
                             <label for="subscription_end_date" class="text-sm">
                                 End Date
                             </label>
                             <input type="date" name="subscription_end_date" id="subscription_end_date"
-                                class="text-input" placeholder="Ice Cream From Amul">
+                                class="text-input" placeholder="2025-02-07">
                         </div>
                     </div>
                     <div class="flex items-center justify-between gap-4">
@@ -558,73 +554,43 @@
                                 Account Name
                             </label>
                             <input type="text" name="subscription_account_name" id="subscription_account_name"
-                                class="text-input" />
+                                class="text-input" placeholder="Account Name" />
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_description" class="text-sm">
-                                Subscription Description
-                            </label>
-                            <textarea name="subscription_description" id="subscription_description"
-                                class="text-input"></textarea>
-                        </div>
+                    <div class="font-medium flex flex-col gap-2 w-full">
+                        <label for="subscription_description" class="text-sm">
+                            Subscription Description
+                        </label>
+                        <textarea name="subscription_description" id="subscription_description"
+                            class="text-input min-h-20" maxlength="140"
+                            placeholder="Short note about this subscription"></textarea>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_payment_mode_name" class="text-sm">
-                                Payment Mode
-                            </label>
-                            <select name="subscription_payment_mode_name" id="subscription_payment_mode_name"
-                                class="text-input">
-                                <option class="bg-white dark:bg-black" value="cash">Cash</option>
-                                <option class="bg-white dark:bg-black" value="credit">Credit</option>
-                                <option class="bg-white dark:bg-black" value="debit">Debit</option>
-                                <option class="bg-white dark:bg-black" value="upi">upi</option>
-                            </select>
-                        </div>
+                    <div class="font-medium flex flex-col gap-2 w-full">
+                        <label for="subscription_payment_mode_name" class="text-sm">
+                            Payment Mode
+                        </label>
+                        <select name="subscription_payment_mode_name" id="subscription_payment_mode_name"
+                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20">
+                            <option class="bg-white dark:bg-black" value="cash">Cash</option>
+                            <option class="bg-white dark:bg-black" value="credit">Credit</option>
+                            <option class="bg-white dark:bg-black" value="debit">Debit</option>
+                            <option class="bg-white dark:bg-black" value="upi">UPI</option>
+                        </select>
                     </div>
                     <button type="submit"
                         class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
                         Submit
                     </button>
                 </div>
-
             </form>
-            <div class="w-full text-center py-6 flex items-center justify-between sm:justify-end gap-4">
-                <button id="prev-page"
-                    class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                    </svg>
-
-                    <span class="">
-                        Prev
-                    </span>
-                </button>
-                <span class="px-4 py-2 bg-gray-100 rounded-md shadow-md dark:bg-gray-900 ">
-                    {data.subscription.page.current_page} / {data.subscription.page.total_pages}
-                </span>
-                <button id="next-page"
-                    class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <span class="">
-                        Next
-                    </span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </button>
-            </div>
         </div>
     </div>
 
     <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 hidden  capitalize"
         id="subscription-edit-screen">
         <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
-            <form id="subscription-edit-form"
-                class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
+            <form id="subscription-edit-form" class="w-11/12 sm:max-w-md">
+                <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
                 <div class="font-semibold flex items-center justify-between">
                     <span class="text-lg">
                         Edit subscription
@@ -689,10 +655,10 @@
                             <select name="subscription_billing_cycle_edit" id="subscription_billing_cycle_edit"
                                 rv-value="data.subscription.subscriptionToEdit.billing_cycle"
                                 class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                <option class="bg-white dark:bg-black" value="yearly">Yearly</option>
-                                <option class="bg-white dark:bg-black" value="monthly">Monthly</option>
-                                <option class="bg-white dark:bg-black" value="weekly">Weekly</option>
-                                <option class="bg-white dark:bg-black" value="daily">Daily</option>
+                                <option class="bg-white dark:bg-black" value="MONTHLY">Monthly</option>
+                                <option class="bg-white dark:bg-black" value="WEEKLY">Weekly</option>
+                                <option class="bg-white dark:bg-black" value="YEARLY">Yearly</option>
+                                <option class="bg-white dark:bg-black" value="ONE_TIME">One Time</option>
                             </select>
                         </div>
                     </div>
@@ -719,8 +685,7 @@
                                 Subscription Status
                             </label>
                             <select name="subscription_is_active_edit" id="subscription_is_active_edit"
-                                rv-value="data.subscription.subscriptionToEdit.is_active" class="text-input"
-                                class="text-input">
+                                rv-value="data.subscription.subscriptionToEdit.is_active" class="text-input">
                                 <option class="bg-white dark:bg-black" value="true">Yes</option>
                                 <option class="bg-white dark:bg-black" value="false">No</option>
                             </select>
@@ -757,14 +722,17 @@
                             </select>
                         </div>
                     </div>
-                    <button type="submit"
-                        class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
-                        Submit
-                    </button>
-                    <button type="submit"
-                        class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-600/90  transition-all duration-200 ">
-                        Delete
-                    </button>
+                    <div class="space-y-4">
+                        <button type="submit"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
+                            Submit
+                        </button>
+                        <button type="button" rv-data-subscription-id="data.subscription.subscriptionToEdit.subscription_id"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90 transition-all duration-200 delete-subscription">
+                            Delete
+                        </button>
+                    </div>
+                </div>
                 </div>
             </form>
         </div>

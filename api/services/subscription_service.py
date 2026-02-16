@@ -8,7 +8,7 @@ from datetime import timedelta
 from fastapi import HTTPException, status
 from math import ceil
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 def create_subscription_service(user_subscription: SubscriptionCreate, user_id: int, db: Session ):
     curr_category_id = get_or_create_category(user_subscription.category_name, user_id, db)
@@ -53,18 +53,28 @@ def create_subscription_service(user_subscription: SubscriptionCreate, user_id: 
 
 def get_subscription_service(filter_query: SubscriptionQueryParam, user_id: int, db: Session):
     base_query = db.query(Subscription).filter(Subscription.user_id == user_id)
+    base_query = base_query.options(
+        joinedload(Subscription.category),
+        joinedload(Subscription.payment_mode),
+        joinedload(Subscription.account),
+    )
     query = build_subscription_query(base_query, filter_query)
     total_records = query.count()
     subscriptions = (query.offset(filter_query.get_offset).limit(filter_query.limit).all())
 
+    response_subscriptions = []
+    for sx in subscriptions:
+        resp = SubscriptionResponse.model_validate(sx)
+        resp.category_name = sx.category.name if sx.category else None
+        resp.payment_mode_name = sx.payment_mode.name if sx.payment_mode else None
+        resp.account_name = sx.account.name if sx.account else None
+        response_subscriptions.append(resp)
+
     return {
-        "total_pages": ceil(total_records / filter_query.limit),
+        "total_pages": max(1, ceil(total_records / filter_query.limit)) if filter_query.limit else 1,
         "current_page": filter_query.page,
         "total_subscriptions": total_records,
-        "subscriptions": [
-            SubscriptionResponse.model_validate(sx)
-            for sx in subscriptions
-        ]
+        "subscriptions": response_subscriptions
     }
 
 def update_subscription_service(subscription_id : int, user_subscription : SubscriptionCreate, user_id : int, db : Session ):
