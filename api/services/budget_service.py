@@ -96,11 +96,5 @@ def delete_budget_service(budget_id : int, user: dict, db : Session):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went erong in deleting budget")
     return 
 
-def predict_budget_status(user_id: int, budget_id : int, db: Session):
-    result = []
-    status = get_budget_status(
-            user_id=user_id,
-            budget_id = budget_id,
-            db=db
-        )
-    return result
+def predict_budget_status(user_id: int, budget_id: int, db: Session):
+    return get_budget_status(user_id, budget_id, db)

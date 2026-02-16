@@ -9,10 +9,12 @@ export const data = {
   user: {},
   income: {
     list: [],
+    loading: false,
+    error: null,
     page: {
       total_pages: 1,
       current_page: 1,
-      total_incomes: 0,
+      total_transactions: 0,
     },
     search: {
       input: "",
@@ -28,24 +30,26 @@ export const data = {
       average_weekly_income: 0,
     },
     incomeToEdit: {
-      income_id: "",
-      income_name: "",
-      recieved_date: "",
+      id: null,
+      title: "",
+      date: "",
       amount: "",
-      income_type_name: "",
+      transaction_type_name: "Nill",
       category_name: "",
       payment_mode_name: "",
-      account_name: "",
-      additional_note: "",
+      account_name: null,
+      description: "",
     },
   },
   expense: {
     categories: [],
     list: [],
+    loading: false,
+    error: null,
     page: {
       total_pages: 1,
       current_page: 1,
-      total_incomes: 0,
+      total_transactions: 0,
     },
     search: {
       input: "",
@@ -61,15 +65,15 @@ export const data = {
       average_weekly_expense: 0,
     },
     expenseToEdit: {
-      expense_id: "",
-      expense_name: "",
-      expense_date: "",
-      price: "",
-      expense_type_name: "",
+      id: null,
+      title: "",
+      date: "",
+      amount: "",
+      transaction_type_name: "Nill",
       category_name: "",
       payment_mode_name: "",
-      account_name: "",
-      additional_note: "",
+      account_name: null,
+      description: "",
     },
   },
   investments: {
@@ -136,29 +140,7 @@ export const data = {
     },
   },
   subscription: {
-    list: [
-      {
-        subscription_name: "test",
-        amount: 1,
-        description: "string",
-        currency: "INR",
-        account_name: "string",
-        billing_cycle: "yearly",
-        category_name: "string",
-        expense_type_name: "string",
-        payment_mode_name: "string",
-        start_date: "2025-10-10T09:03:34.970Z",
-        end_date: "2025-10-10T09:03:34.970Z",
-        is_active: true,
-        last_paid_at: "2025-10-10T09:03:34.970Z",
-        subscription_id: 0,
-        category_id: 0,
-        expense_type_id: 0,
-        payment_mode_id: 0,
-        account_id: 0,
-        next_billing_date: "2025-10-10T09:03:34.970Z",
-      },
-    ],
+    list: [],
     overview: {
       total_subscription_last_30_days: 0,
       total_subscription_last_7_days: 0,
@@ -167,30 +149,24 @@ export const data = {
       average_weekly_subscription: 0,
     },
     subscriptionToEdit: {
-      subscription_name: "string",
-      amount: 1,
-      description: "string",
+      subscription_name: "",
+      amount: "",
+      description: "",
       currency: "INR",
-      account_name: "string",
-      billing_cycle: "yearly",
-      category_name: "string",
-      expense_type_name: "string",
-      payment_mode_name: "string",
-      start_date: "2025-10-13T11:13:39.892Z",
-      end_date: "2025-10-13T11:13:39.893Z",
+      account_name: "",
+      billing_cycle: "MONTHLY",
+      category_name: "",
+      payment_mode_name: "",
+      start_date: "",
+      end_date: "",
       is_active: true,
-      last_paid_at: "2025-10-13T11:13:39.893Z",
+      last_paid_at: "",
       subscription_id: 0,
-      category_id: 0,
-      expense_type_id: 0,
-      payment_mode_id: 0,
-      account_id: 0,
-      next_billing_date: "2025-10-13T11:13:39.893Z",
     },
     page: {
       total_pages: 1,
       current_page: 1,
-      total_investments: 0,
+      total_subscriptions: 0,
     },
     search: {
       input: "",
@@ -211,9 +187,38 @@ export const data = {
 };
 
 export const body = document.querySelector("body");
-rivets.bind(body, {
-  data: data,
-});
+
+// Delay Rivets binding until DOM is ready to avoid length property redefinition errors
+function initializeRivets() {
+  try {
+    if (body) {
+      rivets.bind(body, {
+        data: data,
+      });
+    }
+  } catch (error) {
+    console.error("Rivets binding error:", error);
+    // Retry after a short delay if initial binding fails
+    setTimeout(() => {
+      try {
+        if (body) {
+          rivets.bind(body, {
+            data: data,
+          });
+        }
+      } catch (retryError) {
+        console.error("Rivets binding retry failed:", retryError);
+      }
+    }, 100);
+  }
+}
+
+// Initialize Rivets when DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeRivets);
+} else {
+  initializeRivets();
+}
 
 rivets.formatters.date = function (value) {
   const date = new Date(value);
@@ -241,9 +246,17 @@ body.addEventListener("click", (e) => {
     logout();
   }
 
-  if (target.classList.contains("screen-toggle")) {
-    console.log("Toggling Pop Up Screen");
-    toggleHiddenElement({ element: document.getElementById("overlay-screen") });
+  if (target.closest && target.closest(".screen-toggle")) {
+    const overlay = document.getElementById("overlay-screen");
+    if (overlay) {
+      if (target.closest("#overlay-screen")) {
+        overlay.classList.add("hidden");
+        overlay.style.display = "none";
+      } else {
+        overlay.classList.remove("hidden");
+        overlay.style.display = "flex";
+      }
+    }
   }
 });
 

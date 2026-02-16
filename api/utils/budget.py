@@ -1,70 +1,91 @@
+from datetime import date
+from sqlalchemy.orm import Session
+from sqlalchemy import func
+
 from api.models.budget import Budget
 from api.models.transaction import Transaction
-from api.utils.time import ist_now
-from api.ml.data_prep import prepare_training_data
-from api.ml.feature_builder import build_features
-from api.ml.model import linear_regression_model
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from api.ml.predictor import predict_daily_spend
 
 
 def get_budget_status(user_id: int, budget_id: int, db: Session):
     budget = db.query(Budget).filter(
-        Budget.budget_id == budget_id,
+        Budget.id == budget_id,
         Budget.user_id == user_id
     ).first()
 
     if not budget:
-        return {"message" : "Budget Not found"}  
-    
-    X_raw, current_spent = prepare_training_data(db, user_id, budget.category_id, budget.start_date, budget.end_date)
+        return {"message": "Budget not found"}
 
-    if not X_raw:
-        total_spent = db.query(func.sum(Transaction.amount)).filter(
-            Transaction.user_id == user_id,
-            Transaction.category_id == budget.category_id,
-            Transaction.direction == "EXPENSE",
-            Transaction.transaction_date >= budget.start_date,
-            Transaction.transaction_date <= budget.end_date
-        ).scalar() or 0
+    # -------------------------
+    # Fetch transactions
+    # -------------------------
+    transactions = db.query(Transaction).filter(
+        Transaction.user_id == user_id,
+        Transaction.category_id == budget.category_id,
+        Transaction.direction == "EXPENSE",
+        Transaction.date >= budget.start_date,
+        Transaction.date <= budget.end_date
+    ).all()
 
-        remaining = budget.budget_amount - total_spent
-        status = "under"
-        warning = ""
+    spent = sum(float(t.amount) for t in transactions)
 
-        if remaining <= 0:
-            status = "over"
-            warning = f"Budget exceeded by ₹{abs(remaining)}!"
-        elif remaining <= 0.1 * budget.budget_amount:
-            warning = f"Only ₹{remaining} left in budget!"
+    total_days = (budget.end_date - budget.start_date).days + 1
+    today = min(date.today(), budget.end_date)
+    days_elapsed = max((today - budget.start_date).days + 1, 1)
+    remaining_days = max(total_days - days_elapsed, 0)
 
+    # -------------------------
+    # CASE 1: No transactions
+    # -------------------------
+    if not transactions:
         return {
-            "status": status,
-            "budget_amount": budget.budget_amount,
-            "spent": total_spent,
-            "remaining": remaining,
-            "message": warning
+            "type": "fresh_budget",
+            "spent": 0.0,
+            "budget": float(budget.amount),
+            "remaining": float(budget.amount),
+            "status": "under",
+            "message": "No spending recorded yet"
         }
-    
-    X_features = build_features(X_raw, budget.start_date, budget.end_date)
-    y = [current_spent]*len(X_features)
-    model = linear_regression_model(X_features[-1], y)
-    latest_features = X_features[-1]
-    predicted_total = predict_month_end_spend(model, latest_features)
+
+    # -------------------------
+    # CASE 2: Low data → rule based
+    # -------------------------
+    if len(transactions) < 10 or days_elapsed < 7:
+        remaining = budget.amount - spent
+        return {
+            "type": "rule_based",
+            "spent": round(spent, 2),
+            "budget": float(budget.amount),
+            "remaining": round(remaining, 2),
+            "status": "over" if remaining < 0 else "under",
+            "message": "Not enough data for prediction"
+        }
+
+    # -------------------------
+    # CASE 3: ML-assisted (SAFE)
+    # -------------------------
+    avg_daily_spend = spent / days_elapsed
+
+    predicted_daily = predict_daily_spend([avg_daily_spend])
+
+    predicted_total = spent + (predicted_daily * remaining_days)
+
+    # HARD SAFETY CAPS (VERY IMPORTANT)
+    predicted_total = max(predicted_total, spent)
+    predicted_total = min(predicted_total, budget.amount * 1.5)
 
     remaining = budget.amount - predicted_total
-    status = "over" if remaining < 0 else "under"
 
     return {
-        "type": "ml_based",
-        "current_spent": current_spent,
-        "predicted_month_end_spend": predicted_total,
+        "type": "ml_assisted",
+        "spent_so_far": round(spent, 2),
+        "predicted_total_spend": round(predicted_total, 2),
         "budget": float(budget.amount),
-        "remaining": float(remaining),
-        "status": status,
+        "remaining": round(remaining, 2),
+        "status": "over" if remaining < 0 else "under",
         "message": (
-            "You are likely to exceed your budget"
-            if status == "over"
-            else "You are within budget"
+            "Likely to exceed budget"
+            if remaining < 0
+            else "Spending looks under control"
         )
     }

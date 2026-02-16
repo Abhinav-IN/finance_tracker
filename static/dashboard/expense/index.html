@@ -137,13 +137,12 @@
                                     </a>
                                 </li>
                                 <li class="">
-                                    <button class="list-button ">
+                                    <button type="button" class="list-button logout">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="size-6">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                                         </svg>
-
                                         <span>
                                             Logout
                                         </span>
@@ -267,17 +266,20 @@
                                 Most Recent expense
                             </h3>
                             <button type="button"
-                                class="screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
+                                class="open-add-expense-form screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
                                 Add
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2.5" stroke="currentColor" class="size-6 screen-toggle">
-                                    <path class="screen-toggle" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2.5" stroke="currentColor" class="size-6 open-add-expense-form screen-toggle">
+                                    <path class="open-add-expense-form screen-toggle" stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 4.5v15m7.5-7.5h-15" />
                                 </svg>
                             </button>
                         </div>
+                        <div rv-show="data.expense.error" class="p-3 rounded-md bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm">
+                            {data.expense.error}
+                        </div>
                         <div class="flex items-center w-full gap-4 ">
-                            <input type="text" class="text-input" placeholder="Search For Something"
+                            <input type="text" id="search-input" class="text-input" placeholder="Search For Something"
                                 rv-value="data.expense.search.input">
                             <div class="relative">
                                 <button
@@ -346,7 +348,10 @@
                         </div>
                     </div>
                     <div class="w-full pt-4">
-                        <div
+                        <div rv-show="data.expense.loading" class="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                            Loading...
+                        </div>
+                        <div rv-hide="data.expense.loading"
                             class="relative max-h-[500px] min-h-96 border border-black/20 dark:border-white/20 w-full rounded-md shadow-md overflow-y-scroll ">
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead
@@ -375,29 +380,23 @@
                                 <tbody class="capitalize">
                                     <tr rv-each-expense="data.expense.list"
                                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 even:bg-gray-200 dark:even:bg-gray-900">
-                                        <th scope="row" rv-expense-id="expense.expense_id"
-                                            class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20 expense-info">
+                                        <th scope="row" class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
                                             <button type="button"
-                                                class="expense-info flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer open-expense-editor "
-                                                rv-expense-id="expense.expense_id">
+                                                class="flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer open-expense-editor"
+                                                rv-data-transaction-id="expense.id">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    rv-expense-id="expense.expense_id" stroke-width="1.5"
-                                                    stroke="currentColor" class="size-4 expense-info"
-                                                    rv-expense-id="expense.expense_id">
+                                                    stroke-width="1.5" stroke="currentColor" class="size-4">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                                        rv-expense-id="expense.expense_id" class="expense-info"
                                                         d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                                 </svg>
                                                 Open
                                             </button>
                                         </th>
-                                        <td
-                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
-                                            {expense.expense_date | date}
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
+                                            {expense.date | date}
                                         </td>
-                                        <td
-                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
-                                            {expense.expense_name}
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
+                                            {expense.title}
                                         </td>
                                         <td class="px-6 py-4 border-r border-black/20 dark:border-white/20">
                                             {expense.category_name}
@@ -406,7 +405,12 @@
                                             {expense.payment_mode_name}
                                         </td>
                                         <td class="px-6 py-4 ">
-                                            {expense.price}
+                                            {expense.amount | money}
+                                        </td>
+                                    </tr>
+                                    <tr rv-hide="data.expense.list.length" class="bg-white dark:bg-gray-800">
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                            No expenses yet. Add your first expense using the button above.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -415,7 +419,8 @@
                         </div>
                         <div class="w-full text-center py-6 flex items-center justify-between sm:justify-end gap-4">
                             <button id="prev-page"
-                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                                rv-disabled="data.expense.page.current_page <= 1"
+                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="size-4">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -428,9 +433,11 @@
                             </button>
                             <span class="px-4 py-2 bg-gray-100 rounded-md shadow-md dark:bg-gray-900 ">
                                 {data.expense.page.current_page} / {data.expense.page.total_pages}
+                                <span rv-show="data.expense.page.total_transactions" class="text-xs ml-1">({data.expense.page.total_transactions} total)</span>
                             </span>
                             <button id="next-page"
-                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                                rv-disabled="data.expense.page.current_page >= data.expense.page.total_pages"
+                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span class="">
                                     Next
                                 </span>
@@ -495,14 +502,8 @@
                                 <label for="expense_category" class="text-sm">
                                     Expense Category
                                 </label>
-                                <select name="expense_category" id="expense_category"
-                                    class="capitalize p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                    <option rv-each-categories="data.expense.categories"
-                                        class="bg-white dark:bg-black capitalize" rv-value="categories.category_name">
-                                        {categories.category_name}
-                                    </option>
-
-                                </select>
+                                <input type="text" name="expense_category" id="expense_category"
+                                    class="text-input capitalize" placeholder="Category Name">
                             </div>
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
@@ -536,7 +537,7 @@
     </div>
     <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 bg-black/90 dark:bg-black/20 capitalize backdrop-blur-sm hidden"
         id="expense-edit-screen">
-        <form id="edit-expense-form" class="w-11/12 sm:max-w-md" expense-id="data.expense.expenseToEdit.expense_id">
+        <form id="edit-expense-form" class="w-11/12 sm:max-w-md">
             <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
                 <div class="font-semibold flex items-center justify-between">
                     <span class="text-lg">
@@ -556,7 +557,7 @@
                             Name
                         </label>
                         <input type="text" name="expense_name" id="edit_expense_name"
-                            rv-value="data.expense.expenseToEdit.expense_name"
+                            rv-value="data.expense.expenseToEdit.title"
                             class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
                             placeholder="Salary">
                     </div>
@@ -566,14 +567,14 @@
                                 Amount (₹)
                             </label>
                             <input type="number" name="edit_expense_price" id="edit_expense_price" class="text-input "
-                                rv-value="data.expense.expenseToEdit.price" placeholder="20099">
+                                rv-value="data.expense.expenseToEdit.amount" placeholder="20099">
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
                             <label for="edit_expense_date" class="text-sm">
                                 Received Date
                             </label>
                             <input type="date" name="edit_expense_date" id="edit_expense_date"
-                                rv-value="data.expense.expenseToEdit.expense_date"
+                                rv-value="data.expense.expenseToEdit.date"
                                 class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
                                 placeholder="07-02-2025">
                         </div>
@@ -600,15 +601,9 @@
                                 <label for="edit_expense_category" class="text-sm">
                                     Expense Category
                                 </label>
-                                <select name="edit_expense_category" id="edit_expense_category"
+                                <input type="text" name="edit_expense_category" id="edit_expense_category"
                                     rv-value="data.expense.expenseToEdit.category_name"
-                                    class="capitalize p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                    <option rv-each-categories="data.expense.categories"
-                                        class="bg-white dark:bg-black capitalize" rv-value="categories.category_name">
-                                        {categories.category_name}
-                                    </option>
-
-                                </select>
+                                    class="text-input capitalize" placeholder="Category Name">
                             </div>
                         </div>
                         <!-- <div class="flex items-center justify-between gap-4 w-full">
@@ -627,7 +622,7 @@
                             Additional Note
                         </label>
                         <textarea type="text" name="edit_expense_note" id="edit_expense_note" maxlength="140"
-                            rv-value="data.expense.expenseToEdit.additional_note" class="text-input min-h-20"
+                            rv-value="data.expense.expenseToEdit.description" class="text-input min-h-20"
                             placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
                     </div>
                     <div class="space-y-4">
@@ -635,8 +630,8 @@
                             class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
                             Submit
                         </button>
-                        <button type="button" rv-expense-id="data.expense.expenseToEdit.income_id"
-                            clastss="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90  transition-all duration-200 delete-income">
+                        <button type="button" rv-data-transaction-id="data.expense.expenseToEdit.id"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90 transition-all duration-200 delete-expense">
                             Delete
                         </button>
                     </div>
@@ -646,7 +641,7 @@
         </form>
     </div>
 
-    <script type="module" src="../../src/scripts//binding//formatter.js"></script>
+    <script type="module" src="../../src/scripts/binding/formatter.js"></script>
     <script type="module" src="../../src/main.js"></script>
     <script type="module" src="../../src/scripts/theme/theme.js"></script>
     <script type="module" src="../../src/scripts/expenses.js"></script>

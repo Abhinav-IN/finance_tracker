@@ -18,6 +18,9 @@ export default defineConfig({
           "subscriptions/index.html"  
         ),
         profile: path.resolve(__dirname, "dashboard", "profile/index.html"),
+        verify: path.resolve(__dirname, "verify", "index.html"),
+        reset: path.resolve(__dirname, "reset", "index.html"),
+        resetPassword: path.resolve(__dirname, "reset-password", "index.html"),
       },
     },
     outDir: "../dist/",

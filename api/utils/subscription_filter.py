@@ -13,7 +13,7 @@ def ist_day_range(date):
     return start, end
 
 def apply_basic_filters(query, filters):
-    if filters.id:
+    if filters.id is not None:
         query = query.filter(Subscription.id == filters.id)
 
     if filters.name:
@@ -21,13 +21,13 @@ def apply_basic_filters(query, filters):
             Subscription.name.ilike(f"%{filters.name.strip()}%")
         )
 
-    if filters.exact_amount:
+    if filters.exact_amount is not None:
         query = query.filter(Subscription.amount == filters.exact_amount)
 
-    if filters.greater_amount:
+    if filters.greater_amount is not None:
         query = query.filter(Subscription.amount > filters.greater_amount)
 
-    if filters.lower_amount:
+    if filters.lower_amount is not None:
         query = query.filter(Subscription.amount < filters.lower_amount)
 
     return query
@@ -61,6 +61,7 @@ def apply_search_filters(query, filters):
         .join(PaymentMode)
         .filter(
             or_(
+                Subscription.name.ilike(keyword),
                 Subscription.description.ilike(keyword),
                 Category.name.ilike(keyword),
                 TransactionType.name.ilike(keyword),

@@ -1,17 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 import { data, token } from "../main";
-import { createPayload, addExpense } from "./expenses";
 import Chart from "chart.js/auto";
-
-const expenseForm = document.getElementById("expense-addition-form");
-
-if (expenseForm) {
-  expenseForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const payload = createPayload();
-    await addExpense(payload);
-  });
-}
 async function getOverview(params) {
   try {
     const response = await fetch(`${API_URL}/api/v1/dashboard/overview`, {
@@ -43,7 +32,7 @@ async function getOverview(params) {
 
 async function getExpeneOverview(params) {
   try {
-    const response = await fetch(`${API_URL}/api/v1/dashboard/expense_record`, {
+    const response = await fetch(`${API_URL}/api/v1/dashboard/transaction_record/EXPENSE`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -53,30 +42,22 @@ async function getExpeneOverview(params) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-      throw new Error(
-        `Failed to fetch expense : ${response.status} ${response.statusText}`
-      );
+      console.error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      return;
     }
     const result = await response.json();
-    console.log("Expense Overview Fetched :", result);
-    data.overview.expense = result;
-    console.log(data.overview.expense);
-
-    generateChart(
-      data.overview.expense,
-      document.getElementById("expense-chart-overview")
-    );
+    data.overview.expense = result || [];
+    const el = document.getElementById("expense-chart-overview");
+    if (el && data.overview.expense.length) {
+      generateChart(data.overview.expense, el);
+    }
   } catch (error) {
-    console.log(error);
-    alert("something went wrong while fetching expense overview for the chart");
+    console.error("Error fetching expense chart data:", error);
   }
 }
 async function getIncomeOverview(params) {
   try {
-    const response = await fetch(`${API_URL}/api/v1/dashboard/income_record`, {
+    const response = await fetch(`${API_URL}/api/v1/dashboard/transaction_record/INCOME`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -86,25 +67,17 @@ async function getIncomeOverview(params) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-      throw new Error(
-        `Failed to fetch income : ${response.status} ${response.statusText}`
-      );
+      console.error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      return;
     }
     const result = await response.json();
-    console.log("income Overview Fetched :", result);
-    data.overview.income = result;
-    console.log(data.overview.income);
-
-    generateIncomeChart(
-      data.overview.income,
-      document.getElementById("income-chart-overview")
-    );
+    data.overview.income = result || [];
+    const el = document.getElementById("income-chart-overview");
+    if (el && data.overview.income.length) {
+      generateIncomeChart(data.overview.income, el);
+    }
   } catch (error) {
-    console.log(error);
-    // alert("something went wrong while fetching income overview for the chart");
+    console.error("Error fetching income chart data:", error);
   }
 }
 
@@ -124,7 +97,7 @@ function generateChart(data, element) {
       datasets: [
         {
           label: "Expense Overview Past 30 Days",
-          data: data.map((row) => row.total_expense),
+          data: data.map((row) => row.total_transaction),
           borderColor: "#000000",
           backgroundColor: "#FF2222",
         },
@@ -145,7 +118,7 @@ function generateIncomeChart(data, element) {
       datasets: [
         {
           label: "Income Overview Past 30 Days",
-          data: data.map((row) => row.total_income),
+          data: data.map((row) => row.total_transaction),
           borderColor: "#000000",
           backgroundColor: "#4444FF",
         },

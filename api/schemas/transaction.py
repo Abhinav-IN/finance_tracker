@@ -29,6 +29,8 @@ class TransactionResponse(BaseModel):
     category_id : int
     payment_mode_id : int
     account_id : Optional[int] = None
+    category_name : Optional[str] = None
+    payment_mode_name : Optional[str] = None
 
     model_config = {"from_attributes" : True}
 
@@ -66,8 +68,8 @@ class TransactionQueryParam(BaseModel):
     direction : Optional[TransactionDirection]
     id : Optional[int] = Field(None, description="Income ID or Expense ID")
     exact_amount : Optional[Decimal] = Field(None, description="Exact amount transaction")
-    greater_amount : Optional[Decimal] = Field(None, gt=0, description="Transactions greater than this amount")
-    lower_amount : Optional[Decimal] = Field(None, gt=0, description="Transactions smaller than this amount")
+    greater_amount : Optional[Decimal] = Field(None, ge=0, description="Transactions greater than this amount")
+    lower_amount : Optional[Decimal] = Field(None, ge=0, description="Transactions smaller than this amount")
     date : Optional[datetime] = Field(None, description="Date of transaction") #CHanged From datetime.date to datetime
     limit : Optional[int] = Field(20, description="No. of transactions visible at a time")
     search : Optional[str] = Field(None, description="Search by keywords")
