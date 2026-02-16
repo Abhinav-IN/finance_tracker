@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     config_logger.info(f" Authentication/Security Settings Loaded Fully")
     print("-----------------------------------------------")
 
+    # Frontend base URL (for verification and password-reset links in emails)
+    frontend_base_url: str = Field("http://localhost:5173", alias="FRONTEND_BASE_URL")
+
     # SMTP (Email) Settings
     config_logger.info(f" Loading SMTP (Email) Settings")
     smtp_host: str = Field("smtp.mailtrap.io", alias="SMTP_HOST") # Example for mailtrap
@@ -70,12 +73,15 @@ class Settings(BaseSettings):
     google_gemini_api_key: str = Field("gemini_api_key", alias="GEMINI_API_KEY") 
 
     
-    # CORS Settings
+    # CORS Settings (include both localhost and 127.0.0.1 so browser Origin matches)
     config_logger.info(f" Loading CORS Settings/Information")
-    origins_string: str = Field("http://localhost:3000,http://localhost:8000,http://localhost:5173/", alias="ORIGINS")
+    origins_string: str = Field(
+        "http://localhost:3000,http://localhost:8000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:8000,http://127.0.0.1:5173",
+        alias="ORIGINS",
+    )
     @property
     def origins(self) -> list[str]:
-        return [origin.strip() for origin in self.origins_string.split(',') if origin.strip()]
+        return [origin.strip().rstrip("/") for origin in self.origins_string.split(",") if origin.strip()]
     
     config_logger.info(f" CORS Settings Loaded Fully")
     print("-----------------------------------------------")

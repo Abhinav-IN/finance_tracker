@@ -9,10 +9,12 @@ export const data = {
   user: {},
   income: {
     list: [],
+    loading: false,
+    error: null,
     page: {
       total_pages: 1,
       current_page: 1,
-      total_incomes: 0,
+      total_transactions: 0,
     },
     search: {
       input: "",
@@ -28,24 +30,26 @@ export const data = {
       average_weekly_income: 0,
     },
     incomeToEdit: {
-      income_id: "",
-      income_name: "",
-      recieved_date: "",
+      id: null,
+      title: "",
+      date: "",
       amount: "",
-      income_type_name: "",
+      transaction_type_name: "Nill",
       category_name: "",
       payment_mode_name: "",
-      account_name: "",
-      additional_note: "",
+      account_name: null,
+      description: "",
     },
   },
   expense: {
     categories: [],
     list: [],
+    loading: false,
+    error: null,
     page: {
       total_pages: 1,
       current_page: 1,
-      total_incomes: 0,
+      total_transactions: 0,
     },
     search: {
       input: "",
@@ -61,15 +65,15 @@ export const data = {
       average_weekly_expense: 0,
     },
     expenseToEdit: {
-      expense_id: "",
-      expense_name: "",
-      expense_date: "",
-      price: "",
-      expense_type_name: "",
+      id: null,
+      title: "",
+      date: "",
+      amount: "",
+      transaction_type_name: "Nill",
       category_name: "",
       payment_mode_name: "",
-      account_name: "",
-      additional_note: "",
+      account_name: null,
+      description: "",
     },
   },
   investments: {
@@ -241,9 +245,9 @@ body.addEventListener("click", (e) => {
     logout();
   }
 
-  if (target.classList.contains("screen-toggle")) {
-    console.log("Toggling Pop Up Screen");
-    toggleHiddenElement({ element: document.getElementById("overlay-screen") });
+  if (target.closest && target.closest(".screen-toggle")) {
+    const overlay = document.getElementById("overlay-screen");
+    if (overlay) overlay.classList.toggle("hidden");
   }
 });
 

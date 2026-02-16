@@ -55,11 +55,19 @@ loginForm.addEventListener("submit", async (e) => {
         );
       }
     } else {
-      // HTTP status is not 2xx (e.g., 401, 422, 500)
       console.log("Login failed with status:", response.status);
       console.log("Backend error response:", responseData.detail);
       data.isNotificationOpen = false;
-      createNotification(responseData.detail);
+      const detail = responseData.detail;
+      const message =
+        response.status === 403 && typeof detail === "string" && detail.toLowerCase().includes("not verified")
+          ? "Please verify your account first. Check your email for the verification link (including spam)."
+          : Array.isArray(detail)
+            ? detail.map((d) => d.msg || d).join(". ")
+            : typeof detail === "string"
+              ? detail
+              : "Login failed. Please try again.";
+      createNotification(message);
     }
   } catch (error) {
     // Network errors or issues before the response is received

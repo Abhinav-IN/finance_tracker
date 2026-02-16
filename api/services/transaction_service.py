@@ -8,7 +8,7 @@ from datetime import timedelta
 from fastapi import HTTPException, status
 from math import ceil
 from sqlalchemy import func
-from sqlalchemy.orm import Session 
+from sqlalchemy.orm import Session, joinedload
 
 def create_transaction_service(user_transaction : TransactionCreate, user: dict, db : Session):
 
@@ -40,6 +40,10 @@ def create_transaction_service(user_transaction : TransactionCreate, user: dict,
 
 def get_transaction_service(user: dict, db: Session, filter_query: TransactionQueryParam):
     base_query = db.query(Transaction).filter(Transaction.user_id == user["id"])
+    base_query = base_query.options(
+        joinedload(Transaction.category),
+        joinedload(Transaction.payment_mode),
+    )
 
     query = apply_transaction_filters(base_query, filter_query)
 
@@ -47,14 +51,18 @@ def get_transaction_service(user: dict, db: Session, filter_query: TransactionQu
 
     transactions = (query.offset(filter_query.get_offset).limit(filter_query.limit).all())
 
+    result_transactions = []
+    for tx in transactions:
+        resp = TransactionResponse.model_validate(tx)
+        resp.category_name = tx.category.name if tx.category else None
+        resp.payment_mode_name = tx.payment_mode.name if tx.payment_mode else None
+        result_transactions.append(resp)
+
     return {
-        "total_pages": ceil(total_records / filter_query.limit),
+        "total_pages": max(1, ceil(total_records / filter_query.limit)) if filter_query.limit else 1,
         "current_page": filter_query.page,
         "total_transactions": total_records,
-        "transactions": [
-            TransactionResponse.model_validate(tx)
-            for tx in transactions
-        ]
+        "transactions": result_transactions,
     }
 
 def update_transaction_service(transaction_id: int, transaction_update: TransactionCreate, user: dict, db: Session):
@@ -70,6 +78,8 @@ def update_transaction_service(transaction_id: int, transaction_update: Transact
     curr_account_id = get_account_id(transaction_update.account_name, user["id"], db)
 
     transaction_query.update({
+        "title": transaction_update.title,
+        "date": transaction_update.date,
         "amount": transaction_update.amount,
         "description": transaction_update.description,
         "account_id": curr_account_id,

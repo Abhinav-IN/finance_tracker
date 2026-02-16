@@ -7,6 +7,16 @@ from sqlalchemy.orm import Session
 router = APIRouter(tags=['Authentication'], prefix='/api/v1/auth')
 
 
+@router.options("/register")
+@router.options("/login")
+@router.options("/refresh")
+@router.options("/password-reset-request")
+@router.options("/password-reset-confirm")
+def auth_options():
+    """Allow CORS preflight for auth routes."""
+    return None
+
+
 @router.post("/login", status_code=status.HTTP_200_OK, response_model=userLoginResponse)
 def login(user_credentials: userLogin, db: Session = Depends(get_db)):
    return login_service(user_credentials, db)

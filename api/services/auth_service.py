@@ -58,7 +58,7 @@ def register_user_service(user: userRegister, db: Session):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Somethign went wrong in verification token setup")
 
-    verification_link = f"https://finance_tracker.com/verify?token={verification_token}"
+    verification_link = f"{settings.frontend_base_url.rstrip('/')}/verify/?token={verification_token}"
     auth_logger.info(f" Verification token: {verification_token}")
 
     verification_email.delay(new_user.email, verification_link)
@@ -190,7 +190,7 @@ def password_reset_request_service(user_credential: PasswordResetRequest, db: Se
     user.password_reset_token_expires_at = ist_now() + timedelta(minutes=settings.password_token_expire_in_minutes)
     db.commit()
 
-    reset_link = f"https://finance_tracker.com/reset-password?token={password_token}"
+    reset_link = f"{settings.frontend_base_url.rstrip('/')}/reset-password/?token={password_token}"
 
     auth_logger.info(f" Password token: {password_token}")
 

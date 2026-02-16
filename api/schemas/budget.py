@@ -1,7 +1,7 @@
 from api.utils.validator import validate_date_and_amount
 from datetime import date
 from pydantic import BaseModel, Field, model_validator, RootModel
-from typing import Optional, List
+from typing import Optional, List, Literal, Union
 
 class budgetRequest(BaseModel):
     amount : int
@@ -19,18 +19,25 @@ class budgetResponse(budgetRequest):
 
     model_config = {"from_attributes" : True}
     
-class BudgetStatusOut(BaseModel):
-    category_id: int
-    category_name: str
-    status: str  # "under" | "over"
-    budget_amount: float
-    spent: float
-    remaining: float
+class BudgetStatusBase(BaseModel):
+    type: Literal["rule_based", "ml_based"]
+    budget: float = Field(..., description="Total budget amount")
+    remaining: float = Field(..., description="Remaining budget amount")
+    status: Literal["under", "over"]
     message: str
+class RuleBasedBudgetStatus(BudgetStatusBase):
+    type: Literal["rule_based"]
+    spent: float = Field(..., description="Actual amount spent so far")
+
+class MLPredictedBudgetStatus(BudgetStatusBase):
+    type: Literal["ml_based"]
+    predicted_total_spend: float = Field(..., description="Predicted total spending by budget end date")
 
 
-class AllBudgetStatusResponse(RootModel[List[BudgetStatusOut]]):
-    pass
+BudgetStatusResponse = Union[
+    RuleBasedBudgetStatus,
+    MLPredictedBudgetStatus
+]
 
 class budgetQueryParam(BaseModel):
     id : Optional[int] = Field(None, gt=0, description="ID of budget")

@@ -1,4 +1,5 @@
-import { body, data } from "../main";
+import { body, data, token } from "../main.js";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 const nextPageBtn = document.getElementById("next-page");
@@ -10,309 +11,233 @@ const filterOption = document.getElementById("filter-options");
 const incomeForm = document.getElementById("income-addition-form");
 const editIncomeForm = document.getElementById("edit-income-form");
 
+function buildTransactionCreatePayload({ title, date, amount, category_name, payment_mode_name, description }) {
+  const dateObj = date ? new Date(date) : new Date();
+  return {
+    title: title || "",
+    date: dateObj.toISOString(),
+    amount: parseFloat(amount) || 0,
+    direction: "INCOME",
+    transaction_type_name: "Nill",
+    category_name: category_name || "",
+    payment_mode_name: payment_mode_name || "",
+    account_name: null,
+    description: description || null,
+  };
+}
+
 if (incomeForm) {
   incomeForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const incomeName = document.getElementById("income_name").value;
-    const incomeAmount = document.getElementById("income_amount").value;
-    const incomeDate = document.getElementById("income_date").value;
-    const incomeCategory = document.getElementById("income_category").value;
-    const incomeNote = document.getElementById("income_note").value;
-    const payment_mode_name =
-      document.getElementById("payment_mode_name").value;
+    const title = document.getElementById("income_name").value.trim();
+    const amount = document.getElementById("income_amount").value;
+    const date = document.getElementById("income_date").value;
+    const category_name = document.getElementById("income_category").value;
+    const payment_mode_name = document.getElementById("payment_mode_name").value;
+    const description = document.getElementById("income_note").value.trim() || null;
 
-    const payload = {
-      income_name: incomeName,
-      recieved_date: incomeDate ? new Date(incomeDate).toISOString() : null,
-      amount: parseFloat(incomeAmount),
-      category_name: incomeCategory,
-      payment_mode_name: payment_mode_name,
-      income_type_name: "Nill",
-      additional_note: incomeNote,
-    };
+    if (!title || !amount || parseFloat(amount) <= 0) {
+      data.income.error = "Please enter a name and a valid amount.";
+      return;
+    }
+    data.income.error = null;
+
+    const payload = buildTransactionCreatePayload({
+      title,
+      date: date || new Date().toISOString().slice(0, 10),
+      amount,
+      category_name,
+      payment_mode_name,
+      description,
+    });
 
     await addIncome(payload);
   });
 }
 
 if (editIncomeForm) {
-  editIncomeForm.addEventListener("submit", (e) => {
+  editIncomeForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    editIncome({
-      incomeId: data.income.incomeToEdit.income_id,
-      payload: data.income.incomeToEdit,
+    const id = data.income.incomeToEdit.id;
+    if (!id) return;
+    const payload = buildTransactionCreatePayload({
+      title: document.getElementById("edit_income_name")?.value?.trim() ?? data.income.incomeToEdit.title,
+      date: document.getElementById("edit_recieved_date")?.value ?? data.income.incomeToEdit.date,
+      amount: document.getElementById("edit_income_amount")?.value ?? data.income.incomeToEdit.amount,
+      category_name: document.getElementById("edit_income_category")?.value ?? data.income.incomeToEdit.category_name,
+      payment_mode_name: document.getElementById("edit_payment_mode_name")?.value ?? data.income.incomeToEdit.payment_mode_name,
+      description: document.getElementById("edit_income_note")?.value?.trim() || null,
     });
+    await editIncome({ transactionId: id, payload });
   });
 }
 
 async function addIncome(payload) {
-  console.log("Formatted data to send:", payload);
-
+  data.income.loading = true;
+  data.income.error = null;
   try {
-    const response = await fetch(
-      `${API_URL}/api/v1/transaction/income/create`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token()}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${API_URL}/api/v1/transaction/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
+    const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-      throw new Error(
-        `Failed to add income: ${response.status} ${response.statusText}`
-      );
+      throw new Error(result.detail || result.message || `Failed to add income: ${response.status}`);
     }
 
-    const result = await response.json();
-    console.log("income added successfully:", result);
-
-    alert("income added successfully!");
+    if (incomeForm) incomeForm.reset();
+    toggleElement(document.getElementById("overlay-screen"));
+    await Promise.all([incomeOverview(), getIncome({ page: data.income.page.current_page })]);
   } catch (error) {
     console.error("Error adding income:", error);
-    alert(`Error adding income: ${error.message}`);
+    data.income.error = error.message || "Failed to add income.";
+  } finally {
+    data.income.loading = false;
   }
 }
 
 async function incomeOverview() {
   try {
-    const response = await fetch(
-      `${API_URL}/api/v1/transaction/income/overview`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token()}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-      throw new Error(
-        `Failed to fetch income: ${response.status} ${response.statusText}`
-      );
-    }
-
+    const response = await fetch(`${API_URL}/api/v1/transaction/income_overview`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+    });
+    if (!response.ok) throw new Error("Failed to fetch income overview");
     const result = await response.json();
-    console.log("income fetched successfully:", result);
     data.income.overview = result;
   } catch (error) {
     console.error("Error fetching income overview:", error);
-    alert(`Error fetching income overview: ${error.message}`);
-  }
-}
-
-async function editIncome({ incomeId = "", payload } = {}) {
-  try {
-    const response = await fetch(
-      `${API_URL}/api/v1/transaction/income/update/${incomeId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token()}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-      throw new Error(
-        `Failed to edit income: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result = await response.json();
-    console.log("income edited successfully:", result);
-  } catch (error) {
-    console.log(error);
-    alert(`Error editing income: ${error.message}`);
-  }
-}
-async function deleteIncome({ incomeId = "" } = {}) {
-  try {
-    const response = await fetch(
-      `${API_URL}/api/v1/transaction/income/delete/${incomeId}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token()}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-      throw new Error(
-        `Failed to edit income: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result = await response.json();
-    console.log("income deleted successfully:", result);
-    data.income.list = data.income.list.filter(
-      (income) => income.income_id !== incomeId
-    );
-  } catch (error) {
-    console.log(error);
-    alert(`Error editing income: ${error.message}`);
-  } finally {
-    toggleElement(document.getElementById("income-edit-screen"));
+    data.income.error = error.message;
   }
 }
 
 async function getIncome({
   page = 1,
   limit = 20,
-  transaction_id = null,
-  name = null,
+  id = null,
   exact_amount = null,
   greater_amount = null,
   lower_amount = null,
   date = null,
   search = null,
 } = {}) {
-  const queryParams = new URLSearchParams();
-
-  if (page !== null && page !== undefined) {
-    queryParams.append("page", page);
-  }
-
-  if (limit !== null && limit !== undefined) {
-    queryParams.append("limit", limit);
-  }
-
-  if (name) {
-    // For strings, check for truthiness (non-empty string, not null/undefined)
-    queryParams.append("name", name);
-  }
-  if (transaction_id) {
-    queryParams.append("transaction_id", transaction_id);
-  }
-
-  if (exact_amount !== null && exact_amount !== undefined) {
-    queryParams.append("exact_amount", exact_amount);
-  }
-
-  if (greater_amount !== null && greater_amount !== undefined) {
-    queryParams.append("greater_amount", greater_amount);
-  }
-
-  if (lower_amount !== null && lower_amount !== undefined) {
-    queryParams.append("lower_amount", lower_amount);
-  }
-
-  if (date) {
-    queryParams.append("date", date);
-  }
-  if (search) {
-    queryParams.append("search", search);
-  } else {
-    queryParams.append("search", data.income.search.input);
-  }
-
-  const queryString = queryParams.toString();
-  console.log(queryParams);
+  data.income.loading = true;
+  data.income.error = null;
+  const params = new URLSearchParams();
+  params.append("direction", "INCOME");
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (id != null) params.append("id", String(id));
+  if (exact_amount != null) params.append("exact_amount", String(exact_amount));
+  if (greater_amount != null) params.append("greater_amount", String(greater_amount));
+  if (lower_amount != null) params.append("lower_amount", String(lower_amount));
+  if (date) params.append("date", date);
+  const searchVal = search !== undefined ? search : data.income.search.input;
+  if (searchVal) params.append("search", searchVal);
 
   try {
-    const response = await fetch(
-      `${API_URL}/api/v1/transaction/income/?${queryString}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token()}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-      throw new Error(
-        `Failed to fetch income: ${response.status} ${response.statusText}`
-      );
-    }
-
+    const response = await fetch(`${API_URL}/api/v1/transaction/?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+    });
+    if (!response.ok) throw new Error("Failed to fetch income list");
     const result = await response.json();
-    data.income.list = result.incomes;
-    data.income.page.total_pages = result.total_pages;
-    data.income.page.current_page = result.current_page;
-    data.income.page.total_incomes = result.total_income;
+    data.income.list = result.transactions || [];
+    data.income.page.total_pages = result.total_pages ?? 1;
+    data.income.page.current_page = result.current_page ?? 1;
+    data.income.page.total_transactions = result.total_transactions ?? 0;
   } catch (error) {
-    console.error("Error fetching income overview:", error);
-    // alert(`Error fetching income overview: ${error.message}`);
+    console.error("Error fetching income list:", error);
+    data.income.error = error.message;
+  } finally {
+    data.income.loading = false;
   }
 }
 
-function nextPage() {
-  let nextPage = Number(data.income.page.current_page) + 1;
+async function editIncome({ transactionId, payload } = {}) {
+  if (!transactionId) return;
+  data.income.loading = true;
+  data.income.error = null;
+  try {
+    const response = await fetch(`${API_URL}/api/v1/transaction/update/${transactionId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.detail || result.message || "Failed to update income");
 
-  if (nextPage > data.income.page.total_pages) {
-    nextPage = data.income.page.total_pages;
+    toggleElement(document.getElementById("income-edit-screen"));
+    await Promise.all([incomeOverview(), getIncome({ page: data.income.page.current_page })]);
+  } catch (error) {
+    console.error("Error editing income:", error);
+    data.income.error = error.message;
+  } finally {
+    data.income.loading = false;
   }
-
-  getIncome({
-    page: nextPage,
-
-    greater_amount: data.income.search.greater_price,
-    lower_amount: data.income.search.lower_price,
-    exact_amount: data.income.search.exact_price,
-  });
 }
 
-function prevPage() {
-  let prevPage = Number(data.income.page.current_page) - 1;
+async function deleteIncome({ transactionId } = {}) {
+  if (!transactionId) return;
+  data.income.loading = true;
+  data.income.error = null;
+  try {
+    const response = await fetch(`${API_URL}/api/v1/transaction/delete/${transactionId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+    });
+    if (!response.ok) throw new Error("Failed to delete income");
 
-  if (prevPage < 1) {
-    prevPage = 1;
+    data.income.list = data.income.list.filter((t) => Number(t.id) !== Number(transactionId));
+    await incomeOverview();
+    toggleElement(document.getElementById("income-edit-screen"));
+  } catch (error) {
+    console.error("Error deleting income:", error);
+    data.income.error = error.message;
+  } finally {
+    data.income.loading = false;
   }
-  getIncome({
-    page: prevPage,
-    greater_amount: data.income.search.greater_price,
-    lower_amount: data.income.search.lower_price,
-    exact_amount: data.income.search.exact_price,
-  });
 }
 
-function openIncomeEditor({ incomeId = null, incomeList = [] } = {}) {
-  if (!incomeId || incomeId == null) {
-    return alert("Income ID is invalid");
+function openIncomeEditor({ transactionId = null, incomeList = [] } = {}) {
+  if (transactionId == null || !incomeList?.length) {
+    return;
   }
-
-  if (!incomeList || incomeList.length <= 0) {
-    return alert("Income List To Filter From Is Empty Or Invalid");
-  }
-
-  data.income.incomeToEdit = incomeList.filter(
-    (income) => Number(income.income_id) === Number(incomeId)
-  )[0];
-  console.log(data.income.incomeToEdit);
+  const tx = incomeList.find((t) => Number(t.id) === Number(transactionId));
+  if (!tx) return;
+  const dateStr = tx.date ? new Date(tx.date).toISOString().slice(0, 10) : "";
+  data.income.incomeToEdit = {
+    id: tx.id,
+    title: tx.title,
+    date: dateStr,
+    amount: tx.amount,
+    transaction_type_name: "Nill",
+    category_name: tx.category_name || "",
+    payment_mode_name: tx.payment_mode_name || "",
+    account_name: null,
+    description: tx.description || "",
+  };
 }
 
 if (searchBtn) {
-  searchBtn.addEventListener("click", (e) => {
+  searchBtn.addEventListener("click", () => {
     getIncome({
       page: 1,
       search: data.income.search.input,
@@ -321,46 +246,39 @@ if (searchBtn) {
       exact_amount: data.income.search.exact_price,
     });
   });
-} else {
-  console.log("SEARCH BUTTON NOT FOUND ON THIS PAGE");
 }
 
 if (nextPageBtn) {
-  nextPageBtn.addEventListener("click", (e) => {
-    nextPage();
+  nextPageBtn.addEventListener("click", () => {
+    const next = Math.min(data.income.page.current_page + 1, data.income.page.total_pages);
+    getIncome({
+      page: next,
+      greater_amount: data.income.search.greater_price,
+      lower_amount: data.income.search.lower_price,
+      exact_amount: data.income.search.exact_price,
+    });
   });
-} else {
-  console.log("NEXT PAGE BUTTON NOT FOUND ON THIS PAGE");
 }
 
 if (prevPageBtn) {
-  prevPageBtn.addEventListener("click", (e) => {
-    prevPage();
-  });
-} else {
-  console.log("PREV PAGE BUTTON NOT FOUND ON THIS PAGE");
-}
-
-if (filterToggleBtn) {
-  filterToggleBtn.forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      filterOption.classList.toggle("hidden");
+  prevPageBtn.addEventListener("click", () => {
+    const prev = Math.max(1, data.income.page.current_page - 1);
+    getIncome({
+      page: prev,
+      greater_amount: data.income.search.greater_price,
+      lower_amount: data.income.search.lower_price,
+      exact_amount: data.income.search.exact_price,
     });
   });
-} else {
-  console.log("FILTER OPTIONS ARE NOT FOUND ON THIS PAGE");
-}
-function token() {
-  const jwtToken = localStorage.getItem("jwtToken");
-  if (!jwtToken) {
-    console.error("No JWT token found. User is not logged in.");
-    window.location.href = "/login.html";
-    return;
-  }
-  return jwtToken;
 }
 
-document.addEventListener("DOMContentLoaded", (e) => {
+if (filterToggleBtn?.length && filterOption) {
+  filterToggleBtn.forEach((btn) => {
+    btn.addEventListener("click", () => filterOption.classList.toggle("hidden"));
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
   incomeOverview();
   getIncome({
     page: data.income.page.current_page,
@@ -373,25 +291,20 @@ document.addEventListener("DOMContentLoaded", (e) => {
 
 body.addEventListener("click", (e) => {
   const target = e.target;
-
   if (target.classList.contains("open-income-editor")) {
-    const incomeId = target.getAttribute("income-id");
-    openIncomeEditor({
-      incomeId: incomeId,
-      incomeList: data.income.list,
-    });
+    const id = target.getAttribute("data-transaction-id");
+    openIncomeEditor({ transactionId: id, incomeList: data.income.list });
     toggleElement(document.getElementById("income-edit-screen"));
   }
-
   if (target.classList.contains("edit-screen-toggle")) {
     toggleElement(document.getElementById("income-edit-screen"));
   }
   if (target.classList.contains("delete-income")) {
-    const incomeId = target.getAttribute("income-id");
-    deleteIncome({ incomeId: incomeId });
+    const id = target.getAttribute("data-transaction-id");
+    deleteIncome({ transactionId: id });
   }
 });
 
 function toggleElement(element) {
-  element.classList.toggle("hidden");
+  if (element) element.classList.toggle("hidden");
 }

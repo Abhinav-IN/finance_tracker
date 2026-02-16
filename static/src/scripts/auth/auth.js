@@ -30,6 +30,8 @@ const body = document.querySelector("body");
 const messageContainer = document.getElementById("message-container");
 
 const registrationForm = document.getElementById("registration-form");
+const successCard = document.getElementById("success-card");
+const failureCard = document.getElementById("failure-card");
 const passwordFields = document.querySelectorAll(".password-field");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirm-password");
@@ -214,13 +216,17 @@ function toggleButton(buttonToHide) {
 }
 
 async function register() {
+  const username = (data.userInfo.username || data.userInfo.user_name || "").toString().trim().toLowerCase();
+  const dobRaw = data.userInfo["date-of-birth"] || data.userInfo.dob || "";
+  const dob = typeof dobRaw === "string" ? dobRaw.trim() : String(dobRaw);
+
   const payload = {
-    username: data.userInfo.username.toString().toLowerCase().trim(),
-    first_name: data.userInfo.first_name.toString().toLowerCase().trim(),
-    last_name: data.userInfo.last_name.toString().toLowerCase().trim(),
-    email: data.userInfo.email.toString().toLowerCase().trim(),
-    gender: data.userInfo.gender.toString().toLowerCase().trim(),
-    dob: data.userInfo.dob.toString().toLowerCase().trim(),
+    user_name: username,
+    first_name: (data.userInfo.first_name || "").toString().trim().toLowerCase(),
+    last_name: (data.userInfo.last_name || "").toString().trim().toLowerCase() || null,
+    email: (data.userInfo.email || "").toString().trim().toLowerCase(),
+    gender: (data.userInfo.gender || "").toString().trim().toLowerCase(),
+    dob: dob,
     password: data.userInfo.password,
   };
 
@@ -237,22 +243,33 @@ async function register() {
 
     if (response.ok) {
       data.isNotificationOpen = false;
-      createNotification("Registration Successful, Please Check Your Email");
+      createNotification("Registration successful. Check your email (including spam) and click the verification link to activate your account.");
+      if (registrationForm) registrationForm.classList.add("hidden");
+      if (successCard) successCard.classList.remove("hidden");
+      if (failureCard) failureCard.classList.add("hidden");
       console.log(responseData);
     } else {
-      // HTTP status is not 2xx (e.g., 401, 422, 500)
       console.log("Registration Failed with status:", response.status);
       console.log("Backend error response:", responseData.detail);
       data.isNotificationOpen = false;
-      createNotification(responseData.detail);
+      const detail = responseData.detail;
+      const message = Array.isArray(detail)
+        ? detail.map((d) => d.msg || d).join(". ")
+        : typeof detail === "string"
+          ? detail
+          : JSON.stringify(detail);
+      createNotification(message);
+      if (failureCard) failureCard.classList.remove("hidden");
+      if (successCard) successCard.classList.add("hidden");
     }
   } catch (error) {
-    // Network errors or issues before the response is received
-    console.error("Network or unexpected error during login:", error);
+    console.error("Network or unexpected error during registration:", error);
     data.isNotificationOpen = false;
     createNotification(
-      "Something Went Wrong (Network Error). Please Check your connection."
+      "Something went wrong (network error). Please check your connection."
     );
+    if (failureCard) failureCard.classList.remove("hidden");
+    if (successCard) successCard.classList.add("hidden");
   }
 }
 
@@ -265,9 +282,11 @@ registrationForm.addEventListener("submit", (e) => {
 
 function createPayload() {
   const formData = new FormData(registrationForm);
-
   for (const [name, value] of formData) {
     data.userInfo[name] = value;
+  }
+  if (data.userInfo["date-of-birth"]) {
+    data.userInfo.dob = data.userInfo["date-of-birth"];
   }
 }
 

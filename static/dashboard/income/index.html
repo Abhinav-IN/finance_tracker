@@ -138,7 +138,7 @@
                                     </a>
                                 </li>
                                 <li class="">
-                                    <button class="list-button ">
+                                    <button type="button" class="list-button logout">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="size-6">
                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -278,6 +278,9 @@
                                 </svg>
                             </button>
                         </div>
+                        <div rv-show="data.income.error" class="p-3 rounded-md bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm">
+                            {data.income.error}
+                        </div>
                         <div class="flex items-center w-full gap-4 ">
                             <input type="text" class="text-input" placeholder="Search For Something"
                                 rv-value="data.income.search.input">
@@ -348,7 +351,10 @@
                         </div>
                     </div>
                     <div class="w-full pt-4">
-                        <div
+                        <div rv-show="data.income.loading" class="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                            Loading...
+                        </div>
+                        <div rv-hide="data.income.loading"
                             class="relative max-h-[500px] min-h-96 border border-black/20 dark:border-white/20 w-full rounded-md shadow-md overflow-y-scroll ">
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead
@@ -377,17 +383,13 @@
                                 <tbody class="capitalize">
                                     <tr rv-each-income="data.income.list"
                                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 even:bg-gray-200 dark:even:bg-gray-900">
-                                        <th scope="row" rv-income-id="income.income_id"
-                                            class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20 income-info">
+                                        <th scope="row" class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
                                             <button type="button"
-                                                class="income-info flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer open-income-editor "
-                                                rv-income-id="income.income_id">
+                                                class="flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer open-income-editor"
+                                                rv-data-transaction-id="income.id">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    rv-income-id="income.income_id" stroke-width="1.5"
-                                                    stroke="currentColor" class="size-4 income-info"
-                                                    rv-income-id="income.income_id">
+                                                    stroke-width="1.5" stroke="currentColor" class="size-4">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                                        rv-income-id="income.income_id" class="income-info"
                                                         d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                                 </svg>
                                                 Open
@@ -395,11 +397,11 @@
                                         </th>
                                         <td scope="row"
                                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
-                                            {income.recieved_date | date}
+                                            {income.date | date}
                                         </td>
                                         <td scope="row"
                                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
-                                            {income.income_name}
+                                            {income.title}
                                         </td>
                                         <td class="px-6 py-4 border-r border-black/20 dark:border-white/20">
                                             {income.category_name}
@@ -408,7 +410,12 @@
                                             {income.payment_mode_name}
                                         </td>
                                         <td class="px-6 py-4 ">
-                                            {income.amount}
+                                            {income.amount | money}
+                                        </td>
+                                    </tr>
+                                    <tr rv-hide="data.income.list.length" class="bg-white dark:bg-gray-800">
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                            No income yet. Add your first income using the button above.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -417,7 +424,8 @@
                         </div>
                         <div class="w-full text-center py-6 flex items-center justify-between sm:justify-end gap-4">
                             <button id="prev-page"
-                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                                rv-disabled="data.income.page.current_page <= 1"
+                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="size-4">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -430,9 +438,11 @@
                             </button>
                             <span class="px-4 py-2 bg-gray-100 rounded-md shadow-md dark:bg-gray-900 ">
                                 {data.income.page.current_page} / {data.income.page.total_pages}
+                                <span rv-show="data.income.page.total_transactions" class="text-xs ml-1">({data.income.page.total_transactions} total)</span>
                             </span>
                             <button id="next-page"
-                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                                rv-disabled="data.income.page.current_page >= data.income.page.total_pages"
+                                class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span class="">
                                     Next
                                 </span>
@@ -561,7 +571,7 @@
                             Name
                         </label>
                         <input type="text" name="income_name" id="edit_income_name"
-                            rv-value="data.income.incomeToEdit.income_name"
+                            rv-value="data.income.incomeToEdit.title"
                             class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
                             placeholder="Salary">
                     </div>
@@ -578,7 +588,7 @@
                                 Received Date
                             </label>
                             <input type="date" name="edit_recieved_date" id="edit_recieved_date"
-                                rv-value="data.income.incomeToEdit.recieved_date | date"
+                                rv-value="data.income.incomeToEdit.date"
                                 class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20" />
                         </div>
                     </div>
@@ -625,7 +635,7 @@
                             Additional Note
                         </label>
                         <textarea type="text" name="edit_income_note" id="edit_income_note" maxlength="140"
-                            rv-value="data.income.incomeToEdit.additional_note" class="text-input min-h-20"
+                            rv-value="data.income.incomeToEdit.description" class="text-input min-h-20"
                             placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
                     </div>
                     <div class="space-y-4">
@@ -633,8 +643,8 @@
                             class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
                             Submit
                         </button>
-                        <button type="button" rv-income-id="data.income.incomeToEdit.income_id"
-                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90  transition-all duration-200 delete-income">
+                        <button type="button" rv-data-transaction-id="data.income.incomeToEdit.id"
+                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90 transition-all duration-200 delete-income">
                             Delete
                         </button>
                     </div>
