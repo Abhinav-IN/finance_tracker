@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 
 router = APIRouter(tags=['Authentication'], prefix='/api/v1/auth')
 
-
 @router.options("/register")
 @router.options("/login")
 @router.options("/refresh")
@@ -15,7 +14,6 @@ router = APIRouter(tags=['Authentication'], prefix='/api/v1/auth')
 def auth_options():
     """Allow CORS preflight for auth routes."""
     return None
-
 
 @router.post("/login", status_code=status.HTTP_200_OK, response_model=userLoginResponse)
 def login(user_credentials: userLogin, db: Session = Depends(get_db)):

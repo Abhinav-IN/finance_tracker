@@ -19,25 +19,11 @@ class budgetResponse(budgetRequest):
 
     model_config = {"from_attributes" : True}
     
-class BudgetStatusBase(BaseModel):
-    type: Literal["rule_based", "ml_based"]
+class BudgetStatusResponse(BaseModel):
+    spent: float = Field(..., description="Actual amount spent so far")
     budget: float = Field(..., description="Total budget amount")
     remaining: float = Field(..., description="Remaining budget amount")
     status: Literal["under", "over"]
-    message: str
-class RuleBasedBudgetStatus(BudgetStatusBase):
-    type: Literal["rule_based"]
-    spent: float = Field(..., description="Actual amount spent so far")
-
-class MLPredictedBudgetStatus(BudgetStatusBase):
-    type: Literal["ml_based"]
-    predicted_total_spend: float = Field(..., description="Predicted total spending by budget end date")
-
-
-BudgetStatusResponse = Union[
-    RuleBasedBudgetStatus,
-    MLPredictedBudgetStatus
-]
 
 class budgetQueryParam(BaseModel):
     id : Optional[int] = Field(None, gt=0, description="ID of budget")
