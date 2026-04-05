@@ -35,10 +35,10 @@ def overview_of_user(user_id : int, db : Session):
     ).scalar() or 0.0
 
     # Calculate total investment
-    final_investments = db.query(func.sum(Investment.amount_invested)).filter(
+    final_investments = db.query(func.sum(Investment.amount)).filter(
         Investment.user_id == user_id,
-        extract("month", Investment.investment_date) == current_month,
-        extract("year", Investment.investment_date) == current_year
+        extract("month", Investment.date) == current_month,
+        extract("year", Investment.date) == current_year
     ).scalar() or 0.0
 
     # Calculate total budget amount

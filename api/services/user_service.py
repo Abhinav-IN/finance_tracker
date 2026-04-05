@@ -4,9 +4,7 @@ from api.models.category import Category
 from api.models.user import User
 from api.models.transaction import Transaction
 from api.models.budget import Budget
-from api.models.investment_goal_link import investment_goal_link
 from api.models.investment import Investment
-from api.models.investment_goal import InvestmentGoal
 from api.models.subscription import Subscription
 from api.schemas.user import UserProfile, passwordRequest
 from api.utils.validator import gender_check
@@ -36,7 +34,6 @@ def update_username_service(newUserName : str, user_id : int, db : Session):
     try:
         db.commit()
     except Exception as e:
-        print(e)
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in updating username")
     
@@ -126,20 +123,7 @@ def delete_profile_service(user_id: int, db: Session):
     db.query(Subscription).filter(Subscription.user_id == user_id).delete(synchronize_session=False)
     db.query(Category).filter(Category.user_id == user_id).delete(synchronize_session=False)  
 
-    investment_ids = [inv_id for (inv_id,) in db.query(Investment.investment_id).filter(Investment.user_id == user_id).all()]
-    goal_ids = [goal_id for (goal_id,) in db.query(InvestmentGoal.goal_id).filter(InvestmentGoal.user_id == user_id).all()]
-
-    if investment_ids or goal_ids:
-        stmt = delete(investment_goal_link).where(
-            or_(
-                investment_goal_link.c.investment_id.in_(investment_ids),
-                investment_goal_link.c.goal_id.in_(goal_ids)
-            )
-        )
-        db.execute(stmt)
-
     db.query(Investment).filter(Investment.user_id == user_id).delete(synchronize_session=False)
-    db.query(InvestmentGoal).filter(InvestmentGoal.user_id == user_id).delete(synchronize_session=False)
 
     db.query(Account).filter(Account.user_id == user_id).delete(synchronize_session=False)
 

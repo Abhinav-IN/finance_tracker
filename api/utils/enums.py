@@ -17,3 +17,15 @@ class UserRole(str, Enum):
     ADMIN = "ADMIN"
     MODERATOR = "MODERATOR"
     SUPPORT = "SUPPORT"
+
+class InvestmentType(str, Enum):
+    STOCK = "STOCK"
+    MUTUAL_FUND = "MUTUAL_FUND"
+    FIXED_DEPOSIT = "FIXED_DEPOSIT"
+    CRYPTO = "CRYPTO"
+    GOLD = "GOLD"
+
+
+class InvestmentStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    CLOSED = "CLOSED"

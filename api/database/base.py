@@ -10,6 +10,5 @@ from api.models.subscription import Subscription
 from api.models.transaction import Transaction
 from api.models.budget import Budget
 from api.models.investment import Investment
-from api.models.investment_goal import InvestmentGoal
-from api.models.investment_goal_link import investment_goal_link
+from api.models.investment_price import InvestmentPrice
 from api.models.account import Account

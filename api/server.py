@@ -8,7 +8,7 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, transaction, admin, budget, seed_data, subscription, investment, investment_goal, dashboard, transaction, user, account
+from api.routers import auth, category, transaction, admin, budget, seed_data, subscription, investment, dashboard, transaction, user, account, investment_price
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
@@ -74,9 +74,9 @@ app.include_router(investment.router)
 server_logger.info("Investment Router Loaded")
 print("--------------------------------")
 
-server_logger.info("Loading Investment Goal Router")
-app.include_router(investment_goal.router)
-server_logger.info("Investment Goal Router Loaded")
+server_logger.info("Loading Investment Price Router")
+app.include_router(investment_price.router)
+server_logger.info("Investment Price Router Loaded")
 print("--------------------------------")
 
 server_logger.info("Loading Dashboard Router")

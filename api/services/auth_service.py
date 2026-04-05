@@ -133,7 +133,7 @@ def refresh_access_token_service(token: refreshRequest, db: Session):
     if not old_access_token:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Access token is required, Login again")
 
-    payload = verify_token_service(old_access_token, settings.secret_key, algorithm=settings.algorithm)
+    payload = verify_token_service(old_access_token, settings.secret_key, algorithm=settings.algorithm, ignore_exp=True)
     user_id = payload.get("user_id")
 
     if not user_id:

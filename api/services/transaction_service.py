@@ -36,7 +36,22 @@ def create_transaction_service(user_transaction : TransactionCreate, user: dict,
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in creation of trasnaction")
 
-    return TransactionResponse.model_validate(new_transaction)
+    return {
+        "title" : new_transaction.title,
+        "date" : new_transaction.date,
+        "amount" : new_transaction.amount,
+        "direction" : new_transaction.direction,
+        "description" : new_transaction.description,
+        "id" : new_transaction.id,
+        "category_id" : new_transaction.category_id,
+        "payment_mode_id" : new_transaction.payment_mode_id,
+        "transaction_type_id" : new_transaction.transaction_type_id,
+        "account_id" : new_transaction.account_id,
+        "category_name" : new_transaction.category.name if new_transaction.category else None,
+        "payment_mode_name" : new_transaction.payment_mode.name if new_transaction.payment_mode else None,
+        "transaction_type_name" : new_transaction.transaction_type.name if new_transaction.transaction_type else None,
+        "account_name" : new_transaction.account.name if new_transaction.account else None
+    }
 
 def get_transaction_service(user: dict, db: Session, filter_query: TransactionQueryParam):
     base_query = db.query(Transaction).filter(Transaction.user_id == user["id"])
@@ -56,6 +71,7 @@ def get_transaction_service(user: dict, db: Session, filter_query: TransactionQu
         resp = TransactionResponse.model_validate(tx)
         resp.category_name = tx.category.name if tx.category else None
         resp.payment_mode_name = tx.payment_mode.name if tx.payment_mode else None
+        resp.account_name = tx.account.name if tx.account else None
         result_transactions.append(resp)
 
     return {
@@ -95,7 +111,22 @@ def update_transaction_service(transaction_id: int, transaction_update: Transact
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Transaction not updated! Bad request")
 
-    return TransactionResponse.model_validate(existing_transaction)
+    return {
+        "title": existing_transaction.title,
+        "date": existing_transaction.date,
+        "amount": existing_transaction.amount,
+        "direction": existing_transaction.direction,
+        "description": existing_transaction.description,
+        "id": existing_transaction.id,
+        "category_id": existing_transaction.category_id,
+        "payment_mode_id": existing_transaction.payment_mode_id,
+        "transaction_type_id": existing_transaction.transaction_type_id,
+        "account_id": existing_transaction.account_id,
+        "category_name": existing_transaction.category.name if existing_transaction.category else None,
+        "payment_mode_name": existing_transaction.payment_mode.name if existing_transaction.payment_mode else None,
+        "transaction_type_name": existing_transaction.transaction_type.name if existing_transaction.transaction_type else None,
+        "account_name": existing_transaction.account.name if existing_transaction.account else None
+    }
 
 def delete_transaction_service(transaction_id : int, user: dict, db: Session):
     transaction = db.query(Transaction).filter(Transaction.id == transaction_id, Transaction.user_id == user["id"]).first()

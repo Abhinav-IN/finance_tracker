@@ -2,16 +2,8 @@ from celery.schedules import crontab
 
 beat_schedule = {
     "run-daily-subscription-job": {
-        "task": "api.tasks.scheduler_service.run_daily_subscription_job",
-        "schedule": crontab(hour=18, minute=31),  
-    },
-    "run-hourly-goal-value-update": {
-        "task": "api.tasks.scheduler_service.run_hourly_goal_value_update",
-        "schedule": crontab(minute=0),
-    },
-   "run-daily-fd-and-bond-update": {
-        "task": "api.tasks.scheduler_service.run_daily_fd_and_bond_update",  
-        "schedule": crontab(hour=8, minute=35),
+        "task": "api.tasks.scheduler_service.run_subscription_job",
+        "schedule": crontab(hour=18, minute=31),
     },
 }
 

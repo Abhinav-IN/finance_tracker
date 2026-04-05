@@ -28,9 +28,12 @@ class TransactionResponse(BaseModel):
     id : int
     category_id : int
     payment_mode_id : int
+    transaction_type_id : int
     account_id : Optional[int] = None
     category_name : Optional[str] = None
     payment_mode_name : Optional[str] = None
+    transaction_type_name : Optional[str] = None
+    account_name : Optional[str] = None
 
     model_config = {"from_attributes" : True}
 

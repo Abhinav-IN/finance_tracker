@@ -1,50 +1,33 @@
-from api.database.base import Base
-from api.models.investment_goal_link import investment_goal_link
-from sqlalchemy import CheckConstraint, Column, Integer, String, Float, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, CheckConstraint, Enum as SQLEnum
 from sqlalchemy.orm import relationship
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from api.database.base import Base
+from api.utils.enums import InvestmentType, InvestmentStatus
+from api.utils.time import ist_now
 
 class Investment(Base):
-    __tablename__ = "investment"
+    __tablename__ = "investments"
 
-    investment_id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    investment_name = Column(String(104), nullable=False)
-    investment_type = Column(String(104), nullable=False)
-    investment_date = Column(DateTime(timezone=True), nullable=False)
-    description = Column(String(255), nullable=False)
-    platform = Column(String(104), nullable=False)
-    amount_invested = Column(Float, nullable=False)
+    account_id = Column(Integer, ForeignKey("account.id"), nullable=True)
+    name = Column(String(100), nullable=False)
+    investment_type = Column(SQLEnum(InvestmentType, name="investment_type_enum"), nullable=False)
+    platform = Column(String(100), nullable=False)
+    amount = Column(Float, nullable=False)
     units = Column(Float, nullable=True)
-    account_linked = Column(Integer, ForeignKey("account.id"), nullable=True)
-    buy_price_per_unit = Column(Float, nullable=True)
+    buy_price = Column(Float, nullable=True)
+    date = Column(DateTime(timezone=True), nullable=False)
     maturity_date = Column(DateTime(timezone=True), nullable=True)
-    current_price_per_unit = Column(Float, nullable=True)
-    current_value = Column(Float, nullable=True)
-    gain_or_loss = Column(Float, nullable=True)
-    interest_rate = Column(Float, nullable=True)
-    compounding_frequency = Column(String(104), nullable=True)
-    status = Column(String(255), nullable=False)
-    withdrawl_amount = Column(Float, nullable=True)
-    withdrawl_date = Column(DateTime(timezone=True), nullable=True)
-    units_withdrawl = Column(Float, nullable=True)
-    last_synced_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), onupdate=lambda: datetime.now(ZoneInfo("Asia/Kolkata")), nullable=False)
+    status = Column(SQLEnum(InvestmentStatus, name="investment_status_enum"), default=InvestmentStatus.ACTIVE, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=ist_now, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=ist_now, onupdate=ist_now, nullable=False)
 
     __table_args__ = (
-        CheckConstraint("amount_invested > 0", name="Amount invested check"),
-        CheckConstraint("buy_price_per_unit >= 0", name="Buying price of unit check"),
-        CheckConstraint("current_price_per_unit IS NULL OR current_price_per_unit >= 0", name="Current price check"),
-        CheckConstraint("current_value IS NULL OR current_value >= 0", name="Current value check"),
-
+        CheckConstraint("amount > 0", name="chk_invested_amount"),
+        CheckConstraint("units IS NULL OR units >= 0", name="chk_units"),
+        CheckConstraint("buy_price IS NULL OR buy_price >= 0", name="chk_buy_price"),
     )
 
-    user = relationship('User', back_populates='investment')
-    goals = relationship(
-        "InvestmentGoal",
-        secondary=investment_goal_link,
-        back_populates="investments"
-    )
-    account = relationship('Account', back_populates='investment')
+    user = relationship("User", back_populates="investments")
+    account = relationship("Account", back_populates="investment")
+    prices = relationship("InvestmentPrice", back_populates="investment", cascade="all, delete-orphan",order_by="InvestmentPrice.recorded_at.desc()")

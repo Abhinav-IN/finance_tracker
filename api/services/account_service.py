@@ -20,6 +20,7 @@ def create_account_service(user_account : accountRequest, user_id : int, db : Se
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong in creating account")
     
+    print("Exiting from service")
     return new_account
 
 def get_account_service(user_id : int, db : Session):
@@ -114,6 +115,6 @@ def overview_account_service(account_id: int,user_id: int,db: Session):
     if not curr_account:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
 
-    curr_account.balance_amount = total_income - total_expense
+    curr_account.balance_amount += total_income - total_expense
 
     return accountResponse.model_validate(curr_account)

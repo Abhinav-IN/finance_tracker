@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from fastapi import HTTPException, status
 
+
 def calculate_next_billing_date(start_date: datetime, billing_period: BillingPeriod, end_date: datetime = None) -> datetime | None:
     now = ist_now()
 
@@ -40,6 +41,7 @@ def calculate_next_billing_date(start_date: datetime, billing_period: BillingPer
 
     return next_date
 
+
 def process_subscription_billing():
     now = ist_now()
     today = now.date()
@@ -47,14 +49,30 @@ def process_subscription_billing():
 
     with SessionLocal() as db:
 
-        reminder_subs = db.query(Subscription).filter(Subscription.next_billing_date == tomorrow, Subscription.is_active.is_(True)).all()
+        reminder_subs = db.query(Subscription).filter(
+            Subscription.is_active.is_(True),
+            Subscription.next_billing_date.isnot(None),
+        ).all()
 
         for sub in reminder_subs:
-            reminder_subscription_email.delay(to_email=sub.user.email, subscription_name=sub.name, amount=sub.amount)
+            if sub.next_billing_date.date() == tomorrow:
+                reminder_subscription_email.delay(
+                    to_email=sub.user.email,
+                    subscription_name=sub.name,
+                    amount=sub.amount
+                )
 
-        due_subs = db.query(Subscription).filter(Subscription.next_billing_date == today, Subscription.is_active.is_(True)).all()
+        due_subs = db.query(Subscription).filter(
+            Subscription.is_active.is_(True),
+            Subscription.next_billing_date.isnot(None),
+            Subscription.next_billing_date <= now
+        ).all()
 
         for sub in due_subs:
+
+            if sub.last_paid_at and sub.last_paid_at >= sub.next_billing_date:
+                continue
+
             transaction = Transaction(
                 title=sub.name,
                 amount=sub.amount,
@@ -70,41 +88,25 @@ def process_subscription_billing():
 
             db.add(transaction)
 
-            subscription_email.delay(to_email=sub.user.email, subscription_name=sub.name, amount=sub.amount)
+            subscription_email.delay(
+                to_email=sub.user.email,
+                subscription_name=sub.name,
+                amount=sub.amount
+            )
 
             sub.last_paid_at = now
-            sub.next_billing_date = calculate_next_billing_date(start_date=sub.start_date, billing_period=sub.billing_period, end_date=sub.end_date)
+
+            sub.next_billing_date = calculate_next_billing_date(
+                start_date=sub.start_date,
+                billing_period=sub.billing_period,
+                end_date=sub.end_date
+            )
 
         try:
             db.commit()
-            db.refresh(transaction)
-        except Exception as e:
+        except Exception:
             db.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in processing subscription billing")
-
-def process_subscriptions_for_today():
-    db = SessionLocal()
-
-    try:
-        subscriptions = (
-            db.query(Subscription)
-            .filter(
-                Subscription.is_active == True,
-                Subscription.next_billing_date <= ist_now()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Something went wrong in processing subscription billing"
             )
-            .all()
-        )
-
-        for sub in subscriptions:
-            next_date = calculate_next_billing_date(
-                start_date=sub.start_date,
-                end_date=sub.end_date,
-                billing_period=sub.billing_period
-            )
-
-            sub.next_billing_date = next_date
-
-        db.commit()
-
-    finally:
-        db.close()

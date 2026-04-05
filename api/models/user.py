@@ -35,6 +35,5 @@ class User(Base):
     budgets = relationship('Budget', back_populates='user')
     transactions = relationship('Transaction', back_populates='user')
     subscription = relationship('Subscription', back_populates='user')
-    investment = relationship('Investment', back_populates='user')
-    investment_goals = relationship('InvestmentGoal', back_populates='user')
+    investments = relationship('Investment', back_populates='user')
     account = relationship('Account', back_populates='user')
