@@ -1,7 +1,7 @@
 import { body, data, token, syncRivets, onPageReady, replaceList } from "../main.js";
 import { renderTransactionRows } from "./lib/table-render.js";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_URL = import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000");
 
 const nextPageBtn = document.getElementById("next-page");
 const prevPageBtn = document.getElementById("prev-page");

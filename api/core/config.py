@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     print("-----------------------------------------------")
 
     # Frontend base URL (for verification and password-reset links in emails)
-    frontend_base_url: str = Field("http://localhost:5173", alias="FRONTEND_BASE_URL")
+    frontend_base_url: str = Field("http://fi-track.manavkashyap.com", alias="FRONTEND_BASE_URL")
 
     # Demo account (recruiter / showcase login)
     demo_email: str = Field("test@gmail.com", alias="DEMO_EMAIL")
@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     # CORS Settings (include both localhost and 127.0.0.1 so browser Origin matches)
     config_logger.info(f" Loading CORS Settings/Information")
     origins_string: str = Field(
-        "http://localhost:3000,http://localhost:8000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:8000,http://127.0.0.1:5173",
+        "http://localhost:3000,http://localhost:8000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:8000,http://fi-track.manavkashyap.com,http://127.0.0.1:5173",
         alias="ORIGINS",
     )
     @property
