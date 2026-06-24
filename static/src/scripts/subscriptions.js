@@ -1,4 +1,5 @@
-import { body, data, token } from "../main.js";
+import { body, data, token, syncRivets, onPageReady, replaceList } from "../main.js";
+import { renderSubscriptionRows } from "./lib/table-render.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -14,6 +15,15 @@ const exactPriceEl = document.getElementById("exact-price");
 
 const subscriptionForm = document.getElementById("subscription-addition-form");
 const editSubscriptionForm = document.getElementById("subscription-edit-form");
+const listTableBody = document.getElementById("subscription-list-body");
+
+function paintSubscriptionTable() {
+  renderSubscriptionRows(listTableBody, data.subscription.list);
+}
+
+function syncSubscriptionListEmpty() {
+  data.subscription.listEmpty = data.subscription.list.length === 0;
+}
 
 function parseFilterNumber(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -58,7 +68,6 @@ function buildSubscriptionPayload({
   subscription_name,
   amount,
   description,
-  account_name,
   billing_cycle,
   category_name,
   payment_mode_name,
@@ -72,7 +81,6 @@ function buildSubscriptionPayload({
     amount: parseFloat(amount) || 0,
     description: description || "",
     currency: "INR",
-    account_name: account_name || null,
     billing_period: normalizeBillingPeriod(billing_cycle),
     category_name: category_name || "",
     transaction_type_name: "Nill",
@@ -90,7 +98,6 @@ if (subscriptionForm) {
     const subscription_name = document.getElementById("subscription_name").value.trim();
     const amount = document.getElementById("subscription_amount").value;
     const description = document.getElementById("subscription_description").value.trim() || "";
-    const account_name = document.getElementById("subscription_account_name").value.trim();
     const billing_cycle = document.getElementById("subscription_billing_cycle").value;
     const category_name = document.getElementById("subscription_category_name").value.trim();
     const payment_mode_name = document.getElementById("subscription_payment_mode_name").value;
@@ -109,7 +116,6 @@ if (subscriptionForm) {
       subscription_name,
       amount,
       description,
-      account_name,
       billing_cycle,
       category_name,
       payment_mode_name,
@@ -132,7 +138,6 @@ if (editSubscriptionForm) {
       subscription_name: document.getElementById("subscription_name_edit")?.value?.trim() ?? data.subscription.subscriptionToEdit.subscription_name,
       amount: document.getElementById("subscription_amount_edit")?.value ?? data.subscription.subscriptionToEdit.amount,
       description: document.getElementById("subscription_description_edit")?.value?.trim() || "",
-      account_name: document.getElementById("subscription_account_name_edit")?.value?.trim() ?? data.subscription.subscriptionToEdit.account_name,
       billing_cycle: document.getElementById("subscription_billing_cycle_edit")?.value ?? data.subscription.subscriptionToEdit.billing_cycle,
       category_name: document.getElementById("subscription_category_name_edit")?.value?.trim() ?? data.subscription.subscriptionToEdit.category_name,
       payment_mode_name: document.getElementById("subscription_payment_mode_name_edit")?.value ?? data.subscription.subscriptionToEdit.payment_mode_name,
@@ -187,7 +192,12 @@ async function subscriptionOverview() {
     });
     if (!response.ok) throw new Error("Failed to fetch subscription overview");
     const result = await response.json();
-    data.subscription.overview = result;
+    data.subscription.overview.total_subscription_last_30_days = result.total_subscription_last_30_days ?? 0;
+    data.subscription.overview.total_subscription_last_7_days = result.total_subscription_last_7_days ?? 0;
+    data.subscription.overview.total_subscription_current_month = result.total_subscription_current_month ?? 0;
+    data.subscription.overview.average_monthly_subscription = result.average_monthly_subscription ?? 0;
+    data.subscription.overview.average_weekly_subscription = result.average_weekly_subscription ?? 0;
+    syncRivets();
   } catch (error) {
     console.error("Error fetching subscription overview:", error);
     data.subscription.error = error.message;
@@ -226,15 +236,20 @@ async function getSubscriptions({
     if (!response.ok) throw new Error("Failed to fetch subscription list");
     const result = await response.json().catch(() => ({}));
     const list = (Array.isArray(result?.subscriptions) ? result.subscriptions : []).map(normalizeSubscriptionForUi);
-    data.subscription.list.splice(0, data.subscription.list.length, ...list);
+    replaceList(data.subscription.list, list);
     data.subscription.page.total_pages = result.total_pages ?? 1;
     data.subscription.page.current_page = result.current_page ?? 1;
     data.subscription.page.total_subscriptions = result.total_subscriptions ?? 0;
+    syncSubscriptionListEmpty();
+    paintSubscriptionTable();
+    syncRivets();
   } catch (error) {
     console.error("Error fetching subscription list:", error);
     data.subscription.error = error.message;
+    syncRivets();
   } finally {
     data.subscription.loading = false;
+    syncRivets();
   }
 }
 
@@ -279,7 +294,9 @@ async function deleteSubscription({ subscriptionId } = {}) {
     if (!response.ok) throw new Error("Failed to delete subscription");
 
     const kept = data.subscription.list.filter((s) => Number(s.subscription_id) !== Number(subscriptionId));
-    data.subscription.list.splice(0, data.subscription.list.length, ...kept);
+    replaceList(data.subscription.list, kept);
+    syncSubscriptionListEmpty();
+    paintSubscriptionTable();
     await subscriptionOverview();
     hideSubscriptionEditOverlay();
   } catch (error) {
@@ -291,28 +308,45 @@ async function deleteSubscription({ subscriptionId } = {}) {
 }
 
 function openSubscriptionEditor({ subscriptionId = null, subscriptionList = [] } = {}) {
-  if (subscriptionId == null || !subscriptionList?.length) {
-    return;
-  }
+  if (subscriptionId == null || !subscriptionList?.length) return;
+
   const sub = subscriptionList.find((s) => Number(s.subscription_id ?? s.id) === Number(subscriptionId));
   if (!sub) return;
-  const startDateStr = sub.start_date ? new Date(sub.start_date).toISOString().slice(0, 10) : "";
-  const endDateStr = sub.end_date ? new Date(sub.end_date).toISOString().slice(0, 10) : "";
-  const lastPaidStr = sub.last_paid_at ? new Date(sub.last_paid_at).toISOString().slice(0, 10) : "";
-  data.subscription.subscriptionToEdit = {
-    subscription_id: sub.subscription_id ?? sub.id,
-    subscription_name: sub.subscription_name || sub.name,
-    amount: sub.amount,
-    description: sub.description || "",
-    account_name: sub.account_name || "",
-    billing_cycle: sub.billing_cycle || sub.billing_period || "MONTHLY",
-    category_name: sub.category_name || "",
+
+  const startDateStr  = sub.start_date   ? new Date(sub.start_date).toISOString().slice(0, 10)   : "";
+  const endDateStr    = sub.end_date     ? new Date(sub.end_date).toISOString().slice(0, 10)     : "";
+  const lastPaidStr   = sub.last_paid_at ? new Date(sub.last_paid_at).toISOString().slice(0, 10) : "";
+
+  // Use Object.assign so Rivets binding stays alive
+  Object.assign(data.subscription.subscriptionToEdit, {
+    subscription_id:   sub.subscription_id ?? sub.id,
+    subscription_name: sub.subscription_name || sub.name || "",
+    amount:            sub.amount,
+    description:       sub.description || "",
+    billing_cycle:     sub.billing_cycle || sub.billing_period || "MONTHLY",
+    category_name:     sub.category_name || "",
     payment_mode_name: sub.payment_mode_name || "",
-    start_date: startDateStr,
-    end_date: endDateStr,
-    is_active: sub.is_active ? "true" : "false",
-    last_paid_at: lastPaidStr,
-  };
+    start_date:        startDateStr,
+    end_date:          endDateStr,
+    is_active:         sub.is_active ? "true" : "false",
+    last_paid_at:      lastPaidStr,
+  });
+
+  // Manually set form field values since Rivets may not re-sync date/select inputs
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ""; };
+  set("subscription_name_edit",         data.subscription.subscriptionToEdit.subscription_name);
+  set("subscription_amount_edit",       data.subscription.subscriptionToEdit.amount);
+  set("subscription_last_paid_at_edit", data.subscription.subscriptionToEdit.last_paid_at);
+  set("subscription_category_name_edit",data.subscription.subscriptionToEdit.category_name);
+  set("subscription_billing_cycle_edit",data.subscription.subscriptionToEdit.billing_cycle);
+  set("subscription_start_date_edit",   data.subscription.subscriptionToEdit.start_date);
+  set("subscription_end_date_edit",     data.subscription.subscriptionToEdit.end_date);
+  set("subscription_is_active_edit",    data.subscription.subscriptionToEdit.is_active);
+  set("subscription_payment_mode_name_edit", data.subscription.subscriptionToEdit.payment_mode_name);
+
+  // Set delete button data attribute
+  const deleteBtn = document.querySelector(".delete-subscription");
+  if (deleteBtn) deleteBtn.setAttribute("data-subscription-id", data.subscription.subscriptionToEdit.subscription_id);
 }
 
 function showAddSubscriptionOverlay() {
@@ -343,9 +377,12 @@ function toggleElement(element) {
   if (element) element.classList.toggle("hidden");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  subscriptionOverview();
-  getSubscriptions({ page: data.subscription.page.current_page, ...getSubscriptionSearchState() });
+onPageReady(async () => {
+  await Promise.all([
+    subscriptionOverview(),
+    getSubscriptions({ page: data.subscription.page.current_page, ...getSubscriptionSearchState() }),
+  ]);
+  syncRivets();
 
   if (searchInputEl) {
     searchInputEl.addEventListener("keydown", (event) => {
@@ -401,25 +438,27 @@ if (filterToggleBtn?.length && filterOption) {
 
 body.addEventListener("click", (e) => {
   const target = e.target;
-  if (target.closest && target.closest(".subscription-screen-toggle") && !target.closest("#subscription-addition-screen")) {
-    showAddSubscriptionOverlay();
-  }
-  if (target.closest && target.closest(".subscription-screen-toggle") && target.closest("#subscription-addition-screen")) {
-    hideSubscriptionOverlay();
-  }
-  if (target.classList.contains("open-subscription-editor")) {
-    const id = target.closest(".open-subscription-editor")?.getAttribute("data-subscription-id") || 
-                target.getAttribute("data-subscription-id");
-    if (id) {
-      openSubscriptionEditor({ subscriptionId: id, subscriptionList: data.subscription.list });
-      const overlay = document.getElementById("subscription-edit-screen");
-      if (overlay) {
-        overlay.classList.remove("hidden");
-        overlay.style.display = "flex";
-      }
+  if (target.closest && target.closest(".subscription-screen-toggle")) {
+    const insideModal = target.closest("#subscription-addition-screen");
+    if (insideModal) {
+      hideSubscriptionOverlay();
+    } else {
+      showAddSubscriptionOverlay();
     }
   }
-  if (target.classList.contains("subscription-edit-screen-toggle")) {
+  const editorBtn = target.closest(".open-subscription-editor");
+  if (editorBtn) {
+      const id = editorBtn.getAttribute("data-subscription-id");
+      if (id) {
+          openSubscriptionEditor({ subscriptionId: id, subscriptionList: data.subscription.list });
+          const overlay = document.getElementById("subscription-edit-screen");
+          if (overlay) {
+              overlay.classList.remove("hidden");
+              overlay.style.display = "flex";
+          }
+      }
+  }
+  if (target.classList.contains("subscription-edit-screen-toggle") && !target.closest(".open-subscription-editor")) {
     hideSubscriptionEditOverlay();
   }
   if (target.classList.contains("delete-subscription")) {

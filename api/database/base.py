@@ -11,4 +11,3 @@ from api.models.transaction import Transaction
 from api.models.budget import Budget
 from api.models.investment import Investment
 from api.models.investment_price import InvestmentPrice
-from api.models.account import Account

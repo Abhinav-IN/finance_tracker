@@ -1,4 +1,5 @@
-import { body, data, token } from "../main.js";
+import { body, data, token, syncRivets, onPageReady, replaceList } from "../main.js";
+import { renderTransactionRows } from "./lib/table-render.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -14,6 +15,15 @@ const searchInputEl = document.getElementById("search-input");
 const lowerPriceEl = document.getElementById("lower-price");
 const greaterPriceEl = document.getElementById("greater-price");
 const exactPriceEl = document.getElementById("exact-price");
+const listTableBody = document.getElementById("transaction-list-body");
+
+function paintExpenseTable() {
+  renderTransactionRows(listTableBody, data.expense.list, { editorClass: "open-expense-editor" });
+}
+
+function syncExpenseListEmpty() {
+  data.expense.listEmpty = data.expense.list.length === 0;
+}
 
 function parseFilterNumber(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -155,10 +165,12 @@ async function expenseOverview() {
     });
     if (!response.ok) throw new Error("Failed to fetch expense overview");
     const result = await response.json();
-    data.expense.overview = result;
+    Object.assign(data.expense.overview, result);
+    syncRivets();
   } catch (error) {
     console.error("Error fetching expense overview:", error);
     data.expense.error = error.message;
+    syncRivets();
   }
 }
 
@@ -197,15 +209,20 @@ async function getExpense({
     if (!response.ok) throw new Error("Failed to fetch expense list");
     const result = await response.json().catch(() => ({}));
     const list = Array.isArray(result?.transactions) ? result.transactions : [];
-    data.expense.list.splice(0, data.expense.list.length, ...list);
+    replaceList(data.expense.list, list);
     data.expense.page.total_pages = result.total_pages ?? 1;
     data.expense.page.current_page = result.current_page ?? 1;
     data.expense.page.total_transactions = result.total_transactions ?? 0;
+    syncExpenseListEmpty();
+    paintExpenseTable();
+    syncRivets();
   } catch (error) {
     console.error("Error fetching expense list:", error);
     data.expense.error = error.message;
+    syncRivets();
   } finally {
     data.expense.loading = false;
+    syncRivets();
   }
 }
 
@@ -250,7 +267,9 @@ async function deleteExpense({ transactionId } = {}) {
     if (!response.ok) throw new Error("Failed to delete expense");
 
     const kept = data.expense.list.filter((t) => Number(t.id) !== Number(transactionId));
-    data.expense.list.splice(0, data.expense.list.length, ...kept);
+    replaceList(data.expense.list, kept);
+    syncExpenseListEmpty();
+    paintExpenseTable();
     await expenseOverview();
     toggleElement(document.getElementById("expense-edit-screen"));
   } catch (error) {
@@ -321,9 +340,12 @@ function hideExpenseOverlay() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  expenseOverview();
-  getExpense({ page: data.expense.page.current_page, ...getExpenseSearchState() });
+onPageReady(async () => {
+  await Promise.all([
+    expenseOverview(),
+    getExpense({ page: data.expense.page.current_page, ...getExpenseSearchState() }),
+  ]);
+  syncRivets();
 
   if (searchInputEl) {
     searchInputEl.addEventListener("keydown", (event) => {
@@ -356,19 +378,21 @@ body.addEventListener("click", (e) => {
   if (target.closest && target.closest(".open-add-expense-form")) {
     showAddExpenseOverlay();
   }
-  if (target.classList.contains("open-expense-editor")) {
-    const id = target.getAttribute("data-transaction-id");
+  const openExpenseBtn = target.closest?.(".open-expense-editor");
+  if (openExpenseBtn) {
+    const id = openExpenseBtn.getAttribute("data-transaction-id");
     openExpenseEditor({ transactionId: id, expenseList: data.expense.list });
     toggleElement(document.getElementById("expense-edit-screen"));
   }
-  if (target.classList.contains("edit-screen-toggle")) {
+  if (target.closest?.(".edit-screen-toggle")?.closest?.("#expense-edit-screen")) {
     toggleElement(document.getElementById("expense-edit-screen"));
   }
   if (target.closest && target.closest(".screen-toggle") && target.closest("#overlay-screen")) {
     hideExpenseOverlay();
   }
-  if (target.classList.contains("delete-expense")) {
-    const id = target.getAttribute("data-transaction-id");
+  const deleteExpenseBtn = target.closest?.(".delete-expense");
+  if (deleteExpenseBtn) {
+    const id = deleteExpenseBtn.getAttribute("data-transaction-id");
     deleteExpense({ transactionId: id });
   }
 });

@@ -11,16 +11,15 @@ export default defineConfig({
         register: path.resolve(__dirname, "register", "index.html"),
         dashboard: path.resolve(__dirname, "dashboard", "index.html"),
         expense: path.resolve(__dirname, "dashboard", "expense/index.html"),
+        budget: path.resolve(__dirname, "dashboard", "budget/index.html"),
         income: path.resolve(__dirname, "dashboard", "income/index.html"),
+        investment: path.resolve(__dirname, "dashboard", "investment/index.html"),
         subscription: path.resolve(
           __dirname,
           "dashboard",
           "subscriptions/index.html"  
         ),
         profile: path.resolve(__dirname, "dashboard", "profile/index.html"),
-        verify: path.resolve(__dirname, "verify", "index.html"),
-        reset: path.resolve(__dirname, "reset", "index.html"),
-        resetPassword: path.resolve(__dirname, "reset-password", "index.html"),
       },
     },
     outDir: "../dist/",

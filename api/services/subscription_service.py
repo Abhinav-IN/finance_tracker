@@ -1,20 +1,37 @@
 from api.models.subscription import Subscription
 from api.schemas.subscription import SubscriptionCreate, SubscriptionQueryParam, SubscriptionResponse
-from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType, get_account_id
-from api.tasks.subscription import calculate_next_billing_date
+from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
 from api.utils.subscription_filter import build_subscription_query
 from api.utils.time import ist_now
+from api.tasks.subscription import calculate_next_billing_date
 from datetime import timedelta
 from fastapi import HTTPException, status
 from math import ceil
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
+
+def _subscription_paid_at():
+    """Use last payment date when set; otherwise fall back to start date."""
+    return func.coalesce(Subscription.last_paid_at, Subscription.start_date)
+
+
+def _sum_subscriptions_since(db: Session, user_id: int, period_start) -> float:
+    return (
+        db.query(func.sum(Subscription.amount))
+        .filter(
+            Subscription.user_id == user_id,
+            Subscription.is_active.is_(True),
+            _subscription_paid_at() >= period_start,
+        )
+        .scalar()
+        or 0
+    )
+
 def create_subscription_service(user_subscription: SubscriptionCreate, user_id: int, db: Session ):
     curr_category_id = get_or_create_category(user_subscription.category_name, user_id, db)
     curr_transaction_type_id = get_or_create_transactionType(user_subscription.transaction_type_name, db)
     curr_payment_mode_id = get_or_create_paymentMode(user_subscription.payment_mode_name, db)
-    curr_account_id = get_account_id(user_subscription.account_name, user_id, db)
 
 
     next_billing = calculate_next_billing_date(
@@ -28,7 +45,6 @@ def create_subscription_service(user_subscription: SubscriptionCreate, user_id: 
         amount=user_subscription.amount,
         description=user_subscription.description,
         currency=user_subscription.currency,
-        account_id=curr_account_id,
         billing_period=user_subscription.billing_period,
         start_date=user_subscription.start_date,
         end_date=user_subscription.end_date,
@@ -56,7 +72,6 @@ def get_subscription_service(filter_query: SubscriptionQueryParam, user_id: int,
     base_query = base_query.options(
         joinedload(Subscription.category),
         joinedload(Subscription.payment_mode),
-        joinedload(Subscription.account),
     )
     query = build_subscription_query(base_query, filter_query)
     total_records = query.count()
@@ -67,7 +82,6 @@ def get_subscription_service(filter_query: SubscriptionQueryParam, user_id: int,
         resp = SubscriptionResponse.model_validate(sx)
         resp.category_name = sx.category.name if sx.category else None
         resp.payment_mode_name = sx.payment_mode.name if sx.payment_mode else None
-        resp.account_name = sx.account.name if sx.account else None
         response_subscriptions.append(resp)
 
     return {
@@ -87,7 +101,6 @@ def update_subscription_service(subscription_id : int, user_subscription : Subsc
     curr_category_id = get_or_create_category(user_subscription.category_name, user_id, db)
     curr_transaction_type_id = get_or_create_transactionType(user_subscription.transaction_type_name, db)
     curr_payment_mode_id = get_or_create_paymentMode(user_subscription.payment_mode_name, db)
-    curr_account_id = get_account_id(user_subscription.account_name, user_id, db)
 
     next_billing = calculate_next_billing_date(start_date=user_subscription.start_date,
         billing_period=user_subscription.billing_period,
@@ -103,7 +116,6 @@ def update_subscription_service(subscription_id : int, user_subscription : Subsc
         "start_date" : user_subscription.start_date,
         "end_date" : user_subscription.end_date,
         "next_billing_date" : next_billing,
-        "account_id" : curr_account_id,
         "category_id" : curr_category_id,
         "transaction_type_id" : curr_transaction_type_id,
         "payment_mode_id" : curr_payment_mode_id,
@@ -137,37 +149,27 @@ def delete_subscription_service(subscription_id : int, user: dict, db : Session 
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong in deleting the subscription")
     return 
 
-def overview_services(user_id: int, db : Session):
-    thirty_days_ago = ist_now() - timedelta(days=30)
-    total_subscription = db.query(Subscription).filter(
-        Subscription.user_id == user_id,
-        Subscription.start_date >= thirty_days_ago
-    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
+def overview_services(user_id: int, db: Session):
+    now = ist_now()
+    thirty_days_ago = now - timedelta(days=30)
+    seven_days_ago = now - timedelta(days=7)
+    current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    current_week_start = (now - timedelta(days=now.weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
 
-    seven_days_ago = ist_now() - timedelta(days=7)
-    total_subscription_7_days = db.query(Subscription).filter(
-        Subscription.user_id == user_id,
-        Subscription.start_date >= seven_days_ago
-    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
+    total_subscription = _sum_subscriptions_since(db, user_id, thirty_days_ago)
+    total_subscription_7_days = _sum_subscriptions_since(db, user_id, seven_days_ago)
+    total_subscription_current_month = _sum_subscriptions_since(db, user_id, current_month_start)
+    total_subscription_current_week = _sum_subscriptions_since(db, user_id, current_week_start)
 
-    current_month_start = ist_now().replace(day=1)
-    total_subscription_current_month = db.query(Subscription).filter(
-        Subscription.user_id == user_id,
-        Subscription.start_date >= current_month_start
-    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
-    average_monthly_subscription = total_subscription_current_month / (ist_now().day or 1)
-
-    current_week_start = ist_now() - timedelta(days=ist_now().weekday())
-    total_subscription_current_week = db.query(Subscription).filter(
-        Subscription.user_id == user_id,
-        Subscription.start_date >= current_week_start
-    ).with_entities(func.sum(Subscription.amount)).scalar() or 0
-    average_weekly_subscription = total_subscription_current_week / (ist_now().weekday() + 1 or 1)
+    average_monthly_subscription = total_subscription_current_month / (now.day or 1)
+    average_weekly_subscription = total_subscription_current_week / ((now.weekday() + 1) or 1)
 
     return {
         "total_subscription_last_30_days": total_subscription,
         "total_subscription_last_7_days": total_subscription_7_days,
         "total_subscription_current_month": total_subscription_current_month,
         "average_monthly_subscription": average_monthly_subscription,
-        "average_weekly_subscription": average_weekly_subscription
+        "average_weekly_subscription": average_weekly_subscription,
     }

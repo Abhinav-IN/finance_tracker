@@ -29,9 +29,6 @@ class userRegisterResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class VerificationRequest(BaseModel):
-    token: str
-
 class userLogin(BaseModel):
     email: EmailStr
     password: str
@@ -45,15 +42,3 @@ class refreshRequest(BaseModel):
 
 class refreshResponse(userLoginResponse):
     pass
-
-class PasswordResetRequest(BaseModel):
-    email : EmailStr
-
-class PasswordResetConfirm(BaseModel):
-    password_token: str
-    new_password: str = Field(..., min_length=8)
-
-    @field_validator("new_password")
-    @classmethod
-    def password_strength(cls, value):
-        return validate_password_strength(value)

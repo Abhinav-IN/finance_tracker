@@ -1,4 +1,3 @@
-from api.models.account import Account
 from api.models.category import Category
 from api.models.payment_mode import PaymentMode
 from api.models.subscription import Subscription
@@ -57,7 +56,6 @@ def apply_search_filters(query, filters):
         query
         .join(Category)
         .join(TransactionType)
-        .join(Account, isouter=True)
         .join(PaymentMode)
         .filter(
             or_(
@@ -66,7 +64,6 @@ def apply_search_filters(query, filters):
                 Category.name.ilike(keyword),
                 TransactionType.name.ilike(keyword),
                 PaymentMode.name.ilike(keyword),
-                Account.name.ilike(keyword),
             )
         )
     )

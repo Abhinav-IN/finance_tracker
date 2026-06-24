@@ -13,7 +13,6 @@ class TransactionBase(BaseModel):
     transaction_type_name : str = Field(default="Nill")
     category_name : str
     payment_mode_name : str
-    account_name : Optional[str] = None
     description : Optional[str] = Field(default= None, max_length=140)
 
 class TransactionCreate(TransactionBase):
@@ -29,11 +28,9 @@ class TransactionResponse(BaseModel):
     category_id : int
     payment_mode_id : int
     transaction_type_id : int
-    account_id : Optional[int] = None
     category_name : Optional[str] = None
     payment_mode_name : Optional[str] = None
     transaction_type_name : Optional[str] = None
-    account_name : Optional[str] = None
 
     model_config = {"from_attributes" : True}
 
@@ -68,7 +65,7 @@ class BudgetFeedback(BaseModel):
 
 class TransactionQueryParam(BaseModel):
     page : int = Field(1, ge=1, description="Page number starting from 1")
-    direction : Optional[TransactionDirection]
+    direction : Optional[TransactionDirection] = None
     id : Optional[int] = Field(None, description="Income ID or Expense ID")
     exact_amount : Optional[Decimal] = Field(None, description="Exact amount transaction")
     greater_amount : Optional[Decimal] = Field(None, ge=0, description="Transactions greater than this amount")

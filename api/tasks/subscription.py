@@ -1,7 +1,6 @@
 from api.database.session import SessionLocal
 from api.models.subscription import Subscription
 from api.models.transaction import Transaction
-from api.tasks.email_task import reminder_subscription_email, subscription_email
 from api.utils.enums import BillingPeriod, TransactionDirection
 from api.utils.time import IST, ist_now
 from datetime import datetime, timedelta
@@ -40,73 +39,3 @@ def calculate_next_billing_date(start_date: datetime, billing_period: BillingPer
         return None
 
     return next_date
-
-
-def process_subscription_billing():
-    now = ist_now()
-    today = now.date()
-    tomorrow = today + timedelta(days=1)
-
-    with SessionLocal() as db:
-
-        reminder_subs = db.query(Subscription).filter(
-            Subscription.is_active.is_(True),
-            Subscription.next_billing_date.isnot(None),
-        ).all()
-
-        for sub in reminder_subs:
-            if sub.next_billing_date.date() == tomorrow:
-                reminder_subscription_email.delay(
-                    to_email=sub.user.email,
-                    subscription_name=sub.name,
-                    amount=sub.amount
-                )
-
-        due_subs = db.query(Subscription).filter(
-            Subscription.is_active.is_(True),
-            Subscription.next_billing_date.isnot(None),
-            Subscription.next_billing_date <= now
-        ).all()
-
-        for sub in due_subs:
-
-            if sub.last_paid_at and sub.last_paid_at >= sub.next_billing_date:
-                continue
-
-            transaction = Transaction(
-                title=sub.name,
-                amount=sub.amount,
-                description=f"Auto billed for subscription: {sub.name}",
-                date=now,
-                user_id=sub.user_id,
-                account_id=sub.account_id,
-                category_id=sub.category_id,
-                transaction_type_id=sub.transaction_type_id,
-                payment_mode_id=sub.payment_mode_id,
-                direction=TransactionDirection.EXPENSE
-            )
-
-            db.add(transaction)
-
-            subscription_email.delay(
-                to_email=sub.user.email,
-                subscription_name=sub.name,
-                amount=sub.amount
-            )
-
-            sub.last_paid_at = now
-
-            sub.next_billing_date = calculate_next_billing_date(
-                start_date=sub.start_date,
-                billing_period=sub.billing_period,
-                end_date=sub.end_date
-            )
-
-        try:
-            db.commit()
-        except Exception:
-            db.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Something went wrong in processing subscription billing"
-            )

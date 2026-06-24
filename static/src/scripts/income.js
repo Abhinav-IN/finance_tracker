@@ -1,4 +1,5 @@
-import { body, data, token } from "../main.js";
+import { body, data, token, syncRivets, onPageReady, replaceList } from "../main.js";
+import { renderTransactionRows } from "./lib/table-render.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -14,6 +15,15 @@ const searchInputEl = document.getElementById("search-input");
 const lowerPriceEl = document.getElementById("lower-price");
 const greaterPriceEl = document.getElementById("greater-price");
 const exactPriceEl = document.getElementById("exact-price");
+const listTableBody = document.getElementById("transaction-list-body");
+
+function paintIncomeTable() {
+  renderTransactionRows(listTableBody, data.income.list, { editorClass: "open-income-editor" });
+}
+
+function syncIncomeListEmpty() {
+  data.income.listEmpty = data.income.list.length === 0;
+}
 
 function parseFilterNumber(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -138,10 +148,12 @@ async function incomeOverview() {
     });
     if (!response.ok) throw new Error("Failed to fetch income overview");
     const result = await response.json();
-    data.income.overview = result;
+    Object.assign(data.income.overview, result);
+    syncRivets();
   } catch (error) {
     console.error("Error fetching income overview:", error);
     data.income.error = error.message;
+    syncRivets();
   }
 }
 
@@ -180,15 +192,20 @@ async function getIncome({
     if (!response.ok) throw new Error("Failed to fetch income list");
     const result = await response.json().catch(() => ({}));
     const list = Array.isArray(result?.transactions) ? result.transactions : [];
-    data.income.list.splice(0, data.income.list.length, ...list);
+    replaceList(data.income.list, list);
     data.income.page.total_pages = result.total_pages ?? 1;
     data.income.page.current_page = result.current_page ?? 1;
     data.income.page.total_transactions = result.total_transactions ?? 0;
+    syncIncomeListEmpty();
+    paintIncomeTable();
+    syncRivets();
   } catch (error) {
     console.error("Error fetching income list:", error);
     data.income.error = error.message;
+    syncRivets();
   } finally {
     data.income.loading = false;
+    syncRivets();
   }
 }
 
@@ -233,7 +250,9 @@ async function deleteIncome({ transactionId } = {}) {
     if (!response.ok) throw new Error("Failed to delete income");
 
     const kept = data.income.list.filter((t) => Number(t.id) !== Number(transactionId));
-    data.income.list.splice(0, data.income.list.length, ...kept);
+    replaceList(data.income.list, kept);
+    syncIncomeListEmpty();
+    paintIncomeTable();
     await incomeOverview();
     toggleElement(document.getElementById("income-edit-screen"));
   } catch (error) {
@@ -306,9 +325,12 @@ function hideOverlay() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  incomeOverview();
-  getIncome({ page: data.income.page.current_page, ...getIncomeSearchState() });
+onPageReady(async () => {
+  await Promise.all([
+    incomeOverview(),
+    getIncome({ page: data.income.page.current_page, ...getIncomeSearchState() }),
+  ]);
+  syncRivets();
 
   if (searchInputEl) {
     searchInputEl.addEventListener("keydown", (event) => {
@@ -341,19 +363,21 @@ body.addEventListener("click", (e) => {
   if (target.closest && target.closest(".open-add-income-form")) {
     showAddIncomeOverlay();
   }
-  if (target.classList.contains("open-income-editor")) {
-    const id = target.getAttribute("data-transaction-id");
+  const openIncomeBtn = target.closest?.(".open-income-editor");
+  if (openIncomeBtn) {
+    const id = openIncomeBtn.getAttribute("data-transaction-id");
     openIncomeEditor({ transactionId: id, incomeList: data.income.list });
     toggleElement(document.getElementById("income-edit-screen"));
   }
-  if (target.classList.contains("edit-screen-toggle")) {
+  if (target.closest?.(".edit-screen-toggle")?.closest?.("#income-edit-screen")) {
     toggleElement(document.getElementById("income-edit-screen"));
   }
   if (target.closest && target.closest(".screen-toggle") && target.closest("#overlay-screen")) {
     hideOverlay();
   }
-  if (target.classList.contains("delete-income")) {
-    const id = target.getAttribute("data-transaction-id");
+  const deleteIncomeBtn = target.closest?.(".delete-income");
+  if (deleteIncomeBtn) {
+    const id = deleteIncomeBtn.getAttribute("data-transaction-id");
     deleteIncome({ transactionId: id });
   }
 });

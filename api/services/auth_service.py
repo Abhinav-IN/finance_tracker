@@ -1,24 +1,18 @@
 from api.core.config import settings
 from api.database.session import get_db
 from api.models.user import User, UserRole
-from api.schemas.auth import userRegister, userLogin, refreshRequest, PasswordResetRequest, PasswordResetConfirm
-from api.services.token_service import create_verification_token_service, create_access_token_service, verify_token_service, create_password_request_token_service
+from api.schemas.auth import userRegister, userLogin, refreshRequest
+from api.services.token_service import create_access_token_service, verify_token_service
 from api.utils.hashing import hashing_password, verify_password
 from api.utils.time import ist_now, IST
-from api.tasks.email_task import verification_email, password_reset_email
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from zoneinfo import ZoneInfo
-
-
 from api.utils.logger import create_info_logger
 
-
-
 auth_logger = create_info_logger("Auth Logger")
-
 
 def authenticate_user_service(user_credentials : userLogin, db: Session):
     user = db.query(User).filter(User.email == user_credentials.email).first()
@@ -33,9 +27,7 @@ def register_user_service(user: userRegister, db: Session):
         **user.model_dump(exclude={"password"}),
         hashed_password=hashed_password,
         role=UserRole.USER,
-        last_password_change_at=ist_now(),
-        last_five_passwords=[hashed_password],
-        is_active=False,
+        is_active=True,
         is_suspended=False,
     )
 
@@ -47,21 +39,11 @@ def register_user_service(user: userRegister, db: Session):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username or Email already exist")
 
-    verification_token = create_verification_token_service({"user_id": new_user.id})
-    token_expiry = ist_now() + timedelta(minutes=settings.verification_token_expire_in_minutes)
-
-    new_user.account_verification_token_expires_at = token_expiry
-
     try:
         db.commit()
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Somethign went wrong in verification token setup")
-
-    verification_link = f"{settings.frontend_base_url.rstrip('/')}/verify/?token={verification_token}"
-    auth_logger.info(f" Verification token: {verification_token}")
-
-    verification_email.delay(new_user.email, verification_link)
 
     return new_user
 
@@ -160,80 +142,31 @@ def refresh_access_token_service(token: refreshRequest, db: Session):
         "type": "bearer"
     }
 
-def verify_account_service(token: str, db: Session):
-    payload = verify_token_service(token, settings.secret_key, settings.algorithm)
-    user_id = payload.get("user_id")
-
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
-    expiry = user.account_verification_token_expires_at
-
-    if not expiry or expiry.replace(tzinfo=IST) < ist_now():
-        raise HTTPException(status_code=400, detail="Verification token expired")
-
-    user.account_verification_token_expires_at = None  
-    user.is_active = True  
-    db.commit()
-
-    return {"message": "Account successfully verified"}
-
-def password_reset_request_service(user_credential: PasswordResetRequest, db: Session):
-    user = db.query(User).filter(User.email == user_credential.email).first()
+def demo_login_service(db: Session):
+    user = db.query(User).filter(User.email == settings.demo_email).first()
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Demo account ({settings.demo_email}) not found.",
+        )
 
-    password_token = create_password_request_token_service({"user_id": user.id})
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo account is not active.")
+    if user.is_suspended:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Demo account is suspended.")
 
-    user.password_reset_token_expires_at = ist_now() + timedelta(minutes=settings.password_token_expire_in_minutes)
+    user.failed_login_attempts = 0
+    user.last_failed_attempt_at = None
+    user.last_login_at = ist_now()
     db.commit()
 
-    reset_link = f"{settings.frontend_base_url.rstrip('/')}/reset-password/?token={password_token}"
+    access_token = create_access_token_service({
+        "user_id": user.id,
+        "role": user.role,
+    })
 
-    auth_logger.info(f" Password token: {password_token}")
-
-    password_reset_email.delay(user.email, reset_link)
-
-    return {"message": "If this email is registered, a reset link has been sent."}
-
-def password_reset_confirm_service(user_credential: PasswordResetConfirm, db: Session):
-    payload = verify_token_service(user_credential.password_token, settings.secret_key, settings.algorithm)
-    user_id = payload.get("user_id")
-
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload")
-
-    user = db.query(User).filter(User.id == user_id).first()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    expires_at = user.password_reset_token_expires_at
-    if expires_at and expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=IST)
-
-    if not expires_at or expires_at < ist_now():
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Password reset token has expired")
-
-    new_hashed = hashing_password(user_credential.new_password)
-
-    if user.last_five_passwords and new_hashed in user.last_five_passwords:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot reuse your previous passwords")
-
-    user.hashed_password = new_hashed
-    user.last_password_change_at = ist_now()
-
-    if user.last_five_passwords:
-        user.last_five_passwords.insert(0, new_hashed)
-        user.last_five_passwords = user.last_five_passwords[:5]
-    else:
-        user.last_five_passwords = [new_hashed]
-
-    user.password_reset_token_expires_at = None
-
-    auth_logger.info(f" stored passwords is {user.last_five_passwords}")
-    db.commit()
-
-    return {"message": "Password successfully reset"}
+    return {
+        "access_token": access_token,
+        "type": "bearer",
+    }

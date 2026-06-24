@@ -23,9 +23,23 @@ SQLALCHEMY_DATABASE_URL = (
     f"{SQLALCHEMY_DATABASE_URL_WITHOUT_DB}/{DATABASE_NAME}"
 )
 
-engine_without_db = create_engine(SQLALCHEMY_DATABASE_URL_WITHOUT_DB)
+engine_without_db = create_engine(
+    SQLALCHEMY_DATABASE_URL_WITHOUT_DB,
+    connect_args={
+        "ssl": {
+            "check_hostname": False
+        }
+    }
+)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={
+        "ssl": {
+            "check_hostname": False
+        }
+    }
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

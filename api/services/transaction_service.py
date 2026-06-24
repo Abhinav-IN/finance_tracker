@@ -1,6 +1,6 @@
 from api.models.transaction import Transaction
 from api.schemas.transaction import TransactionCreate, TransactionResponse, TransactionQueryParam
-from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType, get_account_id
+from api.services.lookup_create_service import get_or_create_category, get_or_create_paymentMode, get_or_create_transactionType
 from api.utils.enums import TransactionDirection
 from api.utils.transaction_filter import apply_transaction_filters
 from api.utils.time import ist_now
@@ -15,13 +15,11 @@ def create_transaction_service(user_transaction : TransactionCreate, user: dict,
     curr_category_id = get_or_create_category(user_transaction.category_name, user["id"], db)
     curr_transaction_type_id = get_or_create_transactionType(user_transaction.transaction_type_name, db)
     curr_payment_mode_id = get_or_create_paymentMode(user_transaction.payment_mode_name, db)
-    curr_account_id = get_account_id(user_transaction.account_name, user["id"], db)
     
     new_transaction = Transaction(title = user_transaction.title,
                               amount = user_transaction.amount,
                               description = user_transaction.description,
                               date = user_transaction.date,
-                              account_id = curr_account_id,
                               user_id = user["id"],
                               category_id = curr_category_id,
                               transaction_type_id = curr_transaction_type_id,
@@ -46,11 +44,9 @@ def create_transaction_service(user_transaction : TransactionCreate, user: dict,
         "category_id" : new_transaction.category_id,
         "payment_mode_id" : new_transaction.payment_mode_id,
         "transaction_type_id" : new_transaction.transaction_type_id,
-        "account_id" : new_transaction.account_id,
         "category_name" : new_transaction.category.name if new_transaction.category else None,
         "payment_mode_name" : new_transaction.payment_mode.name if new_transaction.payment_mode else None,
         "transaction_type_name" : new_transaction.transaction_type.name if new_transaction.transaction_type else None,
-        "account_name" : new_transaction.account.name if new_transaction.account else None
     }
 
 def get_transaction_service(user: dict, db: Session, filter_query: TransactionQueryParam):
@@ -64,14 +60,13 @@ def get_transaction_service(user: dict, db: Session, filter_query: TransactionQu
 
     total_records = query.count()
 
-    transactions = (query.offset(filter_query.get_offset).limit(filter_query.limit).all())
+    transactions = (query.order_by(Transaction.date.desc()).offset(filter_query.get_offset).limit(filter_query.limit).all())
 
     result_transactions = []
     for tx in transactions:
         resp = TransactionResponse.model_validate(tx)
         resp.category_name = tx.category.name if tx.category else None
         resp.payment_mode_name = tx.payment_mode.name if tx.payment_mode else None
-        resp.account_name = tx.account.name if tx.account else None
         result_transactions.append(resp)
 
     return {
@@ -91,14 +86,12 @@ def update_transaction_service(transaction_id: int, transaction_update: Transact
     curr_category_id = get_or_create_category(transaction_update.category_name, user["id"], db)
     curr_transaction_type_id = get_or_create_transactionType(transaction_update.transaction_type_name, db)
     curr_payment_mode_id = get_or_create_paymentMode(transaction_update.payment_mode_name, db)
-    curr_account_id = get_account_id(transaction_update.account_name, user["id"], db)
 
     transaction_query.update({
         "title": transaction_update.title,
         "date": transaction_update.date,
         "amount": transaction_update.amount,
         "description": transaction_update.description,
-        "account_id": curr_account_id,
         "category_id": curr_category_id,
         "transaction_type_id": curr_transaction_type_id,
         "payment_mode_id" : curr_payment_mode_id
@@ -121,11 +114,9 @@ def update_transaction_service(transaction_id: int, transaction_update: Transact
         "category_id": existing_transaction.category_id,
         "payment_mode_id": existing_transaction.payment_mode_id,
         "transaction_type_id": existing_transaction.transaction_type_id,
-        "account_id": existing_transaction.account_id,
         "category_name": existing_transaction.category.name if existing_transaction.category else None,
         "payment_mode_name": existing_transaction.payment_mode.name if existing_transaction.payment_mode else None,
         "transaction_type_name": existing_transaction.transaction_type.name if existing_transaction.transaction_type else None,
-        "account_name": existing_transaction.account.name if existing_transaction.account else None
     }
 
 def delete_transaction_service(transaction_id : int, user: dict, db: Session):

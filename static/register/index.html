@@ -9,176 +9,243 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../src/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <title>Fi-Track</title>
+    <title>Fi-Track :: Register</title>
 </head>
 
-<body class="w-full h-screen overflow-hidden  dark:bg-black/95 dark:text-white/80 text-black/70">
+<body class="w-full h-screen overflow-hidden dark:bg-black/95 dark:text-white/80 text-black/70">
     <div class="flex items-center justify-center w-full h-full">
-        <div>
-            <div class="w-full space-y-6 p-4 max-w-md custom-border rounded-lg shadow-lg relative font-medium text-sm transition-all transform duration-300 -translate-y-full hidden capitalize"
-                id="message-container">
+        <div class="w-full max-w-md px-4">
+
+            <!-- Notification banner -->
+            <div class="w-full space-y-6 p-4 max-w-md font-medium text-sm transition-all transform duration-300
+                -translate-y-full hidden bg-gray-100 dark:bg-gray-900 border border-black/10 dark:border-white/10
+                rounded-lg shadow-md mb-4 capitalize" id="message-container">
             </div>
-            <div
-                class="w-full space-y-6 p-4 max-w-md border border-black/20 dark:border-white/20 rounded-lg shadow-lg ">
-                <div class="h-20">
+
+            <div class="w-full space-y-6 p-4 border border-black/20 dark:border-white/20 rounded-lg shadow-lg">
+
+                <!-- Header -->
+                <div class="space-y-1">
                     <a href="../">
-                        <h1 class=" text-center font-semibold text-2xl lg:text-4xl text-black/90 dark:text-white/80">
+                        <h1 class="text-center font-semibold text-2xl lg:text-4xl text-black/90 dark:text-white/80">
                             Fi-Track
                         </h1>
                     </a>
-                    <div class="text-center text-sm font-medium pt-4">
-                        <p>Don't Have An Account? Let's Have You On-Board</p>
-                    </div>
+                    <p class="text-center text-sm font-medium pt-2 text-gray-500 dark:text-gray-400">
+                        Create your account
+                    </p>
                 </div>
-                <div class="w-full h-full font-medium">
-                    <div class="w-full text-center space-y-8 hidden" id="success-card">
-                        <p>
-                            Thanks For Registering, Please Check Your Email For Verification Email
-                        </p>
-                        <div class="w-48 h-48 mx-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-full h-full">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
-                            </svg>
-                        </div>
-                        <a href="../" class="primary-button">Login</a>
-                    </div>
-                    <div class="w-full text-center text-red-600 space-y-8 hidden" id="failure-card">
-                        <p>
-                            Oops, Something Went Wrong, Please Try Again Later
-                        </p>
-                        <div class="w-48 h-48 mx-auto ">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-full h-full">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
-                            </svg>
 
-                        </div>
-                        <a href="../register/" class="secondary-button" id="reset-button">
-                            Retry
-                        </a>
+                <!-- Success state -->
+                <div class="w-full text-center space-y-6 hidden" id="success-card">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="size-10 text-green-600 dark:text-green-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-semibold text-green-600 dark:text-green-400">Account created!</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Redirecting you to login...</p>
                     </div>
                 </div>
-                <form id="registration-form" class="space-y-12 pt-4">
-                    <div class=" space-y-4 font-medium steps step-0" data-step="0">
-                        <div class="">
-                            <Label for="first_name" class="text-sm">Enter Your First Name</Label>
-                            <input type="text" name="first_name" id="first_name"
-                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
+
+                <!-- Failure state -->
+                <div class="w-full text-center space-y-6 hidden" id="failure-card">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="size-10 text-red-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-semibold text-red-500">Registration failed</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" id="failure-message">Something went wrong. Please try again.</p>
+                    </div>
+                    <button type="button" id="reset-button"
+                        class="secondary-button mx-auto">
+                        Try again
+                    </button>
+                </div>
+
+                <!-- Registration form -->
+                <form id="registration-form" class="space-y-8">
+
+                    <!-- Step 0: Name -->
+                    <div class="space-y-4 font-medium steps step-0" data-step="0">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Step 1 of 4</p>
+                            <p class="text-xs text-gray-400">Personal Info</p>
                         </div>
-                        <div class="">
-                            <Label for="last_name" class="text-sm">Enter Your Last Name</Label>
-                            <input type="text" name="last_name" id="last_name"
-                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
+                        <div class="flex gap-1 mb-4">
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                        <div>
+                            <label for="first_name" class="text-sm font-medium">First Name</label>
+                            <input type="text" name="first_name" id="first_name" placeholder="John"
+                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-md shadow-sm mt-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-black/40 dark:focus:ring-white/30">
+                        </div>
+                        <div>
+                            <label for="last_name" class="text-sm font-medium">Last Name</label>
+                            <input type="text" name="last_name" id="last_name" placeholder="Doe"
+                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-md shadow-sm mt-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-black/40 dark:focus:ring-white/30">
                         </div>
                     </div>
+
+                    <!-- Step 1: Username + Email -->
                     <div class="space-y-4 font-medium hidden steps step-1" data-step="1">
-                        <div class="">
-                            <Label for="username" class="text-sm">Pick A Unique Username</Label>
-                            <input type="text" name="username" id="username"
-                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Step 2 of 4</p>
+                            <p class="text-xs text-gray-400">Account Details</p>
                         </div>
-                        <div class="">
-                            <Label for="email" class="text-sm">Enter Your Email</Label>
-                            <input type="email" name="email" id="email"
-                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2">
+                        <div class="flex gap-1 mb-4">
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                        <div>
+                            <label for="username" class="text-sm font-medium">Username</label>
+                            <input type="text" name="username" id="username" placeholder="johndoe99"
+                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-md shadow-sm mt-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-black/40 dark:focus:ring-white/30">
+                        </div>
+                        <div>
+                            <label for="email" class="text-sm font-medium">Email</label>
+                            <input type="email" name="email" id="email" placeholder="john@example.com"
+                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-md shadow-sm mt-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-black/40 dark:focus:ring-white/30">
                         </div>
                     </div>
-                    <div class="space-y-8 font-medium hidden steps step-2" id="gender_block" data-step="2">
-                        <div class="space-y-4 ">
-                            <p class="text-sm">Select Your Gender</p>
-                            <div class="flex items-center justify-evenly gap-8">
-                                <div class="">
-                                    <input type="radio" name="gender" id="male" value="male" required
-                                        class="border-2 border-white w-20 h-20 hidden peer">
-                                    <Label for="male" class="text-sm flex items-center justify-center rounded-full w-20 h-20 p-2 border-2 border-gray-200 text-black/20 dark:text-white/50 dark:border-gray-800
-                                peer-checked:border-gray-900 peer-checked:text-black
-                                    dark:peer-checked:border-gray-200 dark:peer-checked:text-white/90 cursor-pointer
-                                 ">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                                            class="w-full h-full" fill="currentColor" viewBox="0 0 256 256">
-                                            <path
-                                                d="M216,32H168a8,8,0,0,0,0,16h28.69L154.62,90.07a80,80,0,1,0,11.31,11.31L208,59.32V88a8,8,0,0,0,16,0V40A8,8,0,0,0,216,32ZM149.24,197.29a64,64,0,1,1,0-90.53A64.1,64.1,0,0,1,149.24,197.29Z">
-                                            </path>
-                                        </svg>
-                                    </Label>
-                                </div>
-                                <div class="">
-                                    <input type="radio" name="gender" id="female" value="female"
-                                        class="border-2 border-white w-20 h-20 hidden peer">
-                                    <Label for="female" class="text-sm flex items-center justify-center rounded-full w-20 h-20 p-2 border-2 border-gray-200 text-black/20 dark:text-white/50 dark:border-gray-800
-                                peer-checked:border-gray-900 peer-checked:text-black
-                                    dark:peer-checked:border-gray-200 dark:peer-checked:text-white/90 cursor-pointer
-                                 ">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
-                                            fill="currentColor" viewBox="0 0 256 256">
-                                            <path
-                                                d="M208,96a80,80,0,1,0-88,79.6V200H88a8,8,0,0,0,0,16h32v24a8,8,0,0,0,16,0V216h32a8,8,0,0,0,0-16H136V175.6A80.11,80.11,0,0,0,208,96ZM64,96a64,64,0,1,1,64,64A64.07,64.07,0,0,1,64,96Z">
-                                            </path>
-                                        </svg>
-                                    </Label>
-                                </div>
+
+                    <!-- Step 2: Gender + DOB -->
+                    <div class="space-y-6 font-medium hidden steps step-2" data-step="2">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Step 3 of 4</p>
+                            <p class="text-xs text-gray-400">About You</p>
+                        </div>
+                        <div class="flex gap-1 mb-4">
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                        <div class="space-y-3">
+                            <p class="text-sm font-medium">Gender</p>
+                            <div class="flex items-center gap-4">
+                                <input type="radio" name="gender" id="male" value="male" class="hidden peer/male">
+                                <label for="male"
+                                    class="flex flex-col items-center justify-center gap-1 flex-1 py-3 rounded-md border-2 border-gray-200 dark:border-gray-700
+                                    text-black/30 dark:text-white/40 cursor-pointer transition-all
+                                    peer-checked/male:border-black peer-checked/male:text-black
+                                    dark:peer-checked/male:border-white dark:peer-checked/male:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256" class="size-8">
+                                        <path d="M216,32H168a8,8,0,0,0,0,16h28.69L154.62,90.07a80,80,0,1,0,11.31,11.31L208,59.32V88a8,8,0,0,0,16,0V40A8,8,0,0,0,216,32ZM149.24,197.29a64,64,0,1,1,0-90.53A64.1,64.1,0,0,1,149.24,197.29Z"/>
+                                    </svg>
+                                    <span class="text-xs font-semibold">Male</span>
+                                </label>
+
+                                <input type="radio" name="gender" id="female" value="female" class="hidden peer/female">
+                                <label for="female"
+                                    class="flex flex-col items-center justify-center gap-1 flex-1 py-3 rounded-md border-2 border-gray-200 dark:border-gray-700
+                                    text-black/30 dark:text-white/40 cursor-pointer transition-all
+                                    peer-checked/female:border-black peer-checked/female:text-black
+                                    dark:peer-checked/female:border-white dark:peer-checked/female:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256" class="size-8">
+                                        <path d="M208,96a80,80,0,1,0-88,79.6V200H88a8,8,0,0,0,0,16h32v24a8,8,0,0,0,16,0V216h32a8,8,0,0,0,0-16H136V175.6A80.11,80.11,0,0,0,208,96ZM64,96a64,64,0,1,1,64,64A64.07,64.07,0,0,1,64,96Z"/>
+                                    </svg>
+                                    <span class="text-xs font-semibold">Female</span>
+                                </label>
+
+                                <input type="radio" name="gender" id="other" value="other" class="hidden peer/other">
+                                <label for="other"
+                                    class="flex flex-col items-center justify-center gap-1 flex-1 py-3 rounded-md border-2 border-gray-200 dark:border-gray-700
+                                    text-black/30 dark:text-white/40 cursor-pointer transition-all
+                                    peer-checked/other:border-black peer-checked/other:text-black
+                                    dark:peer-checked/other:border-white dark:peer-checked/other:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                    </svg>
+                                    <span class="text-xs font-semibold">Other</span>
+                                </label>
                             </div>
-
                         </div>
-                        <div class="flex flex-col gap-4">
-                            <label for="date-of-birth" class="text-sm">Please Enter Your Date Of Birth</label>
-                            <input type="date" name="date-of-birth" id="date-of-birth" placeholder="DD-MM-YYYY"
-                                class=" border border-black/20 rounded-lg dark:border-white/20 w-full p-1 uppercase">
-                        </div>
-                    </div>
-                    <div class="space-y-4 font-medium hidden steps  step-3" data-step="3">
-                        <div>
-                            <Label for="password" class="text-sm">Password A Password</Label>
-                            <input type="password" name="password" id="password"
-                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2 password-field">
-                        </div>
-                        <div>
-                            <Label for="confirm_password" class="text-sm">Confirm Your Password</Label>
-                            <input type="password" name="confirm_password" id="confirm-password"
-                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-sm shadow-sm mt-2 password-field">
-                        </div>
-                        <div class="">
-                            <p class="text-xs text-red-600" id="password-length">* Password Must Be 8 Character Long</p>
-                            <p class="text-xs text-red-600" id="password-number">* Password Must Contain A Number</p>
-                            <p class="text-xs text-red-600" id="password-symbol">* Password Must Contain A Symbol</p>
-                            <p class="text-xs text-red-600" id="password-lowercase">* Password Must Contain A
-                                Lowercase Letter</p>
-                            <p class="text-xs text-red-600" id="password-uppercase">* Password Must Contain A Uppercase
-                                Letter</p>
-                            <p class="text-xs text-red-600" id="is-password-matching">* Password Does Not Match</p>
+                        <div class="flex flex-col gap-2">
+                            <label for="date-of-birth" class="text-sm font-medium">Date of Birth</label>
+                            <input type="date" name="date-of-birth" id="date-of-birth"
+                                class="border border-black/20 dark:border-white/20 rounded-md w-full p-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-black/40 dark:focus:ring-white/30">
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between gap-4 md:gap-8">
-                        <button type="button" class="secondary-button" id="prev-step-button">Prev</button>
-                        <div class="w-full " id="next-step-container">
-                            <button type="button" class="primary-button" id="next-step-button">Next</button>
+                    <!-- Step 3: Password -->
+                    <div class="space-y-4 font-medium hidden steps step-3" data-step="3">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Step 4 of 4</p>
+                            <p class="text-xs text-gray-400">Set Password</p>
                         </div>
-                        <div class="w-full hidden" id="submit-button-container">
-                            <button class="primary-button disabled:opacity-50" type="submit"
-                                id="submit-button">Submit</button>
+                        <div class="flex gap-1 mb-4">
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                            <div class="h-1 flex-1 rounded-full bg-black dark:bg-white"></div>
+                        </div>
+                        <div>
+                            <label for="password" class="text-sm font-medium">Password</label>
+                            <input type="password" name="password" id="password" placeholder="••••••••"
+                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-md shadow-sm mt-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-black/40 dark:focus:ring-white/30 password-field">
+                        </div>
+                        <div>
+                            <label for="confirm-password" class="text-sm font-medium">Confirm Password</label>
+                            <input type="password" name="confirm_password" id="confirm-password" placeholder="••••••••"
+                                class="p-2 w-full border border-black/30 dark:border-white/20 rounded-md shadow-sm mt-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-black/40 dark:focus:ring-white/30 password-field">
+                        </div>
+                        <!-- Password requirements -->
+                        <div class="space-y-1 pt-1">
+                            <p class="text-xs text-red-500 dark:text-red-400" id="password-length">✗ At least 8 characters</p>
+                            <p class="text-xs text-red-500 dark:text-red-400" id="password-number">✗ Contains a number</p>
+                            <p class="text-xs text-red-500 dark:text-red-400" id="password-symbol">✗ Contains a symbol</p>
+                            <p class="text-xs text-red-500 dark:text-red-400" id="password-lowercase">✗ Contains a lowercase letter</p>
+                            <p class="text-xs text-red-500 dark:text-red-400" id="password-uppercase">✗ Contains an uppercase letter</p>
+                            <p class="text-xs text-red-500 dark:text-red-400" id="is-password-matching">✗ Passwords match</p>
                         </div>
                     </div>
+
+                    <!-- Navigation buttons -->
+                    <div class="flex items-center gap-3">
+                        <button type="button" class="secondary-button" id="prev-step-button">Back</button>
+                        <div class="flex-1" id="next-step-container">
+                            <button type="button" class="primary-button w-full" id="next-step-button">Continue</button>
+                        </div>
+                        <div class="flex-1 hidden" id="submit-button-container">
+                            <button class="primary-button w-full disabled:opacity-40 disabled:cursor-not-allowed"
+                                type="submit" id="submit-button" disabled>
+                                Create Account
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Login link -->
+                    <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                        Already have an account?
+                        <a href="../" class="font-semibold text-black dark:text-white hover:underline">Sign in</a>
+                    </p>
+
                 </form>
             </div>
-
         </div>
     </div>
 
     <button class="rounded-full w-12 h-12 fixed bottom-5 right-5 p-2 border border-black/70 dark:border-white/20"
         id="darkModeButton">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="w-full h-full">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-full h-full">
             <path stroke-linecap="round" stroke-linejoin="round"
                 d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
         </svg>
     </button>
+
     <script type="module" src="../src/scripts/auth/auth.js"></script>
     <script type="module" src="../src/scripts/theme/theme.js"></script>
 </body>
-
 </html>

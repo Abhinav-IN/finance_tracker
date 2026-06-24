@@ -9,7 +9,7 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../../src/style.css" rel="stylesheet">
-    <title>Fi-Track :: User Profile</title>
+    <title>Fi-Track :: Subscription</title>
 </head>
 
 <body class="w-full h-screen overflow-hidden text-bg-colours">
@@ -84,6 +84,29 @@
                             </span>
                         </a>
                     </li>
+
+                    <li class="">
+                        <a href="/dashboard/investment/" class="button-inactive">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
+                            </svg>
+                            <span>
+                                Investments
+                            </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/dashboard/budget/" class="button-inactive">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                            </svg>
+                            <span>Budget</span>
+                        </a>
+                    </li>
+
                 </ul>
             </div>
         </div>
@@ -381,41 +404,10 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="capitalize">
-                                        <tr rv-each-subscription="data.subscription.list"
-                                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 even:bg-gray-200 dark:even:bg-gray-900">
-                                            <th scope="row" rv-subscription-id="subscription.subscription_id"
-                                                class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20 subscription-edit-screen-toggle">
-                                                <button type="button"
-                                                    class="subscription-edit-screen-toggle flex items-center justify-center gap-1 bg-gray-300 p-2 rounded-md dark:bg-gray-700 cursor-pointer open-subscription-editor "
-                                                    rv-data-subscription-id="subscription.subscription_id">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke-width="1.5" stroke="currentColor"
-                                                        class="size-4 subscription-edit-screen-toggle">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            class="subscription-edit-screen-toggle"
-                                                            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                                    </svg>
-                                                    Open
-                                                </button>
-                                            </th>
-                                            <td
-                                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
-                                                {subscription.subscription_date | date}
-                                            </td>
-                                            <td
-                                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white border-r border-black/20 dark:border-white/20">
-                                                {subscription.subscription_name}
-                                            </td>
-                                            <td class="px-6 py-4 border-r border-black/20 dark:border-white/20">
-                                                {subscription.category_name}
-                                            </td>
-                                            <td class="px-6 py-4 border-r border-black/20 dark:border-white/20">
-                                                {subscription.payment_mode_name}
-                                            </td>
-                                            <td class="px-6 py-4 ">
-                                                {subscription.amount}
+                                    <tbody id="subscription-list-body" class="capitalize">
+                                        <tr data-empty-row class="bg-white dark:bg-gray-800">
+                                            <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                                No subscriptions yet. Add your first subscription using the button above.
                                             </td>
                                         </tr>
                                     </tbody>
@@ -459,285 +451,255 @@
     </div>
     <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 hidden capitalize"
         id="subscription-addition-screen">
-        <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
+        <div class="w-full h-full bg-black/80 dark:bg-black/40 flex items-center justify-center backdrop-blur-sm p-4">
+
             <form id="subscription-addition-form"
-                class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
-                <div class="font-semibold flex items-center justify-between">
-                    <span class="text-lg">
-                        Add Subscription
-                    </span>
-                    <button class="subscription-screen-toggle cursor-pointer" type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6 subscription-screen-toggle">
+                class="w-full max-w-2xl max-h-[88vh] overflow-y-auto no-scroll-bar rounded-xl shadow-2xl text-bg-colours p-5 border border-black/10 dark:border-white/10 space-y-4">
+
+                <!-- Header -->
+                <div class="font-semibold flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
+                    <span class="text-base">Add Subscription</span>
+                    <button class="subscription-screen-toggle cursor-pointer p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="size-5 subscription-screen-toggle">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"
                                 class="subscription-screen-toggle" />
                         </svg>
                     </button>
                 </div>
-                <div class="pt-4 dark:text-white space-y-6">
-                    <div class="font-medium flex flex-col gap-2 ">
-                        <label for="subscription_name" class="text-sm">
-                            Name
-                        </label>
-                        <input type="text" name="subscription_name" id="subscription_name"
-                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20"
-                            placeholder="Netflix">
+
+                <div class="dark:text-white space-y-4">
+
+                    <!-- Name (full width) -->
+                    <div class="font-medium flex flex-col gap-1.5">
+                        <label for="subscription_name" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Name</label>
+                        <input type="text" name="subscription_name" id="subscription_name" placeholder="Netflix"
+                            class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_amount" class="text-sm">
-                                Amount (₹)
-                            </label>
-                            <input type="number" name="subscription_amount" id="subscription_amount" class="text-input"
-                                placeholder="199">
+
+                    <!-- Amount | Last Paid Date -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_amount" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Amount (₹)</label>
+                            <input type="number" name="subscription_amount" id="subscription_amount" placeholder="199" min="1"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_last_paid_at" class="text-sm">
-                                Last Paid Date
-                            </label>
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_last_paid_at" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Last Paid Date</label>
                             <input type="date" name="subscription_last_paid_at" id="subscription_last_paid_at"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20"
-                                placeholder="2025-02-07">
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex items-center justify-between gap-4 w-full">
-                            <div class="font-medium flex flex-col gap-2 w-full ">
-                                <label for="subscription_category_name" class="text-sm">
-                                    Subscription Category
-                                </label>
-                                <input type="text" name="subscription_category_name" id="subscription_category_name"
-                                    class="text-input capitalize" placeholder="Category Name">
-                            </div>
+
+                    <!-- Category | Billing Cycle -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_category_name" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Category</label>
+                            <input type="text" name="subscription_category_name" id="subscription_category_name" placeholder="Streaming"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm capitalize">
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_billing_cycle" class="text-sm">
-                                Billing Cycle
-                            </label>
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_billing_cycle" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Billing Cycle</label>
                             <select name="subscription_billing_cycle" id="subscription_billing_cycle"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20">
-                                <option class="bg-white dark:bg-black" value="MONTHLY">Monthly</option>
-                                <option class="bg-white dark:bg-black" value="WEEKLY">Weekly</option>
-                                <option class="bg-white dark:bg-black" value="YEARLY">Yearly</option>
-                                <option class="bg-white dark:bg-black" value="ONE_TIME">One Time</option>
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
+                                <option value="MONTHLY">Monthly</option>
+                                <option value="WEEKLY">Weekly</option>
+                                <option value="YEARLY">Yearly</option>
+                                <option value="ONE_TIME">One Time</option>
                             </select>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_start_date" class="text-sm">
-                                Start Date
-                            </label>
+
+                    <!-- Start Date | End Date -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_start_date" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Start Date</label>
                             <input type="date" name="subscription_start_date" id="subscription_start_date"
-                                class="text-input">
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_end_date" class="text-sm">
-                                End Date
-                            </label>
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_end_date" class="text-xs font-semibold uppercase tracking-wide text-gray-400">End Date</label>
                             <input type="date" name="subscription_end_date" id="subscription_end_date"
-                                class="text-input" placeholder="2025-02-07">
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_is_active" class="text-sm">
-                                Subscription Status
-                            </label>
-                            <select name="subscription_is_active" id="subscription_is_active" class="text-input">
-                                <option class="bg-white dark:bg-black" value="true">Yes</option>
-                                <option class="bg-white dark:bg-black" value="false">No</option>
+
+                    <!-- Status | Payment Mode -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_is_active" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Status</label>
+                            <select name="subscription_is_active" id="subscription_is_active"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
                             </select>
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_account_name" class="text-sm">
-                                Account Name
-                            </label>
-                            <input type="text" name="subscription_account_name" id="subscription_account_name"
-                                class="text-input" placeholder="Account Name" />
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_payment_mode_name" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Payment Mode</label>
+                            <select name="subscription_payment_mode_name" id="subscription_payment_mode_name"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
+                                <option value="cash">Cash</option>
+                                <option value="credit">Credit</option>
+                                <option value="debit">Debit</option>
+                                <option value="upi">UPI</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="font-medium flex flex-col gap-2 w-full">
-                        <label for="subscription_description" class="text-sm">
-                            Subscription Description
+
+                    <!-- Description (full width) -->
+                    <div class="font-medium flex flex-col gap-1.5">
+                        <label for="subscription_description" class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                            Description <span class="normal-case font-normal">(optional)</span>
                         </label>
-                        <textarea name="subscription_description" id="subscription_description"
-                            class="text-input min-h-20" maxlength="140"
-                            placeholder="Short note about this subscription"></textarea>
+                        <textarea name="subscription_description" id="subscription_description" maxlength="140" rows="2"
+                            placeholder="Short note about this subscription"
+                            class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm resize-none"></textarea>
                     </div>
-                    <div class="font-medium flex flex-col gap-2 w-full">
-                        <label for="subscription_payment_mode_name" class="text-sm">
-                            Payment Mode
-                        </label>
-                        <select name="subscription_payment_mode_name" id="subscription_payment_mode_name"
-                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20 dark:focus:border-white/20 dark:focus:ring-white/20">
-                            <option class="bg-white dark:bg-black" value="cash">Cash</option>
-                            <option class="bg-white dark:bg-black" value="credit">Credit</option>
-                            <option class="bg-white dark:bg-black" value="debit">Debit</option>
-                            <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                        </select>
-                    </div>
+
+                    <!-- Submit -->
                     <button type="submit"
-                        class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
-                        Submit
+                        class="w-full font-semibold text-sm text-center p-2.5 rounded-lg cursor-pointer bg-black text-white hover:bg-black/85 dark:bg-white dark:text-black dark:hover:bg-white/90 transition-all duration-200">
+                        Add Subscription
                     </button>
+
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 hidden  capitalize"
+    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 hidden capitalize"
         id="subscription-edit-screen">
-        <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
-            <form id="subscription-edit-form" class="w-11/12 sm:max-w-md">
-                <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
-                <div class="font-semibold flex items-center justify-between">
-                    <span class="text-lg">
-                        Edit subscription
-                    </span>
-                    <button class="subscription-edit-screen-toggle cursor-pointer" type="button"
-                        subscription-id="data.subscription.subscriptionToEdit.subscription_id">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            subscription-id="data.subscription.subscriptionToEdit.subscription_id" stroke="currentColor"
-                            class="size-6 subscription-edit-screen-toggle">
+        <div class="w-full h-full bg-black/80 dark:bg-black/40 flex items-center justify-center backdrop-blur-sm p-4">
+
+            <form id="subscription-edit-form"
+                class="w-full max-w-2xl max-h-[88vh] overflow-y-auto no-scroll-bar rounded-xl shadow-2xl text-bg-colours p-5 border border-black/10 dark:border-white/10 space-y-4">
+
+                <!-- Header -->
+                <div class="font-semibold flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
+                    <span class="text-base">Edit Subscription</span>
+                    <button class="subscription-edit-screen-toggle cursor-pointer p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="size-5 subscription-edit-screen-toggle">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"
-                                subscription-id="data.subscription.subscriptionToEdit.subscription_id"
                                 class="subscription-edit-screen-toggle" />
                         </svg>
                     </button>
                 </div>
-                <div class="pt-4 dark:text-white space-y-6">
-                    <div class="font-medium flex flex-col gap-2 ">
-                        <label for="subscription_name_edit" class="text-sm">
-                            Name
-                        </label>
+
+                <div class="dark:text-white space-y-4">
+
+                    <!-- Name (full width) -->
+                    <div class="font-medium flex flex-col gap-1.5">
+                        <label for="subscription_name_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Name</label>
                         <input type="text" name="subscription_name_edit" id="subscription_name_edit"
-                            rv-value="data.subscription.subscriptionToEdit.subscription_name"
-                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                            placeholder="Netflix">
+                            rv-value="data.subscription.subscriptionToEdit.subscription_name" placeholder="Netflix"
+                            class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_amount_edit" class="text-sm">
-                                amount (₹)
-                            </label>
+
+                    <!-- Amount | Last Paid Date -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_amount_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Amount (₹)</label>
                             <input type="number" name="subscription_amount_edit" id="subscription_amount_edit"
-                                rv-value="data.subscription.subscriptionToEdit.amount" class="text-input"
-                                placeholder="199">
+                                rv-value="data.subscription.subscriptionToEdit.amount" placeholder="199" min="1"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_last_paid_at_edit" class="text-sm">
-                                Last Paid Date
-                            </label>
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_last_paid_at_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Last Paid Date</label>
                             <input type="date" name="subscription_last_paid_at_edit" id="subscription_last_paid_at_edit"
                                 rv-value="data.subscription.subscriptionToEdit.last_paid_at"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                                placeholder="Ice Cream From Amul">
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex items-center justify-between gap-4 w-full">
-                            <div class="font-medium flex flex-col gap-2 w-full ">
-                                <label for="subscription_category_name_edit" class="text-sm">
-                                    Subscription Category
-                                </label>
-                                <input type="text" name="subscription_category_name_edit"
-                                    rv-value="data.subscription.subscriptionToEdit.category_name"
-                                    id="subscription_category_name_edit"
-                                    class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                                    placeholder="">
-                            </div>
+
+                    <!-- Category | Billing Cycle -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_category_name_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Category</label>
+                            <input type="text" name="subscription_category_name_edit" id="subscription_category_name_edit"
+                                rv-value="data.subscription.subscriptionToEdit.category_name"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm capitalize">
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_billing_cycle_edit" class="text-sm">
-                                Billing Cycle
-                            </label>
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_billing_cycle_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Billing Cycle</label>
                             <select name="subscription_billing_cycle_edit" id="subscription_billing_cycle_edit"
                                 rv-value="data.subscription.subscriptionToEdit.billing_cycle"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                <option class="bg-white dark:bg-black" value="MONTHLY">Monthly</option>
-                                <option class="bg-white dark:bg-black" value="WEEKLY">Weekly</option>
-                                <option class="bg-white dark:bg-black" value="YEARLY">Yearly</option>
-                                <option class="bg-white dark:bg-black" value="ONE_TIME">One Time</option>
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
+                                <option value="MONTHLY">Monthly</option>
+                                <option value="WEEKLY">Weekly</option>
+                                <option value="YEARLY">Yearly</option>
+                                <option value="ONE_TIME">One Time</option>
                             </select>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_start_date_edit" class="text-sm">
-                                Start Date
-                            </label>
+
+                    <!-- Start Date | End Date -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_start_date_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Start Date</label>
                             <input type="date" name="subscription_start_date_edit" id="subscription_start_date_edit"
-                                rv-value="data.subscription.subscriptionToEdit.start_date" class="text-input ">
+                                rv-value="data.subscription.subscriptionToEdit.start_date"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_end_date_edit" class="text-sm">
-                                End Date
-                            </label>
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_end_date_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">End Date</label>
                             <input type="date" name="subscription_end_date_edit" id="subscription_end_date_edit"
-                                rv-value="data.subscription.subscriptionToEdit.end_date" class="text-input"
-                                placeholder="Ice Cream From Amul">
+                                rv-value="data.subscription.subscriptionToEdit.end_date"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_is_active_edit" class="text-sm">
-                                Subscription Status
-                            </label>
+
+                    <!-- Status | Payment Mode -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_is_active_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Status</label>
                             <select name="subscription_is_active_edit" id="subscription_is_active_edit"
-                                rv-value="data.subscription.subscriptionToEdit.is_active" class="text-input">
-                                <option class="bg-white dark:bg-black" value="true">Yes</option>
-                                <option class="bg-white dark:bg-black" value="false">No</option>
+                                rv-value="data.subscription.subscriptionToEdit.is_active"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
                             </select>
                         </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_account_name_edit" class="text-sm">
-                                Account Name
-                            </label>
-                            <input type="text" name="subscription_account_name_edit" id="subscription_account_name_edit"
-                                rv-value="data.subscription.subscriptionToEdit.account_name" class="text-input" />
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_description_edit" class="text-sm">
-                                Subscription Description
-                            </label>
-                            <textarea name="subscription_description_edit" id="subscription_description_edit"
-                                rv-value="data.subscription.subscriptionToEdit.description"
-                                class="text-input"></textarea>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="subscription_payment_mode_name_edit" class="text-sm">
-                                Payment Mode
-                            </label>
+                        <div class="font-medium flex flex-col gap-1.5">
+                            <label for="subscription_payment_mode_name_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Payment Mode</label>
                             <select name="subscription_payment_mode_name_edit" id="subscription_payment_mode_name_edit"
-                                rv-value="data.subscription.subscriptionToEdit.payment_mode_name" class="text-input">
-                                <option class="bg-white dark:bg-black" value="cash">Cash</option>
-                                <option class="bg-white dark:bg-black" value="credit">Credit</option>
-                                <option class="bg-white dark:bg-black" value="debit">Debit</option>
-                                <option class="bg-white dark:bg-black" value="upi">upi</option>
+                                rv-value="data.subscription.subscriptionToEdit.payment_mode_name"
+                                class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm">
+                                <option value="cash">Cash</option>
+                                <option value="credit">Credit</option>
+                                <option value="debit">Debit</option>
+                                <option value="upi">UPI</option>
                             </select>
                         </div>
                     </div>
-                    <div class="space-y-4">
+
+                    <!-- Description (full width) -->
+                    <div class="font-medium flex flex-col gap-1.5">
+                        <label for="subscription_description_edit" class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                            Description <span class="normal-case font-normal">(optional)</span>
+                        </label>
+                        <textarea name="subscription_description_edit" id="subscription_description_edit"
+                            rv-value="data.subscription.subscriptionToEdit.description"
+                            rows="2" class="p-2 w-full border border-black/20 dark:border-white/20 rounded-md bg-transparent focus:outline-none focus:ring-1 focus:ring-black/30 dark:focus:ring-white/20 text-sm resize-none"></textarea>
+                    </div>
+
+                    <!-- Save | Delete buttons -->
+                    <div class="grid grid-cols-2 gap-3 pt-1">
                         <button type="submit"
-                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
-                            Submit
+                            class="font-semibold text-sm text-center p-2.5 rounded-lg cursor-pointer bg-black text-white hover:bg-black/85 dark:bg-white dark:text-black dark:hover:bg-white/90 transition-all duration-200">
+                            Save Changes
                         </button>
-                        <button type="button" rv-data-subscription-id="data.subscription.subscriptionToEdit.subscription_id"
-                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90 transition-all duration-200 delete-subscription">
+                        <button type="button"
+                            rv-data-subscription-id="data.subscription.subscriptionToEdit.subscription_id"
+                            class="font-semibold text-sm text-center p-2.5 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500 transition-all duration-200 delete-subscription">
                             Delete
                         </button>
                     </div>
-                </div>
+
                 </div>
             </form>
         </div>
     </div>
-    <script type="module" src="../../src/scripts/binding/formatter.js"></script>
     <script type="module" src="../../src/main.js"></script>
     <script type="module" src="../../src/scripts/theme/theme.js"></script>
     <script type="module" src="../../src/scripts/subscriptions.js"></script>

@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 import "./style.css";
+import "./scripts/binding/formatter.js";
 import rivets from "rivets";
 
 // import Swup from 'swup';
@@ -9,6 +10,7 @@ export const data = {
   user: {},
   income: {
     list: [],
+    listEmpty: true,
     loading: false,
     error: null,
     page: {
@@ -39,11 +41,13 @@ export const data = {
       payment_mode_name: "",
       account_name: null,
       description: "",
+      status: "",
     },
   },
   expense: {
     categories: [],
     list: [],
+    listEmpty: true,
     loading: false,
     error: null,
     page: {
@@ -76,71 +80,54 @@ export const data = {
       description: "",
     },
   },
-  investments: {
-    list: [
-      {
-        investment_name: "string",
-        investment_type: "stock",
-        investment_date: "2025-09-11T14:25:01.118Z",
-        description: "string",
-        platform: "string",
-        amount_invested: 1,
-        status: "active",
-        withdrawl_amount: 0,
-        withdrawl_date: "2025-09-11T14:25:01.118Z",
-        account_name: "string",
-        investment_id: 0,
-        current_price_per_unit: 0,
-        current_value: 0,
-        last_synced_at: "2025-09-11T14:25:01.118Z",
-        gain_or_loss: 0,
-        units: 0,
-        units_withdrawl: 0,
-        buy_price_per_unit: 0,
-        maturity_date: "2025-09-11T14:25:01.118Z",
-        interest_rate: 0,
-        compounding_frequency: "annually",
-        account_linked: 0,
-      },
-    ],
-    investmentToEdit: {
-      investment_name: "string",
-      investment_type: "stock",
-      investment_date: "2025-09-11T14:25:01.118Z",
-      description: "string",
-      platform: "string",
-      amount_invested: 1,
-      status: "active",
-      withdrawl_amount: 0,
-      withdrawl_date: "2025-09-11T14:25:01.118Z",
-      account_name: "string",
-      investment_id: 0,
-      current_price_per_unit: 0,
-      current_value: 0,
-      last_synced_at: "2025-09-11T14:25:01.118Z",
-      gain_or_loss: 0,
-      units: 0,
-      units_withdrawl: 0,
-      buy_price_per_unit: 0,
-      maturity_date: "2025-09-11T14:25:01.118Z",
-      interest_rate: 0,
-      compounding_frequency: "annually",
-      account_linked: 0,
-    },
-    page: {
-      total_pages: 1,
-      current_page: 1,
-      total_investments: 0,
-    },
-    search: {
-      input: "",
-      lower_price: null,
-      greater_price: null,
-      exact_price: null,
-    },
+  investment: {
+  list: [],
+  /** Rivets cannot bind to Array.length (non-configurable); use this for empty-state UI. */
+  listEmpty: true,
+  loading: false,
+  error: null,
+
+  page: {
+    total_pages: 1,
+    current_page: 1,
+    total_investments: 0,
   },
+
+  search: {
+    input: "",
+    lower_price: null,
+    greater_price: null,
+    exact_price: null,
+    status: null,
+    date: null,
+  },
+
+  overview: {
+    total_investment_current_month: 0,
+    total_investment_last_30_days: 0,
+    total_investment_last_7_days: 0,
+    average_monthly_investment: 0,
+    average_weekly_investment: 0,
+  },
+
+  investmentToEdit: {
+    id: null,
+    name: "",
+    date: "",
+    amount: "",
+    type: "",
+    platform: "",
+    units: "",
+    buy_price: "",
+    current_price: "",
+    description: "",
+  },
+},
   subscription: {
     list: [],
+    listEmpty: true,
+    loading: false,
+    error: null,
     overview: {
       total_subscription_last_30_days: 0,
       total_subscription_last_7_days: 0,
@@ -175,6 +162,36 @@ export const data = {
       exact_price: null,
     },
   },
+  // ─── ADD THIS BLOCK inside the `data` object in main.js ──────────────────────
+// Place it alongside the other sections (income, expense, subscription, etc.)
+
+  budget: {
+    list: [],
+    loading: false,
+    error: null,
+    page: {
+      total_pages: 1,
+      current_page: 1,
+      total_budgets: 0,
+    },
+    search: {
+      input: "",
+      lower_budget_amount: null,
+      greater_budget_amount: null,
+      exact_budget_amount: null,
+      start_date: null,
+      end_date: null,
+    },
+    budgetToEdit: {
+      id: null,
+      category_name: "",
+      amount: "",
+      start_date: "",
+      end_date: "",
+      category_id: null,
+    },
+  },
+// ─────────────────────────────────────────────────────────────────────────────
   overview: {},
   password: {
     length: false,
@@ -188,48 +205,110 @@ export const data = {
 
 export const body = document.querySelector("body");
 
-// Delay Rivets binding until DOM is ready to avoid length property redefinition errors
-function initializeRivets() {
+// // Delay Rivets binding until DOM is ready to avoid length property redefinition errors
+// function initializeRivets() {
+//   try {
+//     if (body) {
+//       rivets.bind(body, {
+//         data: data,
+//       });
+//     }
+//   } catch (error) {
+//     console.error("Rivets binding error:", error);
+//     // Retry after a short delay if initial binding fails
+//     setTimeout(() => {
+//       try {
+//         if (body) {
+//           rivets.bind(body, {
+//             data: data,
+//           });
+//         }
+//       } catch (retryError) {
+//         console.error("Rivets binding retry failed:", retryError);
+//       }
+//     }, 100);
+//   }
+// }
+
+let rivetsView = null;
+const pageInits = [];
+
+/** Replace array contents in-place so Rivets keeps observing the same reference. */
+export function replaceList(arr, items) {
+  if (!Array.isArray(arr)) return;
+  const next = Array.isArray(items) ? items : [];
+  arr.splice(0, arr.length, ...next);
+}
+
+/** Register page-specific data loading; runs after Rivets bind + auth. */
+export function onPageReady(fn) {
+  pageInits.push(fn);
+}
+
+/** Re-run Rivets bindings after mutating `data` (overview object, lists, etc.). */
+export function syncRivets() {
   try {
-    if (body) {
-      rivets.bind(body, {
-        data: data,
-      });
+    if (rivetsView && typeof rivetsView.sync === "function") {
+      rivetsView.sync();
     }
-  } catch (error) {
-    console.error("Rivets binding error:", error);
-    // Retry after a short delay if initial binding fails
-    setTimeout(() => {
-      try {
-        if (body) {
-          rivets.bind(body, {
-            data: data,
-          });
-        }
-      } catch (retryError) {
-        console.error("Rivets binding retry failed:", retryError);
-      }
-    }, 100);
+  } catch (err) {
+    console.warn("Rivets sync failed:", err);
   }
 }
 
-// Initialize Rivets when DOM is ready
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initializeRivets);
-} else {
-  initializeRivets();
+/** ES module scripts may load after DOMContentLoaded; this runs init reliably. */
+export function runWhenDomReady(fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn);
+  } else {
+    fn();
+  }
 }
 
-rivets.formatters.date = function (value) {
-  const date = new Date(value);
+function initializeRivets() {
+  if (rivetsView) return;
 
-  return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
-};
-rivets.formatters.time = function (value) {
-  const date = new Date(value);
+  if (body) {
+    try {
+      rivetsView = rivets.bind(body, { data });
+    } catch (err) {
+      console.error("Rivets bind failed:", err);
+    }
+  }
+}
 
-  return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-};
+async function bootApp() {
+  initializeRivets();
+
+  const onDashboard = window.location.pathname.includes("/dashboard");
+  const jwtToken = localStorage.getItem("jwtToken");
+
+  if (onDashboard && !jwtToken) {
+    window.location.href = "/";
+    return;
+  }
+
+  if (jwtToken) {
+    await Promise.allSettled([getUserDetails(), getCategoryList()]);
+  }
+
+  for (const init of pageInits) {
+    try {
+      await init();
+    } catch (err) {
+      console.error("Page init failed:", err);
+    }
+  }
+
+  syncRivets();
+}
+
+// Defer one tick so sibling <script type="module"> tags can call onPageReady first.
+runWhenDomReady(() => {
+  setTimeout(() => {
+    bootApp().catch((err) => console.error("App boot failed:", err));
+  }, 0);
+});
 
 body.addEventListener("click", (e) => {
   const target = e.target;
@@ -320,8 +399,8 @@ async function getUserDetails() {
       }
     }
     const result = await response.json();
-    console.log("User Info:", result);
-    data.user = result;
+    Object.assign(data.user, result);
+    syncRivets();
   } catch (error) {
     console.log(error);
   }
@@ -331,23 +410,11 @@ export function token() {
   const jwtToken = localStorage.getItem("jwtToken");
   if (!jwtToken) {
     console.error("No JWT token found. User is not logged in.");
-    window.location.href = "/login.html";
-    return;
+    window.location.href = "/";
+    throw new Error("Not authenticated: no jwtToken in localStorage.");
   }
   return jwtToken;
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const jwtToken = localStorage.getItem("jwtToken");
-  getUserDetails();
-  getCategoryList();
-  if (jwtToken) {
-    console.log("user token is present");
-  } else {
-    console.log("user token is not present, redirecting");
-    window.location.href = "/";
-  }
-});
 
 async function getCategoryList(params) {
   try {

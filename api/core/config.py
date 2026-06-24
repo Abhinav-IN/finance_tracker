@@ -36,42 +36,19 @@ class Settings(BaseSettings):
     config_logger.info(f" JWT Token Information Loaded Successfully")
     print("-----------------------------------------------")
 
-    # Redis Settings
-    config_logger.info(f" Loading Redis Information")
-    redis_hostname: str = Field("localhost", alias="REDIS_HOSTNAME")
-    redis_port: int = Field(6379, alias="REDIS_PORT")
-    redis_db: int = Field(0, alias="REDIS_DB")
-    config_logger.info(f" Redis Information Loaded")
-    print("-----------------------------------------------")
-
-
-
+    
     # Authentication/Security Settings
     config_logger.info(f" Loading Authentication/Security Settings")
     maximum_failed_attempts: int = Field(5, alias="MAXIMUM_FAILED_ATTEMPTS")
     block_duration: int = Field(3600, alias="BLOCK_DURATION") # seconds (e.g., 1 hour)
-    password_token_expire_in_minutes: int = Field(15, alias="PASSWORD_TOKEN_EXPIRE_IN_MINUTES")
-    verification_token_expire_in_minutes: int = Field(30, alias="VERIFICATION_TOKEN_EXPIRE_IN_MINUTES")
     config_logger.info(f" Authentication/Security Settings Loaded Fully")
     print("-----------------------------------------------")
 
     # Frontend base URL (for verification and password-reset links in emails)
     frontend_base_url: str = Field("http://localhost:5173", alias="FRONTEND_BASE_URL")
 
-    # SMTP (Email) Settings
-    config_logger.info(f" Loading SMTP (Email) Settings")
-    smtp_host: str = Field("smtp.mailtrap.io", alias="SMTP_HOST") # Example for mailtrap
-    smtp_port: int = Field(2525, alias="SMTP_PORT")
-    smtp_user: str = Field("your_smtp_username", alias="SMTP_USER")
-    smtp_pass: str = Field("your_smtp_password", alias="SMTP_PASS")
-    smtp_from: str = Field("no-reply@yourdomain.com", alias="SMTP_FROM")
-    config_logger.info(f" SMTP (Email) Settings Loaded Fully")
-    print("-----------------------------------------------")
-
-    # Google Gemini settings
-    config_logger.info(f" Loading Google Gemini Settings")
-    google_gemini_api_key: str = Field("gemini_api_key", alias="GEMINI_API_KEY") 
-
+    # Demo account (recruiter / showcase login)
+    demo_email: str = Field("test@gmail.com", alias="DEMO_EMAIL")
     
     # CORS Settings (include both localhost and 127.0.0.1 so browser Origin matches)
     config_logger.info(f" Loading CORS Settings/Information")

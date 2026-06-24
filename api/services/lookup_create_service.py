@@ -1,7 +1,6 @@
 from api.models.category import Category
 from api.models.payment_mode import PaymentMode
 from api.models.transaction_type import TransactionType
-from api.models.account import Account
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -55,17 +54,3 @@ def get_or_create_paymentMode(paymentModeName: str, db: Session) -> int:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Payment mode name already exists")
     return new_payment_mode.id
-
-def get_account_id(account_name: str, userId: int, db: Session):
-    if account_name is None:
-        return None
-    
-    account = db.query(Account).filter(
-        Account.user_id == userId,
-        Account.name.ilike(f"%{account_name.strip()}%")
-    ).first()
-    
-    if account is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
-
-    return account.id  

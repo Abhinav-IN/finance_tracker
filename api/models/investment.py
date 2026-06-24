@@ -9,7 +9,6 @@ class Investment(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    account_id = Column(Integer, ForeignKey("account.id"), nullable=True)
     name = Column(String(100), nullable=False)
     investment_type = Column(SQLEnum(InvestmentType, name="investment_type_enum"), nullable=False)
     platform = Column(String(100), nullable=False)
@@ -17,7 +16,7 @@ class Investment(Base):
     units = Column(Float, nullable=True)
     buy_price = Column(Float, nullable=True)
     date = Column(DateTime(timezone=True), nullable=False)
-    maturity_date = Column(DateTime(timezone=True), nullable=True)
+    description = Column(String(140), nullable=True)
     status = Column(SQLEnum(InvestmentStatus, name="investment_status_enum"), default=InvestmentStatus.ACTIVE, nullable=False)
     created_at = Column(DateTime(timezone=True), default=ist_now, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=ist_now, onupdate=ist_now, nullable=False)
@@ -29,5 +28,4 @@ class Investment(Base):
     )
 
     user = relationship("User", back_populates="investments")
-    account = relationship("Account", back_populates="investment")
     prices = relationship("InvestmentPrice", back_populates="investment", cascade="all, delete-orphan",order_by="InvestmentPrice.recorded_at.desc()")

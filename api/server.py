@@ -8,7 +8,7 @@ from api.core.config import settings
 
 from api import models
 from api.database.session import  init_db
-from api.routers import auth, category, transaction, admin, budget, seed_data, subscription, investment, dashboard, transaction, user, account, investment_price
+from api.routers import auth, category, transaction, budget, subscription, investment, dashboard, transaction, user, investment_price
 
 from fastapi.middleware.cors import CORSMiddleware
 CORS_ORIGINS = settings.origins
@@ -59,11 +59,6 @@ app.include_router(budget.router)
 server_logger.info("Budget Router Loaded")
 print("--------------------------------")
 
-server_logger.info("Loading Seeding Router")
-app.include_router(seed_data.router)
-server_logger.info("Seeding Router Loaded")
-print("--------------------------------")
-
 server_logger.info("Loading Subscription Router")
 app.include_router(subscription.router)
 server_logger.info("Subscription Router Loaded")
@@ -87,11 +82,6 @@ print("--------------------------------")
 server_logger.info("Loading User Router")
 app.include_router(user.router)
 server_logger.info("User Router Loaded")
-print("--------------------------------")
-
-server_logger.info("Loading Account Router")
-app.include_router(account.router)
-server_logger.info("Account Router Loaded")
 print("--------------------------------")
 
 # Serve static files

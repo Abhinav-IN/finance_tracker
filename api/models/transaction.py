@@ -12,7 +12,6 @@ class Transaction(Base):
     amount = Column(Numeric(12, 2), nullable=False)  # Changed type from float to Numeric to avoid floating point imprecesion
     description = Column(String(140), nullable=True) # Made description nullable
     date = Column(DateTime(timezone=True), nullable=False)
-    account_id = Column(Integer, ForeignKey("account.id"),  nullable=True) # CHanged name from account_linked to account_id
     created_at = Column(DateTime(timezone=True), default=ist_now, nullable=False) # Added the ist_now logic in util
     updated_at = Column(DateTime(timezone=True), default=ist_now, onupdate=ist_now, nullable=False) # Added the ist_now logic in util fn
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -30,4 +29,4 @@ class Transaction(Base):
     category = relationship('Category', back_populates='transactions')
     transaction_type = relationship('TransactionType', back_populates='transactions')
     payment_mode = relationship('PaymentMode', back_populates='transactions')
-    account = relationship('Account', back_populates='transactions')
+    

@@ -1,5 +1,4 @@
 from api.utils.hashing import verify_password, hashing_password
-from api.models.account import Account
 from api.models.category import Category
 from api.models.user import User
 from api.models.transaction import Transaction
@@ -124,8 +123,6 @@ def delete_profile_service(user_id: int, db: Session):
     db.query(Category).filter(Category.user_id == user_id).delete(synchronize_session=False)  
 
     db.query(Investment).filter(Investment.user_id == user_id).delete(synchronize_session=False)
-
-    db.query(Account).filter(Account.user_id == user_id).delete(synchronize_session=False)
 
     curr_user_query.delete(synchronize_session=False)
 

@@ -1,8 +1,8 @@
 from api.core.oauth2 import require_roles
 from api.database.session import get_db
 from api.utils.enums import UserRole
-from api.schemas.investment import InvestmentCreateRequest, InvestmentUpdateRequest, InvestmentResponse, PaginatedInvestmentResponse, InvestmentQueryParams
-from api.services.investment_service import create_investment_service, get_investment_service, update_investment_service,delete_investment_service
+from api.schemas.investment import InvestmentCreateRequest, InvestmentUpdateRequest, InvestmentResponse, PaginatedInvestmentResponse, InvestmentQueryParams, InvestmentOverview
+from api.services.investment_service import create_investment_service, get_investment_service, update_investment_service,delete_investment_service, investment_overview_service
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -40,3 +40,7 @@ def delete_investment(
     db: Session = Depends(get_db),
 ):
     return delete_investment_service(investment_id, user["id"], db)
+
+@router.get('/investment_overview', status_code=status.HTTP_200_OK, response_model=InvestmentOverview)
+def overview_investment(user: dict = Depends(require_roles(UserRole.USER, UserRole.ADMIN)),  db: Session = Depends(get_db)):
+    return investment_overview_service(user, db)

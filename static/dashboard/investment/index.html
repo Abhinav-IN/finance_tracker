@@ -9,13 +9,13 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../../src/style.css" rel="stylesheet">
-    <title>Fi-Track :: Expense</title>
+    <title>Fi-Track :: Investment</title>
 </head>
 
 <body class="w-full h-screen overflow-hidden text-bg-colours">
 
     <div class="w-full h-full flex items-start justify-start  ">
-        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-40 text-bg-colours
+        <div class="w-72 border-r border-black/20 h-full p-4 dark:border-white/10 space-y-8 fixed z-20 text-bg-colours
         -translate-x-full 2xl:relative 2xl:translate-x-0  transition-all duration-300" id="navigation-panel">
             <div class="flex items-center justify-between">
                 <a href="/dashboard">
@@ -41,6 +41,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                             </svg>
+
                             <span>
                                 Dashoard
                             </span>
@@ -59,7 +60,7 @@
                         </a>
                     </li>
                     <li class="">
-                        <a href="/dashboard/expense/" class="button-active">
+                        <a href="/dashboard/expense/" class="button-inactive">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -85,7 +86,7 @@
                     </li>
 
                     <li class="">
-                        <a href="/dashboard/investment/" class="button-inactive">
+                        <a href="/dashboard/investment/" class="button-active">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -105,7 +106,6 @@
                             <span>Budget</span>
                         </a>
                     </li>
-
                 </ul>
             </div>
         </div>
@@ -119,7 +119,7 @@
                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
                 </button>
-                <h1 class="font-bold text-lg xl:text-2xl ">Expense</h1>
+                <h1 class="font-bold text-lg xl:text-2xl ">Investment</h1>
                 <div class="flex gap-4 items-center">
                     <div class="relative" id="user-panel-container">
                         <button id="user-panel-toggle"
@@ -166,6 +166,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                                         </svg>
+
                                         <span>
                                             Logout
                                         </span>
@@ -176,16 +177,16 @@
                     </div>
                 </div>
             </section>
-            <section class="transition-fade p-4  overflow-y-scroll no-scroll-bar relative z-0 " id="swup">
+            <section class="transition-fade p-4 h-screen overflow-y-scroll no-scroll-bar relative z-0 " id="swup">
                 <div>
                     <h2 class="font-medium text-lg">
-                        Expense Overview
+                        Investment Overview
                     </h2>
                 </div>
                 <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5  gap-4 relative pt-4">
                     <div class="overview-card relative">
                         <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Current Month expense</span>
+                            <span>Current Month Investment</span>
                             <span
                                 class="text-8xl absolute -z-10 text-black/10 dark:text-white/10 right-5 -bottom-5 font-bold">
                                 C-M
@@ -198,13 +199,13 @@
                                     d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             <span class="">
-                                {data.expense.overview.total_expense_current_month | money}
+                                {data.investment.overview.total_investment_current_month | money}
                             </span>
                         </div>
                     </div>
                     <div class="overview-card relative">
                         <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Past 30 Days expense</span>
+                            <span>Past 30 Days Investment</span>
                             <span
                                 class="text-8xl absolute -z-10 text-black/10 dark:text-white/10 right-5 -bottom-5 font-bold">
                                 M
@@ -217,13 +218,13 @@
                                     d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             <span class="">
-                                {data.expense.overview.total_expense_last_30_days | money}
+                                {data.investment.overview.total_investment_last_30_days | money}
                             </span>
                         </div>
                     </div>
                     <div class="overview-card relative">
                         <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Past 7 Days expense</span>
+                            <span>Past 7 Days Investment</span>
                             <span
                                 class="text-8xl absolute -z-10 text-black/10 dark:text-white/10 right-5 -bottom-5 font-bold">
                                 W
@@ -236,13 +237,13 @@
                                     d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             <span>
-                                {data.expense.overview.total_expense_last_7_days | money}
+                                {data.investment.overview.total_investment_last_7_days | money}
                             </span>
                         </div>
                     </div>
                     <div class="overview-card relative ">
                         <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Average Monthly expense</span>
+                            <span>Average Monthly Investment</span>
                             <span
                                 class="text-8xl absolute -z-10 text-black/10 dark:text-white/10 right-5 -bottom-5 font-bold">
                                 A-M
@@ -256,14 +257,14 @@
                                     d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             <span>
-                                {data.expense.overview.average_monthly_expense | money}
+                                {data.investment.overview.average_monthly_investment | money}
 
                             </span>
                         </div>
                     </div>
                     <div class="overview-card relative ">
                         <div class="font-semibold text-lg flex items-center justify-between">
-                            <span>Average Weekly expense</span>
+                            <span>Average Weekly Investment</span>
                             <span
                                 class="text-8xl absolute -z-10 text-black/10 dark:text-white/10 right-5 -bottom-5 font-bold">
                                 A-W
@@ -277,33 +278,35 @@
                                     d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             <span>
-                                {data.expense.overview.average_weekly_expense | money}
+                                {data.investment.overview.average_weekly_investment | money}
                             </span>
                         </div>
                     </div>
                 </div>
+
                 <div class="pt-6 ">
                     <div class="w-full space-y-4">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-medium">
-                                Most Recent expense
+                                Most Recent Investment
                             </h3>
                             <button type="button"
-                                class="open-add-expense-form screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
+                                class="open-add-investment-form screen-toggle bg-black px-4 py-2 rounded-md shadow-md cursor-pointer text-white flex items-center font-medium gap-2">
                                 Add
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2.5" stroke="currentColor" class="size-6 open-add-expense-form screen-toggle">
-                                    <path class="open-add-expense-form screen-toggle" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2.5" stroke="currentColor" class="size-6 open-add-investment-form screen-toggle">
+                                    <path class="open-add-investment-form screen-toggle" stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 4.5v15m7.5-7.5h-15" />
                                 </svg>
                             </button>
                         </div>
-                        <div rv-show="data.expense.error" class="p-3 rounded-md bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm">
-                            {data.expense.error}
+                        <div rv-show="data.investment.error" role="alert"
+                            class="p-3 rounded-md bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm break-words whitespace-pre-wrap border border-red-300 dark:border-red-700">
+                            {data.investment.error}
                         </div>
                         <div class="flex items-center w-full gap-4 ">
                             <input type="text" id="search-input" class="text-input" placeholder="Search For Something"
-                                rv-value="data.expense.search.input">
+                                rv-value="data.investment.search.input">
                             <div class="relative">
                                 <button
                                     class="p-2 rounded-md shadow-md bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer filter-toggle">
@@ -331,7 +334,7 @@
                                                 Less Than
                                             </label>
                                             <input type="number" name="lower-price" id="lower-price" min="0"
-                                                max="9999999999" rv-value="data.expense.search.lower_price"
+                                                max="9999999999" rv-value="data.investment.search.greater_price"
                                                 placeholder="100"
                                                 class="border border-black/20 dark:border-white/20 px-2 py-1 w-32 rounded-sm shadow-xs">
                                         </div>
@@ -340,7 +343,7 @@
                                                 More Than
                                             </label>
                                             <input type="number" name="greater-price" id="greater-price" min="0"
-                                                rv-value="data.expense.search.greater_price" max="9999999999"
+                                                rv-value="data.investment.search.lower_price" max="9999999999"
                                                 placeholder="100"
                                                 class="border border-black/20 dark:border-white/20 px-2 py-1 w-32 rounded-sm shadow-xs">
                                         </div>
@@ -349,10 +352,28 @@
                                                 Exact Value
                                             </label>
                                             <input type="number" name="exact-price" id="exact-price" min="0"
-                                                max="9999999999" rv-value="data.expense.search.exact_price"
+                                                max="9999999999" rv-value="data.investment.search.exact_price"
                                                 placeholder="100"
                                                 class="border border-black/20 dark:border-white/20 px-2 py-1 w-32 rounded-sm shadow-xs">
                                         </div>
+                                        <div class="flex justify-between items-center gap-4 w-full">
+                                            <label for="status" class="text-nowrap font-medium text-xs">
+                                                Status
+                                            </label>
+                                            <select id="status" rv-value="data.investment.search.status" class="px-2 py-1 w-32 rounded-sm shadow-xs bg-white text-black dark:bg-gray-800 dark:text-white border border-black/20 dark:border-white/20">
+                                                <option class="bg-white text-black dark:bg-gray-800 dark:text-white" value="">All</option>
+                                                <option class="bg-white text-black dark:bg-gray-800 dark:text-white" value="ACTIVE">Active</option>
+                                                <option class="bg-white text-black dark:bg-gray-800 dark:text-white" value="CLOSED">Closed</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="flex justify-between items-center gap-4 w-full">
+                                            <label for="investment-date" class="text-nowrap font-medium text-xs">
+                                                Date
+                                            </label>
+                                            <input type="date" name="investment-date" id="investment-date" rv-value="data.investment.search.date" class="border border-black/20 dark:border-white/20 px-2 py-1 w-32 rounded-sm shadow-xs">
+                                        </div>
+
                                         <button
                                             class="w-full text-center p-1 rounded-md shadow-md bg-blue-500 font-medium text-white cursor-pointer filter-toggle">
                                             Close
@@ -371,10 +392,10 @@
                         </div>
                     </div>
                     <div class="w-full pt-4">
-                        <div rv-show="data.expense.loading" class="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                        <div rv-show="data.investment.loading" class="py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
                             Loading...
                         </div>
-                        <div rv-hide="data.expense.loading"
+                        <div rv-hide="data.investment.loading"
                             class="relative max-h-[500px] min-h-96 border border-black/20 dark:border-white/20 w-full rounded-md shadow-md overflow-y-scroll ">
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead
@@ -387,32 +408,34 @@
                                             Date
                                         </th>
                                         <th scope="col" class="px-6 py-3 border-r border-black/20 dark:border-white/20">
-                                            Expense Name
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 border-r border-black/20 dark:border-white/20">
-                                            Category
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 border-r border-black/20 dark:border-white/20">
-                                            Payment Mode
+                                            Investment Name
                                         </th>
                                         <th scope="col" class="px-6 py-3">
-                                            Price
+                                            Current Price
+                                        </th>
+                                        <th scope="col" class="px-6 py-3">
+                                            Current Value
+                                        </th>
+                                        <th scope="col" class="px-6 py-3">
+                                            PnL
+                                        </th>
+                                        <th scope="col" class="px-6 py-3">
+                                            Status
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody id="transaction-list-body" class="capitalize">
-                                    <tr data-empty-row class="bg-white dark:bg-gray-800">
-                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                                            No expenses yet. Add your first expense using the button above.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
+                                <tbody id="investment-list-body" class="capitalize">
+                                <tr data-empty-row class="bg-white dark:bg-gray-800">
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        No investment yet. Add your first investment using the button above.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         </div>
                         <div class="w-full text-center py-6 flex items-center justify-between sm:justify-end gap-4">
                             <button id="prev-page"
-                                rv-disabled="data.expense.page.current_page <= 1"
+                                rv-disabled="data.investment.page.current_page <= 1"
                                 class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="size-4">
@@ -425,11 +448,11 @@
                                 </span>
                             </button>
                             <span class="px-4 py-2 bg-gray-100 rounded-md shadow-md dark:bg-gray-900 ">
-                                {data.expense.page.current_page} / {data.expense.page.total_pages}
-                                <span rv-show="data.expense.page.total_transactions" class="text-xs ml-1">({data.expense.page.total_transactions} total)</span>
+                                {data.investment.page.current_page} / {data.investment.page.total_pages}
+                                <span rv-show="data.investment.page.total_investments" class="text-xs ml-1">({data.investment.page.total_investments} total)</span>
                             </span>
                             <button id="next-page"
-                                rv-disabled="data.expense.page.current_page >= data.expense.page.total_pages"
+                                rv-disabled="data.investment.page.current_page >= data.investment.page.total_pages"
                                 class="flex items-center font-medium p-2 border border-black/20 dark:border-white/20 rounded-md shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span class="">
                                     Next
@@ -446,16 +469,16 @@
             </section>
         </main>
     </div>
-    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 hidden capitalize"
+    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-30 hidden capitalize"
         id="overlay-screen">
-        <div class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs">
-            <form id="expense-addition-form"
-                class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
+        <form class="w-full h-full bg-black/90 dark:bg-black/20 flex items-center justify-center backdrop-blur-xs"
+            id="investment-addition-form">
+            <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
                 <div class="font-semibold flex items-center justify-between">
                     <span class="text-lg">
-                        Add Expense
+                        Add Investment
                     </span>
-                    <button class="screen-toggle cursor-pointer" type="button">
+                    <button type="button" class="screen-toggle cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6 screen-toggle">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"
@@ -465,109 +488,26 @@
                 </div>
                 <div class="pt-4 dark:text-white space-y-6">
                     <div class="font-medium flex flex-col gap-2 ">
-                        <label for="expense_name" class="text-sm">
+                        <label for="investment_name" class="text-sm">
                             Name
                         </label>
-                        <input type="text" name="expense_name" id="expense_name"
+                        <input type="text" name="investment_name" id="investment_name"
                             class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                            placeholder="Ice Cream From Amul">
+                            placeholder="Vanguard S&P 500 ETF">
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_price" class="text-sm">
-                                Price (₹)
-                            </label>
-                            <input type="number" name="expense_price" id="expense_price" class="text-input "
-                                placeholder="199">
-                        </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_date" class="text-sm">
-                                Spent Date
-                            </label>
-                            <input type="date" name="expense_date" id="expense_date"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                                placeholder="Ice Cream From Amul">
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex items-center justify-between gap-4 w-full">
-                            <div class="font-medium flex flex-col gap-2 w-full ">
-                                <label for="expense_category" class="text-sm">
-                                    Expense Category
-                                </label>
-                                <input type="text" name="expense_category" id="expense_category"
-                                    class="text-input capitalize" placeholder="Category Name">
-                            </div>
-                        </div>
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="expense_payment_mode" class="text-sm">
-                                Payment Mode
-                            </label>
-                            <select name="expense_payment_mode" id="expense_payment_mode"
-                                class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                <option class="bg-white dark:bg-black" value="cash">CASH</option>
-                                <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                                <option class="bg-white dark:bg-black" value="credit card">Credit Card</option>
-                                <option class="bg-white dark:bg-black" value="debit card">Debit Card</option>
-                                <option class="bg-white dark:bg-black" value="wallet">Wallet</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="font-medium flex flex-col gap-2 ">
-                        <label for="expense_note" class="text-sm">
-                            Additional Note
-                        </label>
-                        <textarea type="text" name="expense_note" id="expense_note" maxlength="140"
-                            class="text-input min-h-20" placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
-                    </div>
-                    <button type="submit"
-                        class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
-                        Submit
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="w-full h-screen flex items-center justify-center fixed top-0 left-0 z-40 bg-black/90 dark:bg-black/20 capitalize backdrop-blur-sm hidden"
-        id="expense-edit-screen">
-        <form id="edit-expense-form" class="w-11/12 sm:max-w-md">
-            <div class="w-11/12 sm:max-w-md rounded-lg shadow-md text-bg-colours p-4 dark:border-white/20 dark:border">
-                <div class="font-semibold flex items-center justify-between">
-                    <span class="text-lg">
-                        Editiing expense
-                    </span>
-                    <button type="button" class="edit-screen-toggle cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6 edit-screen-toggle">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"
-                                class="edit-screen-toggle" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="pt-4 dark:text-white space-y-6">
-                    <div class="font-medium flex flex-col gap-2 ">
-                        <label for="edit_expense_name" class="text-sm">
-                            Name
-                        </label>
-                        <input type="text" name="expense_name" id="edit_expense_name"
-                            rv-value="data.expense.expenseToEdit.title"
-                            class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
-                            placeholder="Salary">
-                    </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="edit_expense_price" class="text-sm">
+                            <label for="investment_amount" class="text-sm">
                                 Amount (₹)
                             </label>
-                            <input type="number" name="edit_expense_price" id="edit_expense_price" class="text-input "
-                                rv-value="data.expense.expenseToEdit.amount" placeholder="20099">
+                            <input type="number" name="investment_amount" id="investment_amount" class="text-input "
+                                placeholder="20099">
                         </div>
                         <div class="font-medium flex flex-col gap-2 w-full">
-                            <label for="edit_expense_date" class="text-sm">
-                                Received Date
+                            <label for="investment_date" class="text-sm">
+                                Date
                             </label>
-                            <input type="date" name="edit_expense_date" id="edit_expense_date"
-                                rv-value="data.expense.expenseToEdit.date"
+                            <input type="date" name="investment_date" id="investment_date"
                                 class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20"
                                 placeholder="07-02-2025">
                         </div>
@@ -575,68 +515,202 @@
                     <div class="flex items-center justify-between w-full gap-2">
                         <div class="flex items-center justify-between gap-4 w-full">
                             <div class="font-medium flex flex-col gap-2 w-full">
-                                <label for="edit_payment_mode_name" class="text-sm">
-                                    Payment Mode
+                                <label for="investment_type" class="text-sm">
+                                    Type
                                 </label>
-                                <select name="edit_payment_mode_name" id="edit_payment_mode_name"
-                                    rv-value="data.expense.expenseToEdit.payment_mode_name"
+                                <select name="investment_type" id="investment_type"
                                     class="p-2 w-full border-black/20 border rounded-md focus:border-black/50 focus:ring-black/50 dark:border-white/20  dark:focus:border-white/20 dark:focus:ring-white/20">
-                                    <option class="bg-white dark:bg-black" value="cash">CASH</option>
-                                    <option class="bg-white dark:bg-black" value="upi">UPI</option>
-                                    <option class="bg-white dark:bg-black" value="credit card">Credit Card</option>
-                                    <option class="bg-white dark:bg-black" value="debit card">Debit Card</option>
-                                    <option class="bg-white dark:bg-black" value="wallet">Wallet</option>
+                                    <option class="bg-white dark:bg-black" value="STOCK">Stock</option>
+                                    <option class="bg-white dark:bg-black" value="MUTUAL_FUND">Mutual Fund</option>
+                                    <option class="bg-white dark:bg-black" value="FIXED_DEPOSIT">Fixed Deposit</option>
+                                    <option class="bg-white dark:bg-black" value="CRYPTO">Crypto</option>
+                                    <option class="bg-white dark:bg-black" value="GOLD">Gold</option>
                                 </select>
                             </div>
                         </div>
                         <div class="flex items-center justify-between gap-4 w-full">
-                            <div class="font-medium flex flex-col gap-2 w-full ">
-                                <label for="edit_expense_category" class="text-sm">
-                                    Expense Category
+                            <div class="font-medium flex flex-col gap-2 w-full">
+                                <label for="investment_platform" class="text-sm">
+                                    Platform
                                 </label>
-                                <input type="text" name="edit_expense_category" id="edit_expense_category"
-                                    rv-value="data.expense.expenseToEdit.category_name"
-                                    class="text-input capitalize" placeholder="Category Name">
+                                <input type="text" name="investment_platform" id="investment_platform"
+                                    class="text-input" placeholder="Platform">
                             </div>
                         </div>
-                        <!-- <div class="flex items-center justify-between gap-4 w-full">
-                            <div class="font-medium flex flex-col gap-2 w-full">
-                                <label for="edit_expense_category" class="text-sm">
-                                    Category
-                                </label>
-                                <input type="text" name="expense_category" id="expense_category" class="text-input "
-                                    placeholder="Category Name" rv-value="data.expense.expenseToEdit.category_name" />
-                            </div>
-                        </div> -->
-
                     </div>
-                    <div class=" font-medium flex flex-col gap-2 ">
-                        <label for=" edit_expense_note" class="text-sm">
+                    
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="font-medium flex flex-col gap-2 w-full">
+                            <label for="units" class="text-sm">Units</label>
+                            <input type="number" name="units" id="units"  class="text-input" placeholder="10">
+                        </div>
+                        <div class="font-medium flex flex-col gap-2 w-full">
+                            <label for="buy_price"  class="text-sm">Buy Price (₹)</label>
+                            <input type="number" name="buy_price" id="buy_price"  class="text-input" placeholder="200">
+                        </div>
+                    </div>
+
+                    <div class="font-medium flex flex-col gap-2 ">
+                        <label for="investment_note" class="text-sm">
                             Additional Note
                         </label>
-                        <textarea type="text" name="edit_expense_note" id="edit_expense_note" maxlength="140"
-                            rv-value="data.expense.expenseToEdit.description" class="text-input min-h-20"
-                            placeholder="Butter Scotch, Vanilla, Chocolate Cups"></textarea>
+                        <textarea type="text" name="investment_note" id="investment_note" maxlength="140"
+                            class="text-input min-h-20" placeholder="Stocks in razorpay for building house"></textarea>
                     </div>
-                    <div class="space-y-4">
-                        <button type="submit"
-                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
-                            Submit
-                        </button>
-                        <button type="button" rv-data-transaction-id="data.expense.expenseToEdit.id"
-                            class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-red-600 text-white hover:bg-red-500/90 transition-all duration-200 delete-expense">
-                            Delete
-                        </button>
-                    </div>
+
+                    <button
+                        class="w-full font-medium capitalize text-center border p-2 rounded-lg cursor-pointer bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/95 transition-all duration-200 ">
+                        Submit
+                    </button>
                 </div>
             </div>
-
         </form>
     </div>
+    <div id="investment-edit-screen"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
 
+    <form id="edit-investment-form" class="w-11/12 max-w-4xl">
+
+        <div
+            class="w-full rounded-xl shadow-lg text-bg-colours p-6 dark:border-white/20 dark:border max-h-[85vh] overflow-y-auto bg-white dark:bg-gray-900">
+
+            <!-- HEADER -->
+            <div class="font-semibold flex items-center justify-between border-b pb-3 mb-4">
+                <span class="text-lg">Editing Investment</span>
+
+                <button type="button" class="edit-screen-toggle cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- FORM GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 dark:text-white">
+
+                <!-- NAME (FULL WIDTH) -->
+                <div class="font-medium flex flex-col gap-2 col-span-2">
+                    <label for="edit_investment_name" class="text-sm">Name</label>
+                    <input type="text" id="edit_investment_name"
+                        rv-value="data.investment.investmentToEdit.name"
+                        class="text-input"
+                        placeholder="Vanguard S&P 500 ETF">
+                </div>
+
+                <!-- AMOUNT -->
+                <div class="font-medium flex flex-col gap-2">
+                    <label for="edit_investment_amount" class="text-sm">Amount (₹)</label>
+                    <input type="number" id="edit_investment_amount"
+                        rv-value="data.investment.investmentToEdit.amount"
+                        class="text-input" placeholder="20099">
+                </div>
+
+                <!-- DATE -->
+                <div class="font-medium flex flex-col gap-2">
+                    <label for="edit_investment_date" class="text-sm">Date</label>
+                    <input type="date" id="edit_investment_date"
+                        rv-value="data.investment.investmentToEdit.date"
+                        class="text-input">
+                </div>
+
+                <!-- TYPE -->
+                <div class="font-medium flex flex-col gap-2">
+                    <label for="edit_investment_type" class="text-sm">Type</label>
+                    <select id="edit_investment_type"
+                        rv-value="data.investment.investmentToEdit.type"
+                        class="text-input">
+                        <option value="STOCK">Stock</option>
+                        <option value="MUTUAL_FUND">Mutual Fund</option>
+                        <option value="FIXED_DEPOSIT">Fixed Deposit</option>
+                        <option value="CRYPTO">Crypto</option>
+                        <option value="GOLD">Gold</option>
+                    </select>
+                </div>
+
+                <!-- PLATFORM -->
+                <div class="font-medium flex flex-col gap-2">
+                    <label for="edit_investment_platform" class="text-sm">Platform</label>
+                    <input type="text" id="edit_investment_platform"
+                        rv-value="data.investment.investmentToEdit.platform"
+                        class="text-input" placeholder="Zerodha">
+                </div>
+
+                <!-- UNITS -->
+                <div class="font-medium flex flex-col gap-2">
+                    <label for="edit_units" class="text-sm">Units</label>
+                    <input type="number" id="edit_units"
+                        rv-value="data.investment.investmentToEdit.units"
+                        class="text-input" placeholder="10">
+                </div>
+
+                <!-- BUY PRICE -->
+                <div class="font-medium flex flex-col gap-2">
+                    <label for="edit_buy_price" class="text-sm">Buy Price (₹)</label>
+                    <input type="number" id="edit_buy_price"
+                        rv-value="data.investment.investmentToEdit.buy_price"
+                        class="text-input" placeholder="200">
+                </div>
+
+               <div class="font-medium flex flex-col gap-2">
+                    <label for="edit_investment_status" class="text-sm">Status</label>
+                    <select id="edit_investment_status"
+                        rv-value="data.investment.investmentToEdit.status"
+                        class="text-input">
+                        <option class="bg-white dark:bg-black" value="ACTIVE">Active</option>
+                        <option class="bg-white dark:bg-black" value="CLOSED">Closed</option>
+                    </select>
+                </div>
+
+                <!-- NOTES (FULL WIDTH) -->
+                <div class="font-medium flex flex-col gap-2 col-span-2">
+                    <label for="edit_investment_note" class="text-sm">Additional Note</label>
+                    <textarea id="edit_investment_note"
+                        rv-value="data.investment.investmentToEdit.description"
+                        maxlength="140"
+                        class="text-input min-h-20"
+                        placeholder="Stocks for long-term goal"></textarea>
+                </div>
+
+                <!-- UPDATE PRICE SECTION -->
+                <div
+                    class="pt-4 border-t border-black/20 dark:border-white/20 space-y-3 col-span-2">
+                    <h3 class="font-medium text-sm">Update Current Price</h3>
+
+                    <input type="number" id="edit_current_price"
+                        rv-value="data.investment.investmentToEdit.current_price"
+                        class="text-input"
+                        placeholder="Enter current price ₹">
+
+                    <button type="button" id="update-price-btn"
+                        class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400">
+                        Update Price
+                    </button>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="space-y-4 col-span-2 pt-2">
+
+                    <button type="submit"
+                        class="w-full font-medium p-2 rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200 dark:hover:text-neutral-900">
+                        Submit
+                    </button>
+
+                    <button type="button"
+                        rv-data-investment-id="data.investment.investmentToEdit.id"
+                        class="w-full font-medium p-2 rounded-lg bg-red-600 text-white hover:bg-red-500 delete-investment">
+                        Delete
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
     <script type="module" src="../../src/main.js"></script>
     <script type="module" src="../../src/scripts/theme/theme.js"></script>
-    <script type="module" src="../../src/scripts/expenses.js"></script>
+    <script type="module" src="../../src/scripts/investment.js"></script>
 </body>
 
 </html>

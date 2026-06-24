@@ -1,4 +1,3 @@
-from api.models.account import Account
 from api.models.category import Category
 from api.models.payment_mode import PaymentMode
 from api.models.transaction import Transaction
@@ -13,7 +12,6 @@ def apply_search_filter(query, search: str):
     return (
         query
         .join(Category, isouter=True)
-        .join(Account, isouter=True)
         .join(TransactionType, isouter=True)
         .join(PaymentMode, isouter=True)
         .filter(
@@ -21,7 +19,6 @@ def apply_search_filter(query, search: str):
                 Transaction.title.ilike(f"%{search}%"),
                 Transaction.description.ilike(f"%{search}%"),
                 Category.name.ilike(f"%{search}%"),
-                Account.name.ilike(f"%{search}%"),
                 TransactionType.name.ilike(f"%{search}%"),
                 PaymentMode.name.ilike(f"%{search}%"),
             )

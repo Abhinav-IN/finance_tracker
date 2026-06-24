@@ -12,7 +12,6 @@ class SubscriptionCreate(BaseModel):
     category_name: str
     transaction_type_name: str
     payment_mode_name: str
-    account_name: Optional[str] = None
     start_date: datetime
     end_date: Optional[datetime] = None
     last_paid_at: Optional[datetime] = None
@@ -32,11 +31,9 @@ class SubscriptionResponse(BaseModel):
     category_id: int
     transaction_type_id: int
     payment_mode_id: int
-    account_id: Optional[int]
     is_active: bool
     category_name: Optional[str] = None
     payment_mode_name: Optional[str] = None
-    account_name: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
