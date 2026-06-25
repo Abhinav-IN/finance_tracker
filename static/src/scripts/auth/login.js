@@ -1,6 +1,6 @@
 const data = {
   isNotificationOpen: false,
-  API_URL : "https://api.fi-track.manavkashyap.com",
+  API_URL : "http://api.fi-track.manavkashyap.com",
 };
 
 const loginForm = document.getElementById("login-form");

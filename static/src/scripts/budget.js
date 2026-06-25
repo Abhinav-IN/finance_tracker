@@ -1,6 +1,6 @@
 import { body, data, token, onPageReady } from "../main.js";
 
-const API_URL = "https://api.fi-track.manavkashyap.com";
+const API_URL = "http://api.fi-track.manavkashyap.com";
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 const nextPageBtn        = document.getElementById("budget-next-page");

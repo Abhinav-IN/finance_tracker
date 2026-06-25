@@ -1,4 +1,4 @@
-const API_URL = "https://api.fi-track.manavkashyap.com";
+const API_URL = "http://api.fi-track.manavkashyap.com";
 import "./style.css";
 import "./scripts/binding/formatter.js";
 import rivets from "rivets";
