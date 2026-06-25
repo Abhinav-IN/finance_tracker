@@ -22,6 +22,5 @@ export default defineConfig({
         profile: path.resolve(__dirname, "dashboard", "profile/index.html"),
       },
     },
-    outDir: "../dist/",
   },
 });
