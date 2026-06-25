@@ -1,7 +1,7 @@
 import { body, data, token, syncRivets, onPageReady, replaceList } from "../main.js";
 import { renderInvestmentRows } from "./lib/table-render.js";
 
-const API_URL = "http://api.fi-track.manavkashyap.com";
+const API_URL = "https://api.fi-track.manavkashyap.com";
 
 function formatApiErrorBody(result) {
   if (result == null || typeof result !== "object") return "";

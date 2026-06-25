@@ -1,7 +1,7 @@
 import { body, data, token, syncRivets, onPageReady, replaceList } from "../main.js";
 import { renderTransactionRows } from "./lib/table-render.js";
 
-const API_URL = "http://api.fi-track.manavkashyap.com";
+const API_URL = "https://api.fi-track.manavkashyap.com";
 
 const nextPageBtn = document.getElementById("next-page");
 const prevPageBtn = document.getElementById("prev-page");

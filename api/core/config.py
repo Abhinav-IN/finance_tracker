@@ -33,7 +33,7 @@ class Settings(BaseSettings):
 
     # CORS Settings
     origins_string: str = Field(
-        "http://localhost:3000,http://localhost:8000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:8000,http://fi-track.manavkashyap.com,https://fi-track.manavkashyap.com,http://127.0.0.1:5173",
+        "http://localhost:3000,http://localhost:8000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:8000,http://fi-track.manavkashyap.com,https://fi-track.manavkashyap.com,http://127.0.0.1:5173,http://api.fi-track.manavkashyap.com,https://api.fi-track.manavkashyap.com",
         alias="ORIGINS",
     )
 
