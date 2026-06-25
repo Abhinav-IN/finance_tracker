@@ -4,4 +4,7 @@ nixPkgs = ["nodejs", "python311", "python311Packages.pip"]
 
 [phases.build]
 # Your build commands
-cmds = ["npm install", "pip install -r requirements.txt"]
+cmds = [
+  "pip install -r requirements.txt --break-system-packages",
+  "npm install"
+]
