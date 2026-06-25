@@ -1,10 +1,11 @@
 [phases.setup]
-# Tells Nixpacks to install Node.js, Python 3.11, and the pip module for 3.11
 nixPkgs = ["nodejs", "python311", "python311Packages.pip"]
 
-[phases.build]
-# Your build commands
+[phases.install]
 cmds = [
   "pip install -r requirements.txt --break-system-packages",
   "npm install"
 ]
+
+[start]
+cmd = "python -m uvicorn api.server:app --host 0.0.0.0 --port 8000"
