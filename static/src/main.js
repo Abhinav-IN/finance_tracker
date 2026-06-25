@@ -1,4 +1,4 @@
-API_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_URL = "http://api.fi-track.manavkashyap.com";
 import "./style.css";
 import "./scripts/binding/formatter.js";
 import rivets from "rivets";

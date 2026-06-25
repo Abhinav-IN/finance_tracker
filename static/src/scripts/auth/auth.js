@@ -22,7 +22,7 @@ const data = {
     symbol: false,
     match: false,
   },
-  API_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  API_URL : "http://api.fi-track.manavkashyap.com",
   isNotificationOpen: false,
 };
 

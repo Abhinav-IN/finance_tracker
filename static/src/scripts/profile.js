@@ -1,6 +1,6 @@
 import { data, token, syncRivets, onPageReady } from "../main.js";
 
-API_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_URL = "http://api.fi-track.manavkashyap.com";
 
 const passwordRequirements = {
   isPasswordMatching: document.getElementById("is-password-matching"),

@@ -1,6 +1,6 @@
 import { body, data, token, onPageReady } from "../main.js";
 
-API_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_URL = "http://api.fi-track.manavkashyap.com";
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 const nextPageBtn        = document.getElementById("budget-next-page");
