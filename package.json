@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start:dev:api": "uvicorn api.server:app --reload",
-    "start:prod:api": "uvicorn api.server:app",
+    "start:prod:api": "python -m uvicorn api.server:app --host 0.0.0.0 --port 8000",
     "dev:frontend": "cd static && pnpm dev",
     "build:frontend": "cd static && npm install && npm run build -- --emptyOutDir",
     "docker-up": "docker compose up -d mysql redis celery_worker celery_beat",
