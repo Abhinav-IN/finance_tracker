@@ -1,7 +1,7 @@
 import { body, data, token, syncRivets, onPageReady, replaceList } from "../main.js";
 import { renderInvestmentRows } from "./lib/table-render.js";
 
-const API_URL = import.meta.env.PROD ? "" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000");
+API_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 function formatApiErrorBody(result) {
   if (result == null || typeof result !== "object") return "";
