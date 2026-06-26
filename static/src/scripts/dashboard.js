@@ -1,4 +1,4 @@
-const API_URL = "http://api-fi-track.manavkashyap.com";
+const API_URL = "https://api-fi-track.manavkashyap.com";
 import { data, token, onPageReady } from "../main.js";
 import Chart from "chart.js/auto";
 

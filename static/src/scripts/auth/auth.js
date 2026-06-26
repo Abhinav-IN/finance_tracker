@@ -22,7 +22,7 @@ const data = {
     symbol: false,
     match: false,
   },
-  API_URL : "http://api-fi-track.manavkashyap.com",
+  API_URL : "https://api-fi-track.manavkashyap.com",
   isNotificationOpen: false,
 };
 

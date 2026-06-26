@@ -1,6 +1,6 @@
 import { data, token, syncRivets, onPageReady } from "../main.js";
 
-const API_URL = "http://api-fi-track.manavkashyap.com";
+const API_URL = "https://api-fi-track.manavkashyap.com";
 
 const passwordRequirements = {
   isPasswordMatching: document.getElementById("is-password-matching"),
