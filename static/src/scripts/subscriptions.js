@@ -3,7 +3,7 @@ import { renderSubscriptionRows } from "./lib/table-render.js";
 
 
 
-const API_URL = "http://api.fi-track.manavkashyap.com";
+const API_URL = "http://api-fi-track.manavkashyap.com";
 
 const nextPageBtn = document.getElementById("next-page");
 const prevPageBtn = document.getElementById("prev-page");
